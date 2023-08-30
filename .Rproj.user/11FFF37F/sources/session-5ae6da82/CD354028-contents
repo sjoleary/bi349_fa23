@@ -1,0 +1,14 @@
+# Hello world {.unnumbered}
+
+The phrase "hello world" is a popular and simple introductory program that is often used to demonstrate the basic syntax and structure of a programming language. It's typically one of the first programs that people write when learning a new programming language.
+
+It is usually a simple program that prints the text `Hellow World` to the output, typically a console or terminal window. Writing and running a "hello world" program helps beginners understand the essential steps of writing, compiling, and executing code in a specific programming language.
+
+To create a "Hello, World!" program in R, you can use the print() function:
+
+```
+print("Hello, World!")
+
+```
+
+In this section, we will get an overview of what Data Science is, install R/Rstudio and orient ourselves in how to use Rstudio and learn the basics about using R as an object-oriented language.

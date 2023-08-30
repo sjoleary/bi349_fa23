@@ -16,9 +16,9 @@ options(htmltools.dir.version = FALSE)
 ```
 
 
-**Learning Objectives**
+## Learning Objectives
 
-After completing this tutorial you should be able to
+**After completing this tutorial you should be able to**
 
 * name, create, and assign values to objects.
 * save a series of commands/code as an `R script`.
@@ -27,7 +27,6 @@ After completing this tutorial you should be able to
 * understand what a `vector` is and distinguish between the main data types.
 * to inspect, subset, and extract their content from a `vector`. 
 * understand how `data.frames` and `vectors` relate.
-
 
 
 ## R is all about `Objects`
@@ -50,9 +49,13 @@ or
 
 Well that's fun - but not super helpful in our context. 
 
-For us to get to the good stuff we need to assign `values` to `objects`. Creating an `object` is straightforward. First, we give it a name, then we use the `assignment operator` to assign it a `value`.
+In the R programming language, an object is a fundamental concept used to store, manipulate, and represent data. Everything in R is treated as an object, whether it's a number (`numeric`), a text string (`character`), a dataset (`data.frame`), or even more complex data structures.
 
-The `assignment operator` (`<-`) assigns the `value` on the right of the `<-` to the `object` on the left^[Start building good habits starting now in terms of your coding sytle. For example, your code is a lot more readable if you use whitespace to your advantage. For example, make sure you have a space before and after your ` <- `].
+`Objects` in R can be created, modified, and used to perform various operations. `Objects` are assigned names that you can then use to reference them in your code. When you create an `object`, you're essentially creating a container that holds a `value` or data.
+
+Creating an `object` is straightforward. First, we give it a name, then we use the `assignment operator` to assign it a `value`.
+
+The `assignment operator` (`<-`) assigns the `value` on the right of the `<-` to the `object` on the left^[Start building good habits starting now in terms of your coding style. For example, your code is a lot more readable if you use white space to your advantage. For example, make sure you have a space before and after your ` <- `].
 
 ```{r}
 
@@ -60,7 +63,7 @@ fork_length_mm <- 344
 
 ```
 
-Type that into the console and execute the command using `Enter`. If you look at your `Global Environment` (top right panel) you should now see `forklength` and the `value` you assigned it.
+Type that into the console and execute the command using `Enter`. If you look at your `Global Environment` (bottom left panel) you should now see `forklength` and the `value` you assigned it.
 
 Notice, how when you assigned a `value` to your new `object` nothing was printed in the console compared to when you were typing in math.
 
@@ -94,7 +97,7 @@ fork_length_mm <- 567
 
 ::: {.callout-note icon=false}
 
-## {{< fa clipboard-question >}}   Give it a try.
+## {{< fa clipboard-question >}}  Give it a whirl!
 
 Create a new object with the fork length in centimeters. Then change then change the value of our fork length in millimeters object to 50. What do you think the value of fork_length_mm will be now?
 
@@ -171,9 +174,9 @@ fork_length <- 436
 
 ::: {.callout-note icon=false}
 
-## {{< fa clipboard-question >}}   Think
+## {{< fa clipboard-question >}}   Consider this.
 
-What do you expect the value of the object `total_length` to be after executing this command?
+Predict what value of the object `total_length` will be after executing this command.
 
 :::
 
@@ -244,7 +247,7 @@ round(34.8821, 2)
 
 ```
 
-But you can switch their order if you do specify them.
+However, if you specify the arguments, you can switch their order.
 
 ```{r}
 
@@ -304,9 +307,9 @@ fork_length
 
 ::: {.callout-note icon=false}
 
-## {{< fa clipboard-question >}}   Think
+## {{< fa clipboard-question >}}   Consider this
 
-What data type do you expect this vector to be?
+Predict what data type you expect this vector to be.
 
 :::
 
@@ -320,15 +323,15 @@ class(sharks)
 
 ```
 
-The quotes around `"bullshark"` etc. are essential because they indicate that this is a character. If we do not use quotes, R will assume that we are trying to call an object.
+The quotes around `"bullshark"` etc. are essential because they indicate that this is a character. 
 
-```
+::: {.callout-tip}
 
-bullshark
+## Protip
 
-```
+If we do not use quotes, R will assume that we are trying to call an object and you will get an error code along the lines of "`! object 'bullshark' not found`".
 
-Since these objects don't exist, we will just get an error message.
+:::
 
 You can use `c()` to combine an existing object with additional elements (assuming they are the same data type).
 
@@ -356,7 +359,15 @@ str(fork_length)
 
 ```
 
-Recall, that an atomic vector is a linear vector of *a single type* - what does that mean. Let's take a look at what happens if we create atomic vectors where we mix the data types.
+Recall, that an atomic vector is a linear vector of *a single type*. Let's explore what that means by taking a look at what happens if we create atomic vectors where we mix the data types.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Describe what happens when data types are mixed in a single atomic vector based on the messages generated by the code chunk below to figure out what the rules are in terms of which data type is convered to match the others when they are mixed.
+
+:::
 
 ```{r}
 
@@ -366,15 +377,6 @@ character_logical <- c("a", "b", "c", TRUE)
 wtf <- c(1, 2, 3, "4")
 
 ```
-
-
-::: {.callout-note icon=false}
-
-## {{< fa clipboard-question >}}   Think
-
-Describe what happens when data types are mixed in a single atomic vector based on the messages generated by the code chunk above.
-
-:::
 
 We already discovered that we can combine vectors - but can we extract certain components from vectors? Indeed, there are a variety of ways that we can subset vectors.
 
@@ -413,7 +415,7 @@ fork_length[c(TRUE, FALSE, TRUE, FALSE)]
 
 ```
 
-This seems like a very impractical option but normally we would not create the logical vector by hand as we have done here, rather it will be the output of a function or logical test. For example, we might want to identify fish with a fork length > 300mm.
+This seems like a very impractical option. However, normally we would not create the logical vector by hand as we have done here, rather it will be the output of a function or logical test. For example, we might want to identify fish with a fork length > 300mm.
 
 ```{r}
 
@@ -421,16 +423,18 @@ This seems like a very impractical option but normally we would not create the l
 fork_length > 300
 
 ```
+This creates an output the same length as the vector we looked at (`fork_length`) consisting of `TRUE`/`FALSE` statements for each element by comparing the each element of the vector to the condition (`>300`) and determining if the condition is met (the statement is true) or not.
 
-We can use this to subset our vector directly.
+Instead of first creating a vector of `TRUE`/`FALSE` statements can use this condition to subset our vector directly.
 
 ```{r}
 
+#  identify true/false of fish with fork length > threshold
 fork_length[c(fork_length > 300)]
 
 ```
 
-There are a series of `boolean expressions`^[Boolean expressions are logical statements that are either true or false; Most of them you are probably already familiar with because math] we can use for subsetting vectors. .
+There are a series of `boolean expressions`^[Boolean expressions are logical statements that are either true or false; most of them you are probably already familiar with because math] we can use for subsetting vectors.
 
 * `>` and `<` (greater/less than)
 * `=>` and `=<` (equal to or greater/less than)
@@ -444,12 +448,9 @@ You can combine to **boolean expressions** using `&`, (**both** conditions must 
 
 :::
 
-
-
-
 ::: {.callout-note icon=false}
 
-## {{< fa clipboard-question >}}   Let's give this a whirrl.
+## {{< fa clipboard-question >}}   Give it a whirl
 
 Subset the `fork_length` vector to 
 
@@ -490,7 +491,7 @@ Other functions that are helpful to deal with missing values are `is.na()`, `na.
 
 ::: {.callout-note icon=false}
 
-## {{< fa clipboard-question >}}   Let's give this a whirrl.
+## {{< fa clipboard-question >}}   Give this a whirl.
 
 Subset the `fork_length` vector to 
 

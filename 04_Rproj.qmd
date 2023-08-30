@@ -10,9 +10,9 @@ options(htmltools.dir.version = FALSE)
 
 ```
 
-**Learning Objectives**
+## Learning Objectives
 
-After completing this tutorial you should
+**After completing this tutorial you should**
 
 * be able to set up a well structured research compendium^[We will at a later point in this semester revisit and determine if this truly is a well-structured folder structure].
 * understand what a working directory is and how to set up an R project.
@@ -203,13 +203,14 @@ Current Rstudio versions do have a visual editor that is WYSIWYG^[What you see i
 
 Code chunks contain your R code and start and end with three back ticks; `{r}` determines that the code chunk should be interpreted as `R` code.
 
-```` ```{r} ````
+```{r}
+#| echo: fenced
+
+```
 
 
-```` ``` ````
 
-
-You can type it in manually but it is a lot quicker ton add a code chunk using the shortcut `Ctrl` + `Alt` + `I` on a Windows computer or `Command` + `Option` + `I` for you Mac users.
+You can type it in manually but it is a lot quicker to add a code chunk using the shortcut `Ctrl` + `Alt` + `I` on a Windows computer or `Command` + `Option` + `I` for you Mac users.
 
 ::: {.callout-note}
 
@@ -223,7 +224,7 @@ You can run (execute) entire code chunks entire chunk by clicking the `Run` butt
 
 It is a lot faster to use shortcuts. You can execute and entire code chunk using `Cmd`/`Ctrl` + `Shift` + `Enter`. Or if you only want to execute a certain piece of code, using `Cmd`/`Ctrl` + `Enter` while your cursor is placed within that code, or highlight the code you want to execute and then hit `Cmd`/`Ctrl` + `Enter`.
 
-Use `#` to comment your code, any lines following a `#` will not be run by R, you can use them to describe what your code is doing. Use comments liberally to document your code, future you will thank you! 
+Remember to use `#` to comment your code, any lines following a `#` will not be run by R, you can use them to describe what your code is doing. Use comments liberally to document your code, future you will thank you! 
 
 ::: {.callout-note}
 
@@ -233,8 +234,6 @@ Before submitting any of your skills tests or homework assignments you should al
 
 Optionally you can add a label to your code chunks that can be used to navigate directly to code chunks using the drop-down menu in the bottom left of the script editor.
 
-```
-
 ```{r}
 #| echo: fenced
 #| label: code-label-1
@@ -243,13 +242,9 @@ Optionally you can add a label to your code chunks that can be used to navigate 
 
 ```
 
-```
-
 If you do this for figures or tables you can start your labels with `fig-` or `tbl-` which will allow them to be automatically numbered and you can link to them later in your document. Labels cannot be repeated (i.e. they all must be unique) and cannot have spaces, best practice here would be using dashes (`-`) to separate words.
 
 You can add options to each code chunk to customize how/if a chunk is executed and appears in the rendered output. These options are added to within the curly brackets. For example, `eval: false`: results in code chunk not being evaluated or run though it will still be rendered in the knitted document^[This can be useful for you if e.g. for one of your skill tests you cannot solve one of the challenges and the document will not render because your code won't run, this way you can show you attempt but also run the document]. You can apply multiple options to the same chunk.
-
-```
 
 ```{r}
 #| echo: fenced
@@ -260,19 +255,15 @@ You can add options to each code chunk to customize how/if a chunk is executed a
 
 ```
 
-
-```
-
 You do have options to add figure and table captions, you can also e.g. control figure width and height. See [section in r4ds (2e) Chapter 29](https://r4ds.hadley.nz/quarto#chunk-options) for a list of commonly used code options and you can find additional options [here](https://yihui.org/knitr/options/). 
 
 
 ## Render your document
 
-`knitr` is an `R` package used to render `quarto` documents to another format (usually `html` or `pdf`). In Rstudio the most straightforward way of knitting a document is using the `render` button. This will open a new tab in your console titled `Background Jobs` that will show the knitting process; any errors that occur with show up here along with a line number so you can determine where the error is occurring in your `.qmd` file to troubleshoot the issue. The output will automatically be saved in your working directory.
+`knitr` is an `R` package used to render `quarto` documents to another format (usually `html` or `pdf`). In `Rstudio` the most straightforward way of knitting a document is using the `render` button in the editor toolbar. This will open a new tab in your console titled `Background Jobs` that will show the knitting process; any errors that occur with show up here along with a line number so you can determine where the error is occurring in your `.qmd` file to troubleshoot the issue. The output will automatically be saved in your working directory.
 
 
 ## Some advanced options
-
 
 You can stylize your rendered document by modifying the `YAML` header to include a table of contents like this^[the option of `toc-depth` determines how many levels are included in the table of contents, e.g. here headers at level 1 and 2 will be included]:
 

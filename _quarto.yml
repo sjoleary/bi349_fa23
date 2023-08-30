@@ -9,14 +9,15 @@ book:
   chapters:
     - index.qmd
     
-    - part: hello-world.qmd
+    - part: A_hello-world.qmd
       chapters:
         - 01_intro-data-science.qmd
         - 02_install-R.qmd
         - 03_Rbasics.qmd
         - 04_Rproj.qmd
-    - part: shark-wrangling
-    - part: appendix.qmd
+    # - part: B_shark-wrangling
+    #     - 05_data-management.qmd
+    - part: Z_appendix.qmd
       chapters:
         - references.qmd
 

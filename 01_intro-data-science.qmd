@@ -23,9 +23,9 @@ knitr::opts_chunk$set(tidy = FALSE,
 ```
 
 
-**Learning Objectives**
+## Learning Objectives
 
-After completing this lab you should be able to 
+**After completing this lab you should be able to**
 
 * define what data is and what the structural/functional relationships to information, knowledge, insight and wisdom are.
 * describe what data science is and the major field/skill sets that comprise it.
@@ -38,7 +38,7 @@ Data are qualitative and quantitative observations that are measured and collect
 
 ::: {.callout-note icon=false}
 
-## {{< fa clipboard-question >}}   Think
+## {{< fa clipboard-question >}}   Consider this
 
 Data fall in two distinct categories, categorical and numerical data. Briefly compare and contrast these two categories by describing the data types you would expect to find in each.
 
@@ -53,7 +53,7 @@ We integrate knowledge across disciplines to gain **insight** and **wisdom** to 
 
 ::: {.callout-note icon=false}
 
-## {{< fa clipboard-question >}}   Think
+## {{< fa clipboard-question >}}   Consider this
 
 The science council defines science as the pursuit and application of knowledge and understanding of the natural and social world following a systematic methodology based on evidence. Compare and contrast this definition to the DIKW framework and make an argument that all science is data science.
 
@@ -155,16 +155,16 @@ Here is an example of where domain knowledge comes in - while we are tidying and
 
 ::: {.callout-note icon=false}
 
-## {{< fa clipboard-question >}}   Think
+## {{< fa clipboard-question >}}   Consider this
 
-Give a brief descriptions of the spatial distribution of the occurrence of Sasquatch in the United States. Note areas where sightings appear to be random, clustered or more dispersed, determine if you think any points should be removed.
+Give a brief description of the spatial distribution of the occurrence of Sasquatch in the United States. Note areas where sightings appear to be random, clustered or more dispersed, determine if you think any points should be removed.
 
 :::
 
 
 ::: {.callout-note icon=false}
 
-## {{< fa clipboard-question >}}   Think
+## {{< fa clipboard-question >}}   Consider this
 
 Discuss some possible explanations for the patterns you have observed to determine whether you think this data set is a reasonable representation of the ecological niche of the Sasquatch and can be used to create a species distribution model.
 
@@ -242,7 +242,7 @@ We are going to use the bioclim data set from [CliMond](https://www.climond.org/
 
 ::: {.callout-note icon=false}
 
-## {{< fa clipboard-question >}}   Think
+## {{< fa clipboard-question >}}   Consider this
 
 Look up the descriptions of the [bioclim variables](https://www.climond.org/BioclimRegistry.aspx#Table1) and give a brief description of the four abiotic parameters that are included and how they are being parameterized. Argue which you think are most important to describe a species distribution/ecological niche and whether you think overall this data set will help us understand Sasquatch species distribution.
 
@@ -306,9 +306,9 @@ head(presence[,1:3])
 
 ::: {.callout-note icon=false}
 
-## {{< fa clipboard-question >}}   Think
+## {{< fa clipboard-question >}}   Consider this
 
-Briefly state what these values represent
+Briefly state what these values represent.
 
 :::
 
@@ -365,7 +365,7 @@ box()
 
 ::: {.callout-note icon=false}
 
-## {{< fa clipboard-question >}}   Think
+## {{< fa clipboard-question >}}   Consider this
 
 Give a brief description of the habitat suitability map, including the maximum probabilities. Describe wether this result fits your expectations based on the distribution map of reports we looked at earlier. According to our map, if you were planning a Sasquatch research trip, where would you be headed?
 
@@ -375,7 +375,7 @@ Our highest habitat suitability values (probability of occurring) seem pretty lo
 
 ::: {.callout-note icon=false}
 
-## {{< fa clipboard-question >}}   Think
+## {{< fa clipboard-question >}}   Consider this
 
 The alternative to presence-only models is to have presence-absence data. Discuss how this would improve the models. Argue why you think presence-only data sets are easier to generate.
 
@@ -383,7 +383,7 @@ The alternative to presence-only models is to have presence-absence data. Discus
 
 ::: {.callout-note icon=false}
 
-## {{< fa clipboard-question >}}   Think
+## {{< fa clipboard-question >}}   Consider this
 
 A work-around of not having absence data is to generate pseudo-absence data. This is done by generating random points within the geographic range and using those as proxies for absence data. Briefly argue the merits and limitations of such an approach.
 
@@ -462,7 +462,7 @@ box()
 
 ::: {.callout-note icon=false}
 
-## {{< fa clipboard-question >}}   Think
+## {{< fa clipboard-question >}}   Consider this
 
 Give a brief description of the habitat suitability map, including the maximum probabilities. Describe whether this fit your expectations based on the change in bioclim variables. Describe the shift in habitat suitability relative to our current model.
 
@@ -516,7 +516,7 @@ box()
 
 ::: {.callout-note icon=false}
 
-## {{< fa clipboard-question >}}   Think
+## {{< fa clipboard-question >}}   Consider this
 
 Briefly compare this model to the previous two. Comment on whether you expected to see greater or smaller difference to the other future climate prediction based on the scenarios that they are based on.
 
@@ -525,7 +525,7 @@ Briefly compare this model to the previous two. Comment on whether you expected 
 
 ::: {.callout-note icon=false}
 
-## {{< fa clipboard-question >}}   Think
+## {{< fa clipboard-question >}}   Consider this
 
 Discuss whether you think bioclim variables are good models to predict a species' respone to climate change. In your discussion consider how future bioclim data sets are generated, as well as, whether abiotic conditions along will determine range changes.
 

@@ -28,5 +28,11 @@
   },
   "03_Rbasics.qmd": {
     "03_Rbasics.html": "45e60bbb"
+  },
+  "A_hello-world.qmd": {
+    "A_hello-world.html": "5115eb4d"
+  },
+  "Z_appendix.qmd": {
+    "Z_appendix.html": "4b0ba67f"
   }
 }
