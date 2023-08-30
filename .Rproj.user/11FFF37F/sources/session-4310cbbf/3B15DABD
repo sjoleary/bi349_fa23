@@ -3,7 +3,7 @@
     "path": "~/bi349_fa23/01_intro-data-science.qmd",
     "project_path": "01_intro-data-science.qmd",
     "type": "quarto_markdown",
-    "hash": "2314105916",
+    "hash": "3122157417",
     "contents": "",
     "dirty": false,
     "created": 1693359954268.0,
@@ -12,15 +12,15 @@
     "properties": {
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "117,12",
-        "scrollLine": "92"
+        "cursorPosition": "4,16",
+        "scrollLine": "0"
     },
     "folds": "",
-    "lastKnownWriteTime": 1693359028,
+    "lastKnownWriteTime": 1693362058,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1693359028,
+    "last_content_update": 1693362058810,
     "read_only": false,
     "read_only_alternatives": []
 }

@@ -2,6 +2,7 @@
 # What even is Data Science?
 
 ```{r}
+#| label: set-up
 #| include: false
 
 # load libraries

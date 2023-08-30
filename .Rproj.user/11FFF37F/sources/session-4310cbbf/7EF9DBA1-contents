@@ -8,14 +8,16 @@ book:
   date: today 
   chapters:
     - index.qmd
+    
     - part: hello-world.qmd
-       chapters:
-         - 01_intro-data-science.qmd
-         - 02_install-R.qmd
-    # - part: shark-wrangling
-    # - part: appendix.qmd
-    #   chapters:
-    #     - references.qmd
+      chapters:
+        - 01_intro-data-science.qmd
+        - 02_install-R.qmd
+        - 03_Rproj.qmpd
+    - part: shark-wrangling
+    - part: appendix.qmd
+      chapters:
+        - references.qmd
 
 bibliography: references.bib
 
