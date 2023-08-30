@@ -1,0 +1,300 @@
+# Project management and Rmarkdown Basics
+
+```{r}
+#| label: set-up
+#| include: false
+
+# set options
+knitr::opts_chunk$set(tidy = FALSE)
+options(htmltools.dir.version = FALSE)
+
+```
+
+**Learning Objectives**
+
+After completing this tutorial you should
+
+* be able to set up a well structured research compendium^[We will at a later point in this semester revisit and determine if this truly is a well-structured folder structure].
+* understand what a working directory is and how to set up an R project.
+* understand the value of using Rmarkdown and quarto documents to document your work.
+* understand the core components of the markdown format.
+* be able to use basic markdown syntax to format a document (headers, bold/italics).
+* be able to add a code chunk to a `.qmd` file and add options.
+* understand how to modify code chunk options to determine what is/is not rendered in the knitted document.
+* know how to `render` a document to produce an `*.html` file from an `*.qmd`^[the recent implementation of quarto has made exporting to other formats such as `pdf` a lot more straightforward].
+
+The goal of open science and reproducible research is to make scientific methods, data, and results more transparent, available, and reproducible. `Quarto` documents written in markdown are a useful tool to be able to generate reports documenting your data, methods (code used to process data), and results. Recently quarto has been implemented as a authoring framework for data science that extends past previous use of `Rmarkdown` focused on `R` and makes it easy to include `python` and other coding languages.
+
+Similar to `R markdown` (`*.Rmd`) files, `quarto` documents will let you document your workflow, share how you processed/analyzed your data and the resulting output along with any visualizations. Quarto unifies and extends the functionality of several packages that were devoloped around using `R markdown` unto a consistent system that supports several coding languages beyond `R` including `python` and `Julia`. This is a text based file format that consists of standard text, code chunks, and the resulting output using a very simple syntax (henc mark*down* as opposed to mark*up* languages like `html` or `LateX` which have much more complicated syntax). When you render your document, the code is executed and the resulting output with be included in the rendered document (common formats are `html` or `pdf`). Advantages to a workflow centered around using quarto and markdown to document your work include:
+
+* the simple syntax makes it easy to learn the basics (but some of the more advance options will let you create some sophisticated reports)^[`Rstudio` now also has a visual editor so you can really get away with knowing very little markdown, though the basics can't hurt and knowing a few tricks like inline code will let you do some pretty cool stuff with your documents].
+* resulting files have a simple, standardized formatting that looks professional and is easy to read and understand (code, documentation, figures all in one place).
+* future you will be thankful when you don't have to remember your assumptions, individual steps, and modifications.
+* easy modification to extend/refine analysis or re-run with updated data.
+
+::: {.callout-note}
+
+[Use this link to access a `quarto` cheatsheet for a quick overview on publishing and sharing with quarto](https://rstudio.github.io/cheatsheets/html/quarto.html?_gl=1*10kc9uu*_ga*MTQwMDM2MTQ2MC4xNjkzMTA2MDUy*_ga_2C0WZ1JHG0*MTY5MzM2MzQwNy4yLjAuMTY5MzM2MzQwNy4wLjAuMA). You can also [download a pdf summarizing the core quarto functionalities](https://rstudio.github.io/cheatsheets/quarto.pdf) to keep handy as you get used to setting up quarto documents.
+
+Similarly, [Use this link to access a `rmarkdown` cheatsheet](https://rstudio.github.io/cheatsheets/rmarkdown.pdf). We won't be using `Rmarkdown` documents but the syntax of writing in markdown is the same. You can also [download and print a pdf for easy access](https://rstudio.github.io/cheatsheets/rmarkdown.pdf).
+
+:::
+
+
+## Project organization 101
+
+A key component to doing data analysis is organizing your **working directory** which will contain your data, scripts, `quarto`-documents, results, figures, and other output. Keeping this well organized will help you establish a reproducible workflow, collaborate well, and share your results.
+
+
+### Organizing your files and directories
+
+For each project/lab we will set up a project directory^[We'll use this term interchangeably with `working directory` and `research compendium`] with the following set of sub-directories:
+
+* `data`
+* `results`
+* `scr`
+
+You will want to set up a folder (directory) locally^[Local means that it is physically on your computer hard drive. If you have an automatic integration with a cloud storage service like OneDrive past experience has shown that you can run into difficulties, so yes, cloud backup is good but make sure that you are running your projects locally off your computer] on your computer called `bi349` that you will use throughout this semester for all the project directories, a good place is your `Documents` directory or in a pinch your desktop. You will frequently download an entire research compendium with data and quarto documents "preloaded". Macs will automatically unzip those folders on a Windows computer you will need to do this by hand (`right click` > `extract all`), then move that folder into your `bi329` directory. Make sure you are running your `Rprojects` out of the correct folder - this is one of the most common issues we run into when things aren't working as they should. 
+
+
+### A note on Naming things
+
+Naming conventions for files, sub-directories etc. should conform to the following key principles^[see Jenny Bryan's [excellent summary](https://speakerdeck.com/jennybc/how-to-name-files?slide=3) of these principles]:
+
+* **Human readable**: keep it short but self-explanatory.
+* **Machine readable**: don't use special characters or spaces.
+* **Sortable**: standardize components of the file names to make it possible to sort files and find what you are looking for.
+
+Let's consider these the holy trinity of naming things. Other helpful conventions include sticking to all lowercase^[alternatives include uppercase or CamelCase, but since R is case sensitive this leads to mroe typos], consistent use of `_` and `-` instead of spaces, writing your dates as `year-month-day`, using leading zeros (e.g. 001, 002, ... etc instead of `1, 2, ... 10, 11, 12...` which will sort as `1, 11, 12, ... 2, 21, ...` etc once you go into double digits).
+
+
+### Set up your project directory using `Rprojects`
+
+Create a directory called `bi328` locally on your computer. Make sure you know where it is, you will be adding to this directory throughout the semester.
+
+Create a project directory
+^[Yes, a directory is essentially a folder, however when using the term directory we are considering the relationship between a folder and it's full path.]
+(e.g. `IntroR`) within your `bi328` folder, and within that directory create sub-directories `data`, `results`, `scr`.
+
+Now, we are going to create an `R project` within this directory.
+
+* in the top right hand corner of `Rstudio` click on the project icon
+* select `New Project` and `Create in existing directory`
+* follow the prompts to navigate to your `IntroR` directory to create a new `Rproject`.
+
+This should create a new `R project` and open it (the `R project` name should be in the top right corner next to the icon).
+
+If you look in the bottom left hand pane in the `Files` tab, the bread crumbs should lead to your project folder which has now become your `working directory`, i.e. all paths are relative to this location. ^[If you weren't working with an `R project`, you can set your working directory by navigating to your new working director and selecting `More > Set as working directory`.] If you navigate away from your `working directory` (project directory) you can quickly get back to your project directory by clicking on the project icon in the `Files` pane or by clicking the cog icon (`More`) and selecting `Go to Working Directory`.
+
+
+## Structure of an quarto document
+
+Create a new `.qmd` file using `File -> New File -> Quarto Document` and save that file in your project directory as **Lastname_IntroR.qmd**.
+
+An `qmd`-file consists of three components:
+
+1. **Header**: written in `YAML` format the header contains all the information on how to render the `.qmd` file.
+2. **Markdown Sections**: written in [Rmarkdown syntax](https://rmarkdown.rstudio.com/authoring_basics.html).
+3. **Code chunks**: Chunks of `R` code (or other code such as `bash`, `python`, ...). These can be run interactively while generating your document and will be rendered when knitting the document.
+
+
+## YAML header
+
+The header is written in [YAML syntax](https://en.wikipedia.org/wiki/YAML), it begins and ends with `---`. It will include a few default parameters. You will find that there is a wide range of parameters that you can use to customize the look of your document but for now we will add these four.
+
+```
+
+---
+title: "title"
+author: "name"
+date: "Date"
+format: html
+----
+
+```
+
+Customize your `.qmd` by changing the title and add your name in the author line^[You can always do this when you start a new file, for a lot of case studies this semester you will download quarto documents where you will want to change those]. Changing the date to `` `r "\u0060r Sys.Date()\u0060"` `` will automatically include the current date when you render the document instead of having to update that yourself. 
+
+
+## Markdown sections
+
+Your markdown sections can contain any text you want using the markdown syntax; once you render the `.qmd` the resulting (`html`) file will appear as text.
+
+Most of your text (without syntax) will appear as paragraph text but you can add additional syntax to format it in different ways. 
+
+Here are the basics that are fairly consistent across a range of markdown flavors:
+
+**Text formatting**
+
+```
+
+*italic* **bold** ~~strikeout~~ `code`
+
+superscript^2^ subscript~2~
+
+[underline]{.underline} [small caps]{.smallcaps}
+
+```
+
+**Headings**
+
+```
+
+# 1st Level Header
+
+## 2nd Level Header
+
+### 3rd Level Header
+
+```
+
+**Lists**
+
+
+```
+
+-   Bulleted list item 1
+
+-   Item 2
+
+    -   Item 2a
+
+    -   Item 2b
+    
+
+1.  Numbered list item 1
+
+2.  Item 2.
+    The numbers are incremented automatically in the output.
+    
+```
+
+**Links and images**
+
+```
+
+<http://example.com>
+
+[linked phrase](http://example.com)
+
+![optional caption text](quarto.png){fig-alt="Quarto logo and the word quarto spelled in small case letters"}
+
+```
+
+**Tables**
+
+```
+
+| First Header | Second Header |
+|--------------|---------------|
+| Content Cell | Content Cell  |
+| Content Cell | Content Cell  |
+
+
+```
+
+::: {.callout-note}
+
+Current Rstudio versions do have a visual editor that is WYSIWYG^[What you see is what you get] and will allow you to format your document similar to the way you would in Google Docs or Microsoft Word. However, it is helpful to know the basics because de-bugging can be more straightforward using the Source Editor, and if you are comfortable with the syntax it is also a lot faster to format.
+
+:::
+
+## Code chunks
+
+Code chunks contain your R code and start and end with three back ticks; `{r}` determines that the code chunk should be interpreted as `R` code.
+
+```` ```{r} ````
+
+
+```` ``` ````
+
+
+You can type it in manually but it is a lot quicker ton add a code chunk using the shortcut `Ctrl` + `Alt` + `I` on a Windows computer or `Command` + `Option` + `I` for you Mac users.
+
+::: {.callout-note}
+
+You can also insert a code chunk using `Code -> Insert Chunk` in the tool bar, the insert button in the tab bar (little green box with `C` and `+`) or if you are in the visual editor, your can use `insert` button in the editor bar.
+
+In short, there is no excuse not to be adding code chunks and writing code!
+
+:::
+
+You can run (execute) entire code chunks entire chunk by clicking the `Run` button in the tab bar or the little green arrow in the top right corner of an `R` chunk.
+
+It is a lot faster to use shortcuts. You can execute and entire code chunk using `Cmd`/`Ctrl` + `Shift` + `Enter`. Or if you only want to execute a certain piece of code, using `Cmd`/`Ctrl` + `Enter` while your cursor is placed within that code, or highlight the code you want to execute and then hit `Cmd`/`Ctrl` + `Enter`.
+
+Use `#` to comment your code, any lines following a `#` will not be run by R, you can use them to describe what your code is doing. Use comments liberally to document your code, future you will thank you! 
+
+::: {.callout-note}
+
+Before submitting any of your skills tests or homework assignments you should always go through and make sure each piece of code has a descriptive comment. You do not need to add a comment for multi-line code that you are stringing together using a pipe `%>%` but you should have one descriptive comment above the set of commands you are giving `R` and then make sure that you add any comments that you need to remember how the function works or which parameters might be useful to tweak/set differently if you were to reuse that code.
+
+:::
+
+Optionally you can add a label to your code chunks that can be used to navigate directly to code chunks using the drop-down menu in the bottom left of the script editor.
+
+```
+
+```{r}
+#| echo: fenced
+#| label: code-label-1
+
+1 + 1
+
+```
+
+```
+
+If you do this for figures or tables you can start your labels with `fig-` or `tbl-` which will allow them to be automatically numbered and you can link to them later in your document. Labels cannot be repeated (i.e. they all must be unique) and cannot have spaces, best practice here would be using dashes (`-`) to separate words.
+
+You can add options to each code chunk to customize how/if a chunk is executed and appears in the rendered output. These options are added to within the curly brackets. For example, `eval: false`: results in code chunk not being evaluated or run though it will still be rendered in the knitted document^[This can be useful for you if e.g. for one of your skill tests you cannot solve one of the challenges and the document will not render because your code won't run, this way you can show you attempt but also run the document]. You can apply multiple options to the same chunk.
+
+```
+
+```{r}
+#| echo: fenced
+#| label: code-label-2
+#| eval: false
+
+1 + 1
+
+```
+
+
+```
+
+You do have options to add figure and table captions, you can also e.g. control figure width and height. See [section in r4ds (2e) Chapter 29](https://r4ds.hadley.nz/quarto#chunk-options) for a list of commonly used code options and you can find additional options [here](https://yihui.org/knitr/options/). 
+
+
+## Render your document
+
+`knitr` is an `R` package used to render `quarto` documents to another format (usually `html` or `pdf`). In Rstudio the most straightforward way of knitting a document is using the `render` button. This will open a new tab in your console titled `Background Jobs` that will show the knitting process; any errors that occur with show up here along with a line number so you can determine where the error is occurring in your `.qmd` file to troubleshoot the issue. The output will automatically be saved in your working directory.
+
+
+## Some advanced options
+
+
+You can stylize your rendered document by modifying the `YAML` header to include a table of contents like this^[the option of `toc-depth` determines how many levels are included in the table of contents, e.g. here headers at level 1 and 2 will be included]:
+
+```
+---
+format:
+  html:
+    toc: true
+    toc-depth: 2
+---
+```
+
+If you really want to jazz things up, you can change the theme^[you can choose from various options [here](https://bootswatch.com/3/)].
+
+```
+---
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-depth: 2
+---
+```
+
+You may be noticing some similarities between this lab manual and the documents you are producing in terms of layout ... for exactly the reasons you are suspecting!

@@ -22,5 +22,11 @@
   },
   "02_install-R.qmd": {
     "02_install-R.html": "fd7e2f0a"
+  },
+  "04_Rproj.qmd": {
+    "04_Rproj.html": "8ae706de"
+  },
+  "03_Rbasics.qmd": {
+    "03_Rbasics.html": "45e60bbb"
   }
 }

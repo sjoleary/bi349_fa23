@@ -13,10 +13,12 @@ book:
       chapters:
         - 01_intro-data-science.qmd
         - 02_install-R.qmd
-    # - part: shark-wrangling
-    # - part: appendix.qmd
-    #   chapters:
-    #     - references.qmd
+        - 03_Rbasics.qmd
+        - 04_Rproj.qmd
+    - part: shark-wrangling
+    - part: appendix.qmd
+      chapters:
+        - references.qmd
 
 bibliography: references.bib
 
@@ -32,8 +34,8 @@ format:
     number-sections: true
     anchor-sections: true
     embed-resources: true
-  pdf:
-    documentclass: scrreprt
+  # pdf:
+  #   documentclass: scrreprt
 
 reference-location: margin
 citation-location: margin
