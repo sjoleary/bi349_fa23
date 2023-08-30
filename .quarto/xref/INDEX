@@ -10,5 +10,14 @@
   },
   "references.qmd": {
     "references.html": "8b96b123"
+  },
+  "hello-world.qmd": {
+    "hello-world.html": "078fc2e7"
+  },
+  "01_intro-data-science.qmd": {
+    "01_intro-data-science.html": "4665356b"
+  },
+  "appendix.qmd": {
+    "appendix.html": "9aff7279"
   }
 }

@@ -5,16 +5,17 @@ book:
   title: "Data Science for a Changing Planet"
   subtitle: "BI 349 | Fall 2023 | Saint Anselm College"
   author: "Shannon J. O'Leary"
-  date: "`r Sys.Date()`"
+  date: today 
   chapters:
     - index.qmd
     - part: hello-world.qmd
-      chapters:
-        - 01_intro-data-science.qmd
-    - part: shark-wrangling
-    - part: appendix.qmd
-      chapters:
-        - references.qmd
+       chapters:
+         - 01_intro-data-science.qmd
+         - 
+    # - part: shark-wrangling
+    # - part: appendix.qmd
+    #   chapters:
+    #     - references.qmd
 
 bibliography: references.bib
 

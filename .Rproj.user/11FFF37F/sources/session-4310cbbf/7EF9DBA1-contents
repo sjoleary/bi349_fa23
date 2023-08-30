@@ -1,0 +1,40 @@
+project:
+  type: book
+
+book:
+  title: "Data Science for a Changing Planet"
+  subtitle: "BI 349 | Fall 2023 | Saint Anselm College"
+  author: "Shannon J. O'Leary"
+  date: today 
+  chapters:
+    - index.qmd
+    - part: hello-world.qmd
+       chapters:
+         - 01_intro-data-science.qmd
+         - 02_install-R.qmd
+    # - part: shark-wrangling
+    # - part: appendix.qmd
+    #   chapters:
+    #     - references.qmd
+
+bibliography: references.bib
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-depth: 2
+    toc-location: left
+    code-fold: false
+    code-overflow: scroll
+    code-copy: hover
+    number-sections: true
+    anchor-sections: true
+    embed-resources: true
+  pdf:
+    documentclass: scrreprt
+
+reference-location: margin
+citation-location: margin
+fig-cap-location: margin
+tbl-cap-location: margin
