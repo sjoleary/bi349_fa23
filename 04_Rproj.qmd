@@ -53,34 +53,33 @@ For each project/lab we will set up a project directory^[We'll use this term int
 * `data`
 * `results`
 * `scr`
+* `scratch`
 
 You will want to set up a folder (directory) locally^[Local means that it is physically on your computer hard drive. If you have an automatic integration with a cloud storage service like OneDrive past experience has shown that you can run into difficulties, so yes, cloud backup is good but make sure that you are running your projects locally off your computer] on your computer called `bi349` that you will use throughout this semester for all the project directories, a good place is your `Documents` directory or in a pinch your desktop. You will frequently download an entire research compendium with data and quarto documents "preloaded". Macs will automatically unzip those folders on a Windows computer you will need to do this by hand (`right click` > `extract all`), then move that folder into your `bi329` directory. Make sure you are running your `Rprojects` out of the correct folder - this is one of the most common issues we run into when things aren't working as they should. 
 
 
 ### A note on Naming things
 
-Naming conventions for files, sub-directories etc. should conform to the following key principles^[see Jenny Bryan's [excellent summary](https://speakerdeck.com/jennybc/how-to-name-files?slide=3) of these principles]:
+Naming conventions for files, sub-directories etc. should conform to the following key principles that form the holy trinity of file naming^[see Jenny Bryan's [excellent summary](https://speakerdeck.com/jennybc/how-to-name-files?slide=3) of these principles]:
 
 * **Human readable**: keep it short but self-explanatory.
 * **Machine readable**: don't use special characters or spaces.
 * **Sortable**: standardize components of the file names to make it possible to sort files and find what you are looking for.
 
-Let's consider these the holy trinity of naming things. Other helpful conventions include sticking to all lowercase^[alternatives include uppercase or CamelCase, but since R is case sensitive this leads to mroe typos], consistent use of `_` and `-` instead of spaces, writing your dates as `year-month-day`, using leading zeros (e.g. 001, 002, ... etc instead of `1, 2, ... 10, 11, 12...` which will sort as `1, 11, 12, ... 2, 21, ...` etc once you go into double digits).
+Applying these principles includes conventions include sticking to all lowercase^[alternatives include uppercase or CamelCase, but since R is case sensitive this leads to mroe typos], consistent use of `_` and `-` instead of spaces, writing your dates as `year-month-day`, using leading zeros (e.g. 001, 002, ... etc instead of `1, 2, ... 10, 11, 12...` which will sort as `1, 11, 12, ... 2, 21, ...` etc once you go into double digits).
 
 
 ### Set up your project directory using `Rprojects`
 
-Create a directory called `bi328` locally on your computer. Make sure you know where it is, you will be adding to this directory throughout the semester.
+If you have not already, create a directory called `bi328` locally on your computer. Make sure you know where it is, you will be adding to this directory throughout the semester.
 
-Create a project directory
-^[Yes, a directory is essentially a folder, however when using the term directory we are considering the relationship between a folder and it's full path.]
-(e.g. `IntroR`) within your `bi328` folder, and within that directory create sub-directories `data`, `results`, `scr`.
+Create a project directory ^[Yes, a directory is essentially a folder, however when using the term directory we are considering the relationship between a folder and it's full path.] `zz_skills`^[addin the `zz` before the folder name means that it will sort to the bottom of this directory, this is an example of sortable. Naming it `skills` is descriptive in terms that you know it refers to your skills tests (human readable) and using the `_` makes it machine-readable, as you are avoiding issues with white spaces]) within your `bi328` folder, and within that directory create sub-directories `data`, `results`, `scr`, and `scratch`. Throughout the semester you will add quarto documents to this directory as you complete your weekly skills tests.
 
 Now, we are going to create an `R project` within this directory.
 
 * in the top right hand corner of `Rstudio` click on the project icon
 * select `New Project` and `Create in existing directory`
-* follow the prompts to navigate to your `IntroR` directory to create a new `Rproject`.
+* follow the prompts to navigate to your `zz_skills` directory to create a new `Rproject`.
 
 This should create a new `R project` and open it (the `R project` name should be in the top right corner next to the icon).
 
@@ -89,7 +88,9 @@ If you look in the bottom left hand pane in the `Files` tab, the bread crumbs sh
 
 ## Structure of an quarto document
 
-Create a new `.qmd` file using `File -> New File -> Quarto Document` and save that file in your project directory as **Lastname_IntroR.qmd**.
+For each skills test you will either be creating a `quarto` document your solutions or you may be asked to download a `quarto` document to work in. Let's make sure you know how to create a new document and what the different component of that document are.
+
+Create a new `.qmd` file using `File -> New File -> Quarto Document` and save that file in your project directory as **Lastname_first-quarto-document.qmd**.
 
 An `qmd`-file consists of three components:
 

@@ -2,7 +2,7 @@
 
 For each of our modules we will have a project-folder with an `Rproject`, `*.qmd`-files, and sub-directories for data, scripts, and results as described in our `Rproject` Tutorial. You should create a directory on your Desktop or Documents folder on your laptop (name it something like `bi349`) as a home directory for all of our project folders this semester. 
 
-Download the [SharkNurseries]() project folder. Once you have downloaded it, unzip the project directory into your `bi349` directory^[On a MacOS it will automatically unzip the folder for you, you should be able to directly move the **entire unzipped directory** to your `bi349` folder. On a Windows OS you will need to right click and select `extract all` you can generally specifiy which directory you want to unzip your file into.].
+Download the [01_SharkNurseries](https://drive.google.com/drive/folders/1Sh4mtvdii1k_vU4-mfvgIGwJsZvo8MOt?usp=sharing) project folder. Once you have downloaded it, unzip the project directory into your `bi349` directory^[On a MacOS it will automatically unzip the folder for you, you should be able to directly move the **entire unzipped directory** to your `bi349` folder. On a Windows OS you will need to right click and select `extract all` you can generally specifiy which directory you want to unzip your file into.].
 
 Once you have done this, you can open the `Rproj` for this module either by double clicking on it which will launch `Rstudio` or by opening `Rstudio` and then using `File > Open Project` or by clicking on the `Rproject` icon in the top right of your program window and selecting `Open Project`. 
 
@@ -19,8 +19,8 @@ Broadly, shark nurseries are areas where young are born and/or reside in during 
 
 Shark Nurseries have three defining criteria[@heupelAdvancesUnderstandingRoles2018; @heupelSharkNurseryAreas2007]:
 
-1. an area where sharks are commonly encountered within compared to outside of.
-2. an area in which Young-of-the-year (YOY)/juveniles remain or return to for extended periods of time.
+1. an area where sharks are more commonly encountered within compared to outside of.
+2. an area in which Young-of-the-year (YOY)/juveniles remain in or return to for extended periods of time.
 3. an area that is repeatedly used across years.
 
 ::: {.callout-note icon=false}
@@ -36,7 +36,7 @@ Describe how you could design a study to identify estuaries that are shark nurse
 
 Texas Parks and Wildlife (TPWD) defines eight major estuaries along the Texas coastline and performs regular shore-based gill net surveys for 10 week periods in April - June and September to November. 
 
-![Map of major estuaries located along the Texas coast in the northwest Gulf of Mexico (Plumlee et al. 2018).](images/Plumlee-Fig1.jpg){#fig-TX-estuaries, fig-align="center", fig-alt="Texas Gulf Coast with estuaries color-coded."}
+![Map of major estuaries located along the Texas coast in the northwest Gulf of Mexico (Plumlee et al. 2018).](images/Plumlee-Fig1.jpg){#fig-TX-estuaries fig-align="center" fig-alt="Texas Gulf Coast with estuaries color-coded."}
 
 Analysis of this survey has identify eight elasmobranch species present in these ecosystems [@plumleeCommunityStructureElasmobranchs2018a]:
 
@@ -86,4 +86,3 @@ This study wanted to answer four questions to further understand whether these l
 4. What environmental predictors can we use to predict presence of elasmobranchs?
 
 In this module we will interact with the data set generated for this study to learn how to wrangle data sets using `R` in the `tidyverse` and then we will apply those skills to answer these questions.
-

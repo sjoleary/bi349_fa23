@@ -34,5 +34,18 @@
   },
   "Z_appendix.qmd": {
     "Z_appendix.html": "4b0ba67f"
+  },
+  "B_shark-wrangling.qmd": {
+    "B_shark-wrangling.html": "f33f0c7e"
+  },
+  "05_data-management.qmd": {
+    "05_data-management.html": "4e05449c"
+  },
+  "z_appendix.qmd": {
+    "Z_appendix.html": "6856dee3",
+    "z_appendix.html": "66acb00f"
+  },
+  "z_references.qmd": {
+    "z_references.html": "28f9194a"
   }
 }

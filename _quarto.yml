@@ -15,11 +15,12 @@ book:
         - 02_install-R.qmd
         - 03_Rbasics.qmd
         - 04_Rproj.qmd
-    # - part: B_shark-wrangling
-    #     - 05_data-management.qmd
-    - part: Z_appendix.qmd
+    - part: B_shark-wrangling.qmd
       chapters:
-        - references.qmd
+        - 05_data-management.qmd
+    - part: z_appendix.qmd
+      chapters:
+        - z_references.qmd
 
 bibliography: references.bib
 
