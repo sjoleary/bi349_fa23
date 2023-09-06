@@ -86,14 +86,6 @@ How would you create a new column called ratio, that is the ratio of the fork to
 :::
 
 
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
-
-:::
-
 You can also create a column that contains a logical value (`TRUE`/`FALSE`). For example we might need a column that indicates if the Sex is unknown.
 
 ```{r}
@@ -114,14 +106,6 @@ How would you create a new column called post_2017 that is TRUE if fish were cau
 
 :::
 
-
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
-
-:::
 
 ::: {.column-margin}
 
@@ -162,15 +146,6 @@ How would you create a new column called that contains the difference between th
 :::
 
 
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
-
-:::
-
-
 ## Create new `data.frame` based on another
 
 Not infrequently we are more interested in summary (descriptive) stats of a data set rather than all the raw data - `Tidyverse` got you covered with the function `summarize()`.
@@ -200,14 +175,6 @@ How could you use summarize to get the maximum forklength?
 
 :::
 
-
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
-
-:::
 
 That's cool but really we could have also just used 
 
@@ -255,14 +222,6 @@ How could you use `summarize()` to calculate a range of summary stats for the st
 
 :::
 
-
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
-
-:::
 
 So far, we have been manipulating our data frame using code and printing it directly to the console (and our quarto document). This can be useful for example to generate tables for reports. However, in many cases we want to create a new object that has been manipulated according to our code and then we will further process, visualize, or analyze that dataframe down the line.
 
@@ -325,15 +284,6 @@ catch %>%
 :::
 
 
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
-
-:::
-
-
 Generate the code that will manipulate the data frame as follows^[some bullet points may require more than one line of code; you do not have to perform the steps in the sequence presented, play around a little bit to see how to code this more efficiently]:
 
 ::: {.callout-note icon=false}
@@ -349,14 +299,6 @@ Challenge 1:
 :::
 
 
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
-
-:::
-
 ::: {.callout-note icon=false}
 
 ## {{< fa clipboard-question >}}   Give it a whirl
@@ -370,13 +312,6 @@ Challenge 2:
 :::
 
 
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
-
-:::
 
 ::: {.callout-note icon=false}
 
@@ -387,15 +322,6 @@ Challenge 3:
 
 * remove all gafftops
 * calculate mean forklength for each species by sex and month of the year.
-
-:::
-
-
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
 
 :::
 

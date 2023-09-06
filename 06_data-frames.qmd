@@ -99,7 +99,7 @@ catch <- read_delim("data/longline_catchdata.txt", delim = "\t")
 
 ```
 
-Another delimiters you might encounter are white space (`" "`) but technically it could be anything. 
+Another delimiter you might encounter are white space (`" "`) but technically it could be anything. 
 
 :::
 
@@ -133,15 +133,6 @@ You know that this data set is the result from a long-lining survey and you're n
 :::
 
 
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
-
-:::
-
-
 ::: {.callout-note icon=false}
 
 ## {{< fa clipboard-question >}}   Give it a whirl
@@ -155,15 +146,6 @@ Call the following functions on your object and describe what each function does
 * `head()`, `tail()`
 * `colnames()`, `rownames()`
 * `View()`
-
-:::
-
-
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
 
 :::
 
@@ -189,15 +171,6 @@ catch[1, 1]
 ## {{< fa clipboard-question >}}   Give it a whirl
 
 How would you extract the 5th column from the third row?
-
-:::
-
-
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
 
 :::
 
@@ -240,15 +213,6 @@ catch[1, ]
 ## {{< fa clipboard-question >}}   Give it a whirl
 
 How would you extract the entire 5th column?
-
-:::
-
-
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
 
 :::
 
@@ -305,14 +269,6 @@ Create a vector of all the species in the data set called `species`.
 :::
 
 
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
-
-:::
-
 If you call the vector by typing its name (`species`) in the console you will notice that it repeats the species names.
 
 ::: {.callout-note icon=false}
@@ -331,14 +287,6 @@ unique(species)
 :::
 
 
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
-
-:::
-
 Using indices might seem a little bit clunky, e.g. you have to know which column and row is which by position but it has its practical applications and is computationally very fast. For most of our data wrangling we will be using functions from the tidyverse packages `dplyr` and `tidyr` which work a little bit more intuitively.
 
 
@@ -353,14 +301,3 @@ Frequently, we will process raw data sets and then need to write intermediate or
 Create a subset of our data set consisting of the first 100 rows and containing information on the species, sex and fork length. Then use the help page for the function `write_delim()` to figure out how to write out a tab-delimited file into your `data` folder.
 
 :::
-
-
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
-
-:::
-
-

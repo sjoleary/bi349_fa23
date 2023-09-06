@@ -37,7 +37,7 @@ For each of our modules we will have a project-folder with an `Rproject`, `*.qmd
 
 Once you have opened a project you should see the project name in the top right corner^[Pro tip: If you run into issues where a quarto document won't render or file paths aren't working (especially if things were working previously) one of your first steps should be to double check that the correct `Rproj` is loaded.].
 
-There should be a document names `10_relational-data.qmd` in your project directory. Use that file to work through this tutorial - you will hand in your rendered ("knitted") `quarto` file as your homework assignment. So, first thing in the `YAML` header, change the author to your name. You will use this `quarto` document to record your answers. Remember to use comments to annotate your code; at minimum you should have one comment per code set^[You should do this whether you are adding code yourself or using code from our manual, even if it isn't commented in the manual... especially when the code is already included for you, add comments to describe how the function works/what it does as we introduce it during the participatory coding session so you can refer back to it.] you may of course add as many comments as you need to be able to recall what you did]. Similarly, take notes in the document as we discuss discussion/reflection questions but make sure that you go back and clean them up for "public consumption".
+I have dropped file called `10_relational-data.qmd` into our slack channel, download that and add it to your project directory. Use this file to work through this tutorial - you will hand in your rendered ("knitted") `quarto` file as your homework assignment. So, first thing in the `YAML` header, change the author to your name. You will use this `quarto` document to record your answers. Remember to use comments to annotate your code; at minimum you should have one comment per code set^[You should do this whether you are adding code yourself or using code from our manual, even if it isn't commented in the manual... especially when the code is already included for you, add comments to describe how the function works/what it does as we introduce it during the participatory coding session so you can refer back to it.] you may of course add as many comments as you need to be able to recall what you did]. Similarly, take notes in the document as we discuss discussion/reflection questions but make sure that you go back and clean them up for "public consumption".
 
 Now that you've got your basic data wrangling skills down, let's see what we can learn from the long-lining survey data. Remember, the overarching goal of the study was to answer these questions:
 
@@ -82,6 +82,8 @@ elasmos <- read_delim("data/longline_elasmobranchs.txt", delim = "\t")
 
 ```
 
+::: {.callout-note icon=false}
+
 ## {{< fa clipboard-question >}}   Give it a whirl
 
 Produce a table that contains the number of times a species was caught at each site and overall during the long-lining survey and give a brief description of the pattern(s) you see. Briefly, compare the list of species that were caught to the species identified in the longterm TWPD gill net monitoring program.
@@ -99,7 +101,7 @@ Produce a table that contains the number of times a species was caught at each s
 
 Your table should look something like this. 
 
-```{r echo=FALSE}
+```{r}
 #| label: tbl-species-counts
 #| tbl-cap: Number of individuals per caught per site and overall across all sites and years.
 #| echo: false
@@ -144,12 +146,7 @@ Determine how many individuals have information on their life history stage.
 
 Another way to determine the life history stage is to used previously information on length-at-maturity and how quickly YOY grow during their first year of life. This information is species-specific and has been determined for various species using life-history studies that rely on data sets that contain information on size, level of maturity and age^[Sharks can be aged using their vertebrae similar to how we can use growth rings on trees to age them.].
 
-::: {.callout-note icon=false}
-
-## {{< fa clipboard-question >}}   Consider this
-
-
-For example, Carlson and Baremore 2005 [@Carlson2005] determined the following length/history stage relationships for spinner sharks (*C. brevipinna*)
+For example, [@carlsonGrowthDynamicsSpinner2005] determined the following length/history stage relationships for spinner sharks (*C. brevipinna*)
 
 * YOY
   + females < 844mm
@@ -162,7 +159,7 @@ For example, Carlson and Baremore 2005 [@Carlson2005] determined the following l
   + males > 1380 mm
 
 
-While Neer et al. 2005 published these details for bull sharks (*C. leucas*)
+While [@neerAgeGrowthCarcharhinus2005] published these details for bull sharks (*C. leucas*)
 
 * YOY
   + females < 700mm
@@ -173,34 +170,35 @@ While Neer et al. 2005 published these details for bull sharks (*C. leucas*)
 * mature (adults)
   + females > 2250mm
   + males > 2100mm
-  
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
 First, conceptually describe how you could add this information to your data sheet in excel as a new column called `Estimated_Stage`.
+
+:::
 
 Now, let's consider how we could use our data wrangling skills to add a new column `Estimated_Stage` that contains life history stage based on length estimates. Let's first work this out for the two species above to keep it simple. 
 
-When confronted with a more complex problems like this it can be helpful to first walk through the individual steps necessary^[Some people find it helpful to write things out in 'pseudo-code' first and then work out what the code needs to look like for the specific language they are working in].
+When confronted with a more complex problems like this it can be helpful to first walk through the individual steps necessary^[Many people find it helpful to write things out in 'pseudo-code' first and then work out what the code needs to look like for the specific language they are working in].
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
 
 Briefly outline what you think our approach should look like - even if you don't know the functions you need to achieve this.
 
-
 :::
-
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
-
-:::
-
-
-::: {.callout-tip collapse=true}
-
-## Solution
 
 There are two approaches we can take.
 
-The first one would involve sub-setting your `data.frame` using `filter()` to contain only individuals that fulfill the conditions of specific length ranges that fit the ranges above for each life history stage and the add a new column with the correctly assigned life history stage^[Remember, you can use `&` and `|` to combine two conditions].
+::: {.callout-tip collapse=true}
+
+## Solution 1
+
+The first solution involves sub-setting your `data.frame` using `filter()` to contain only individuals that fulfill the conditions of specific length ranges that fit the ranges above for each life history stage and the add a new column with the correctly assigned life history stage^[Remember, you can use `&` and `|` to combine two conditions].
 
 ```{r}
 
@@ -239,7 +237,13 @@ elasmos_stage <- bind_rows(C.brevipinna_YOY, C.brevipinna_JUV, C.brevipinna_MAT,
 
 ```
 
-This fits into our general scheme of "split-apply-combine" except that we actually created multiple objects during our "split" stage. Is there a way to do this without creating individual objects?
+:::
+
+This solution fits into our general scheme of "split-apply-combine" - except that we actually created multiple objects during our "split" stage. Is there a way to do this without creating individual objects?
+
+::: {.callout-tip collapse=true}
+
+## Solution 2
 
 Indeed, our second option circumvents having to first create subsets of the initial `data.frame` using something called a "conditional mutate".
 
@@ -270,6 +274,7 @@ This is of course a fairly complicated conditional mutate as we are generally co
 
 :::
 
+
 Normally, we would have to extend our code to estimate life history stage for all of our sampled individuals but I have done this for you and you can load that file from your `data` folder.
 
 ```{r}
@@ -287,13 +292,7 @@ Use this data set to create a table with the number of individuals per life hist
 :::
 
 
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
-
-:::
+This is what you table should look like.
 
 ```{r}
 #| label: tbl-life-hist-counts
@@ -321,13 +320,6 @@ Briefly describe your results to compare total catch across sites accounting for
 
 :::
 
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
-
-:::
 
 ::: {.callout-note icon=false}
 
@@ -338,14 +330,7 @@ Subset your data to contain only YOY and generate a table to investigate whether
 :::
 
 
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
-
-:::
-
+This is what your table should look like:
 
 ```{r}
 #| label: tbl-YOY-years
@@ -377,30 +362,14 @@ Consider disadvantages of using absolute counts of occurrence to compare composi
 
 :::
 
-::: {.callout-note icon=false}
 
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
-
-:::
-
-
-Catch-per-unit-effort (CPUE) is a indirect measure of abundance. Essentially, it is a way to measure relative abundance and be able to account for differences in sampling effort - the key is defining how you will measure "effort".
+Catch-per-unit-effort (CPUE) is an indirect measure of abundance. Essentially, it is a way to measure relative abundance and be able to account for differences in sampling effort - the key is defining how you will measure "effort".
 
 ::: {.callout-important icon=false}
 
 ## {{< fa clipboard-question >}}   Consider this
 
 Briefly discuss what measures we could use to determine effort.
-
-:::
-
-::: {.callout-note icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
 
 :::
 
@@ -419,8 +388,6 @@ set_meta <- read_delim("data/set_data.txt", delim = "\t")
 
 ```
 
-`r msmbstyle::question(label = "ques:shn-7", text = "")`
-
 ::: {.callout-note icon=false}
 
 ## {{< fa clipboard-question >}}   Give it a whirl
@@ -429,14 +396,6 @@ Take a quick look at the data set to determine what columns are included and wha
 
 :::
 
-
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
-
-:::
 
 ::: {.callout-tip collapse=true}
 
@@ -459,18 +418,10 @@ Next we need to count the number of sharks caught per set.
 
 ## {{< fa clipboard-question >}}   Give it a whirl
 
-If we look at our elasmo data.frame you will notice that we have a column called Set but that number indicates the nth set of a give sample day. How can you add a column called Set_ID that consists of the date and the set number?
+If we look at our elasmo `data.frame` you will notice that we have a column called Set but that number indicates the nth set of a give sample day. How can you add a column called `Set_ID` that consists of the date and the set number?
 
 :::
 
-
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
-
-:::
 
 ::: {.callout-tip collapse=true}
 
@@ -486,10 +437,18 @@ elasmos <- elasmos %>%
 
 :::
 
+::: {.callout-note icon=false}
 
-`r msmbstyle::question(label = "ques:shn-9", text = "Now create a new object called elasmos_set that contains the number of sharks caught per set.")`
+## {{< fa clipboard-question >}}   Give it a whirl
 
-`r msmbstyle::solution_begin()`
+Now create a new object called elasmos_set that contains the number of sharks caught per set.
+
+:::
+
+
+::: {.callout-tip collapse=true}
+
+## Solution
 
 ```{r}
 
@@ -498,17 +457,20 @@ elasmos_set <- elasmos %>%
 
 ```
 
-`r msmbstyle::solution_end()`
+:::
 
 Now we have two `data.frame`s one contains the information on how many sharks were caught per set and a second one that contains information about the set, including hook hours. This means that our next step will need to be to combine these two data sets.
+ 
+::: {.callout-note icon=false}
 
-`r msmbstyle::question_begin(label = "ques:shn-10")`
+## {{< fa clipboard-question >}}   Consider this
 
 Earlier we learned about `bind_rows()` which allows us to combine two `data.frame`s that contain identical columns, i.e. row-wise. There is an equivalent function called `bind_columns()` which allows us to combine `data.frame`s column-wise. 
 
 Consider what the problem would be in using `bind_columns()` to combine these two data sets.
 
-`r msmbstyle::question_end()`
+:::
+
 
 Having multiple tables containing data pertaining to the same question is referred to as **relational data** - we are interested in how the contents of a pair of table related to each other, not just the individual data sets. Combining two tables is called a **join**. In this case the type of join we want to execute is called a **mutating join** which means we can add new variables from one `data.frame` (`set_meta`) to matching observations in another (`elasmos_set`).
 
@@ -516,7 +478,15 @@ In order to do that we need to have one column (the **key**) that way the functi
 
 When performing a **join**, new columns are added to the right. We will use the function `full_join()` which means that all the rows from the left and right `data.frame` will be retained - when we used `count()` that excluded sets where no sharks were caught, by using a `full_join()` we can add those back in.
 
-We currently do not have a matching column between the two data sets, so our first step will be to add a new column called `Set_ID` to our `set_meta` `data.frame`, then we can use `full_join()` to join the two tables. The argument `by` can be used to specify the column to use as the key. For our example here we have a column with the same name - in general, the function is "smart" enough to identify shared columns and so you do not necessarily have to specify it^[You can pull up the help page using `?full_join` to learn how to join tables that have multiple columns in common or that might have a column in common though it is named differently between the two tables.]. 
+We currently do not have a matching column between the two data sets, so our first step will be to add a new column called `Set_ID` to our `set_meta` `data.frame`, then we can use `full_join()` to join the two tables. The argument `by` can be used to specify the column to use as the key. For our example here we have a column with the same name - in general, the function is "smart" enough to identify shared columns and so you do not necessarily have to specify it. 
+
+::: {.column-margin}
+
+You can pull up the help page using `?full_join` to learn how to join tables that have multiple columns in common or that might have a column in common though it is named differently between the two tables.
+
+Note the notation `elasmo_set <- full_join(elasmos_set, set_meta, by = "Set_ID")` will produce the same result as the syntax we are using here.
+
+:::
 
 ```{r}
 
@@ -531,8 +501,6 @@ elasmos_set <- elasmos_set %>%
 
 ```
 
-Note the notation `elasmo_set <- full_join(elasmos_set, set_meta, by = "Set_ID")` will produce the same result.
-
 Now we can calculate CPUE for sharks per site.
 
 ```{r}
@@ -544,14 +512,16 @@ elasmos_set <- elasmos_set %>%
 
 And from that we can easily calculate mean and standard deviation CPUE of catching sharks by site.
 
-```{r echo=FALSE}
+```{r}
+#| label: tbl-CPUE
+#| tbl-cap: mean +/- sd CPUE
+#| echo: false
 
 kable(
   elasmos_set %>%
     group_by(Site) %>%
     summarize(mean_CPUE = mean(CPUE),
-            std_CPUE = sd(CPUE)),
-  caption = "mean +/- sd CPUE"
+            std_CPUE = sd(CPUE))
 )
 
 ```
@@ -574,17 +544,33 @@ dunnTest(CPUE ~ Site, data = elasmos_set, method = "bh")
 
 ```
 
-`r msmbstyle::question(label = "ques:shn-11", text = "Briefly describe your results and discuss what this result could mean for our overarching question of identifying shark nurseries.")`
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Briefly describe your results and discuss what this result could mean for our overarching question of identifying shark nurseries.
+
+:::
+
 
 Of course, we are interested how CPUE compares across species and sites.
 
-`r msmbstyle::question(label = "ques:shn-12", text = "Choose one species and calculate the CPUE per set. For convenience convert CPUE to effort per 1000 hook hours and then calculate the mean CPUE per 1000 hooks per site for that species.")`
+::: {.callout-note icon=false}
 
-`r msmbstyle::solution_begin()`
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Choose one species and calculate the CPUE per set. For convenience convert CPUE to effort per 1000 hook hours and then calculate the mean CPUE per 1000 hooks per site for that species.
+
+:::
+
+
+::: {.callout-tip collapse=true}
+
+## Solution
 
 This is what that could look like for a single species.
 
-```{r echo=FALSE}
+```{r}
 
 species <- "Carcharhinus_brevipinna"
 
@@ -598,6 +584,14 @@ species_CPUE <- elasmos %>%
   group_by(Site) %>%
   summarize(mean_CPUE = mean(CPUE_1000))
 
+```
+
+:::
+
+For better presentation, we probably want to convert that do a wider data set; your results should look like this.
+
+```{r}
+#| echo: false
 kable(
   species_CPUE %>%
     pivot_wider(names_from = Site, values_from = mean_CPUE) %>%
@@ -608,7 +602,7 @@ kable(
 
 ```
 
-We actually want to have this information for all species, rather than create individual `data.frame`s for each species and then combine those using `bind_rows()`, I will show you a more efficient way of coding this using a `for loop`^[There are a few other ways of during this but for now let's just stick to the fact that this is an efficient way to get results.].
+We actually want to have this information for all species, rather than create individual `data.frame`s for each species and then combine those using `bind_rows()`, I will show you a more efficient way of coding this using a `for loop`.
 
 ```{r}
 
@@ -633,7 +627,7 @@ CPUE <- bind_rows(species_CPUE, .id = "Species")
 
 ```
 
-Similarly, we would want to run KW tests to determine if there are significant differences among sites. 
+Next, we would want to run KW tests to determine if there are significant differences among sites for each species. 
 
 ```{r}
 
@@ -675,19 +669,27 @@ CPUE_sign <- CPUE %>%
 
 ```
 
-```{r echo=FALSE}
+Once we've run that code to wrangle and transform our data we can compare CPUE for each species and site.
+
+```{r}
+#| label: tbl-CPUE-species-site
+#| tbl-cap: Catch per unit effort (per 1000 hook hours) for each species by site, p-value indicates whether there are significant differences among sites for a given species.
+#| echo: false
 
 kable(
   CPUE_sign,
-  digits = 2,
-  caption = "Catch per unit effort (per 1000 hook hours) for each species by site."
+  digits = 2
 )
 
 ```
 
-`r msmbstyle::solution_end()`
+::: {.callout-note icon=false}
 
-`r msmbstyle::question(label = "ques:shn-13", text = "Briefly describe the results comparing CPUE per species and site and relate that to our overarching question of identifying shark nurseries; you may need to run additional pairwise tests (Dunn's test) to determine significant differences.")`
+## {{< fa clipboard-question >}}   Consider this
+
+Use the table with CPUE per species in your lab manual to briefly describe the results comparing CPUE per species and site and relate that to our overarching question of identifying shark nurseries^[Normally, we would want to run additional pairwise tests for each species where there are significant differences among sites, but we'll skip that step for now and stick to the big picture.].
+
+:::
 
 
 ## Comparison of CPUE for different life history stages
@@ -696,7 +698,7 @@ Of course, we are not only interested in which species were caught at each site,
 
 We will use a similar strategy as above to create a data frame with CPUE per site, species, and life history stage and produce a table comparing the means.
 
-```{r echo=FALSE}
+```{r}
 
 # create empty list
 species_CPUE <- list()
@@ -722,21 +724,44 @@ for(species in unique(elasmos$Species)){
 # combine data frames in list into single 
 CPUE <- bind_rows(species_CPUE, .id = "Species_Stage") %>%
   select(Species_Stage, Set_ID, Site, Hooks, Soak_Time, Hook_Hours, CPUE, CPUE_1000) %>%
-  separate(Species_Stage, into = c("Species", "Stage"), sep = ":", remove = FALSE)
-
-kable(
-  CPUE %>%
+  separate(Species_Stage, into = c("Species", "Stage"), sep = ":", remove = FALSE) %>%
     group_by(Species_Stage, Site) %>%
     summarize(mean_CPUE = mean(CPUE_1000)) %>%
     pivot_wider(names_from = Site, values_from = mean_CPUE) %>%
     filter(if_any(c(Aransas_Bay, Corpus_Christi_Bay, Redfish_Bay), ~ . > 0)) %>%
     separate(Species_Stage, into = c("Species", "Stage"), sep = ":") %>%
     filter(!Stage == "UND")
+
+```
+
+This will produce the following table summarizing the results.
+
+```{r}
+#| label: tbl-life-hist
+#| tbl-cap: "Comparison of CPUE by life history stage for all observed life history stages in Aransas, Corpus Christi, and Redfish Bay."
+#| echo: false
+
+kable(
+  CPUE,
+  digits = 4
 )
 
 ```
 
-`r msmbstyle::question(label = "ques:shn-14", text = "Briefly describe the results comparing CPUE per life history stage and site and relate that to our overarching question of identifying shark nurseries; these results are all statistically significant.")`
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Briefly describe the results comparing CPUE per life history stage and site; these results are all statistically significant.
+
+:::
 
 
+::: {.callout-note icon=false}
 
+## {{< fa clipboard-question >}}   Consider this
+
+Relate your all of our results back to the overarching question of identifying shark nurseries in Texas Bays and Estuaries to write a short conclusion in terms of what this study has (or has not demonstrated).
+
+:::

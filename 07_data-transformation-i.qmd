@@ -104,16 +104,6 @@ How would you select just Day, Month, and Year columns?
 
 :::
 
-
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
-
-:::
-
-
 You can also specify individual columns to eliminate by name. For example, the `PCL` column doesn't contain any information (all `NA`s).
 
 ```{r}
@@ -132,14 +122,6 @@ How would you eliminate hook size from the data set?
 
 :::
 
-
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
-
-:::
 
 You can also eliminate multiple columns by name, for example you would remove `Day`, `Month` and `Year` like this:
 
@@ -205,14 +187,6 @@ In some cases, there might not be a distinct pattern that you can use to identif
 :::
 
 
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
-
-:::
-
 In other cases you might have information in two columns that you want to combine into a single column. This can be accomplished using the function `unite()`. 
 
 For example, if we wanted to create a column called date that had the day, month, and year of each sampling trip separated by an `_`.
@@ -241,15 +215,6 @@ Create a data set with the following columns in this sequence and print the firs
 :::
 
 
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
-
-:::
-
-
 ## Sorting dataframes by a specific column content
 
 Until you want to visualize a table how the rows are arranged is not really important. However, for example, when generating reports you might want values to be listed in a specific way. This can be done using the function `arrange()`.
@@ -272,14 +237,6 @@ How would sort your table by Sex?
 :::
 
 
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
-
-:::
-
 By default, characters are sorted alphabetically, numeric columns from smallest to largest value. If you want to order your values from largest to smallest, you can specify that using `desc()`
 
 ```{r}
@@ -294,15 +251,6 @@ catch %>%
 ## {{< fa clipboard-question >}}   Give it a whirl
 
 How would sort your site column from Z to A?
-
-:::
-
-
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
 
 :::
 
@@ -331,14 +279,6 @@ How would you select only rows containing Scalloped Hammerheads (*Sphyrna lewini
 :::
 
 
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
-
-:::
-
 If we want all rows but Gafftop sailfish you can use a `!` to say "not that" instead of having to list all the species that you do want to keep^[This is frequently called "blacklisting", while creating a list of content that you *do* want to keep would be referred to as "whitelisting".].
 
 ```{r}
@@ -356,14 +296,6 @@ How would you create a dataframe without Scalloped Hammerheads (*Sphyrna lewini*
 
 :::
 
-
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
-
-:::
 
 Sometimes you might want to select rows that match one of a set of values^[Recall, the function `c()` (concatenate) creates a vector]. In this case we would use `%in%` to indicate "keep any of these".
 
@@ -393,14 +325,6 @@ How would you subset a data frame to contain only entries for different species 
 :::
 
 
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
-
-:::
-
 For numbers you likely aren't just searching for exact matches, you also want to be able to set threshold values and select everything above or below. For example, you can select all rows with values greater than a certain value using `>`.
 
 ```{r}
@@ -418,14 +342,6 @@ Create a data frame containing only entries with a forklength shorter than 300mm
 
 :::
 
-
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
-
-:::
 
 In this second piece of code you used a single boolean operator to include two conditions, "smaller than" and "equal two". That is a special case of wanting to retain data than fulfills one of either of two conditions and we have a specific boolean operator that can combine the two. 
 
@@ -449,14 +365,6 @@ How would you subset a data frame to contain only entries for different species 
 :::
 
 
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
-
-:::
-
 By contrast, if you wanted all entries that are either gafftops or a fork length smaller than 300 cm you could use the following code:
 
 ```{r}
@@ -471,15 +379,6 @@ catch %>%
 ## {{< fa clipboard-question >}}   Give it a whirl
 
 How would you select fish that have a forklength either smaller than 200 cm or larger than 300cm?
-
-:::
-
-
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
 
 :::
 
@@ -513,14 +412,6 @@ Conceptually lay out the individual steps that you would need to complete to do 
 
 :::
 
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
-
-:::
-
 
 The tidyverse has a central concept call "split-apply-combine", which means that occasionally we want to group entries in a dataframe (split), do some sort of manipulation (apply), but end up with a single data frame (combine). We will look at how useful this is in the next chapter but let's take a quick sneak peak at how this is implemented in `dplyr` using `group_by()`.
 
@@ -543,14 +434,6 @@ How would you group rows by Species and then retain the individual caught on the
 
 :::
 
-
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
-
-:::
 
 ::: {.callout-tip}
 
@@ -596,15 +479,6 @@ How would you produce a table with only one representative per species?
 :::
 
 
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
-
-:::
-
-
 You can also combine columns. For example if we wanted to determine the individual sets of the data set we could use 
 
 ```{r}
@@ -621,13 +495,3 @@ catch %>%
 How would you produce a table showing all the species caught per station using distinct(), presented as arranged alphabetically by Site and Species within Site?
 
 :::
-
-
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
-
-:::
-

@@ -61,14 +61,6 @@ List the three characteristics of a tidy data set. Explain why a tidy data set i
 :::
 
 
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
-
-:::
-
 Let's read out data set back into our R session.
 
 ```{r}
@@ -86,14 +78,6 @@ Take a look at our data set and argue whether or not it is a tidy data set. The 
 
 :::
 
-
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
-
-:::
 
 Let's quickly reformat our catch data as follows
 
@@ -130,13 +114,6 @@ Briefly outline advantages to using tidy data sets.
 
 :::
 
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
-
-:::
 
 With this data set it would be straightforward for us to e.g. calculate mean values for each length measurement by species using `group_by()` and `summarize()`.
 
@@ -180,14 +157,5 @@ tidy_length %>%
 ## {{< fa clipboard-question >}}   Give it a whirl
 
 Calculate the number of individuals per species caught per month in 2018 and present that data in a wide formate to make it easy to compare the number of species (species) per month (columns). As a bonus create an additional column with total catch of that species for 2018.
-
-:::
-
-
-::: {.callout-important icon=false}
-
-## {{< fa pen >}}   Did it!
-
-[Your answer here]
 
 :::

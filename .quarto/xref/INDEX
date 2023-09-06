@@ -62,5 +62,8 @@
   },
   "09_tidy-data.qmd": {
     "09_tidy-data.html": "04937704"
+  },
+  "10_relational-data.qmd": {
+    "10_relational-data.html": "1e87329f"
   }
 }

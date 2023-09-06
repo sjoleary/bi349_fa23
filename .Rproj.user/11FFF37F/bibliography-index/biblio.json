@@ -220,6 +220,83 @@
             "title": "Identification and Delineation of Essential Habitat for Elasmobranchs in Estuaries on the Texas Coast",
             "type": "article-journal",
             "volume": "44"
+        },
+        {
+            "URL": "https://aquadocs.org/handle/1834/26223",
+            "accessed": {
+                "date-parts": [
+                    [
+                        2023,
+                        9,
+                        6
+                    ]
+                ]
+            },
+            "author": [
+                {
+                    "family": "Carlson",
+                    "given": "John K."
+                },
+                {
+                    "family": "Baremore",
+                    "given": "Ivy"
+                }
+            ],
+            "container-title": "Fishery Bulletin",
+            "id": "carlsonGrowthDynamicsSpinner2005",
+            "issue": "2",
+            "issued": {
+                "date-parts": [
+                    [
+                        2005
+                    ]
+                ]
+            },
+            "title": "Growth dynamics of the spinner shark (Carcharhinus brevipinna) off the United States southeast and Gulf of Mexico coasts: A comparison of methods",
+            "title-short": "Growth dynamics of the spinner shark (Carcharhinus brevipinna) off the United States southeast and Gulf of Mexico coasts",
+            "type": "article-journal",
+            "volume": "103"
+        },
+        {
+            "URL": "https://onlinelibrary.wiley.com/doi/full/10.1111/j.0022-1112.2005.00743.x",
+            "accessed": {
+                "date-parts": [
+                    [
+                        2023,
+                        9,
+                        6
+                    ]
+                ]
+            },
+            "author": [
+                {
+                    "family": "Neer",
+                    "given": "J. A."
+                },
+                {
+                    "family": "Thompson",
+                    "given": "B. A."
+                },
+                {
+                    "family": "Carlson",
+                    "given": "John K."
+                }
+            ],
+            "container-title": "Journal of Fish Biology",
+            "id": "neerAgeGrowthCarcharhinus2005",
+            "issue": "2",
+            "issued": {
+                "date-parts": [
+                    [
+                        2005
+                    ]
+                ]
+            },
+            "page": "370-383",
+            "title": "Age and growth of Carcharhinus leucas in the northern Gulf of Mexico: Incorporating variability in size at birth - Neer - 2005 - Journal of Fish Biology - Wiley Online Library",
+            "title-short": "Age and growth of Carcharhinus leucas in the northern Gulf of Mexico",
+            "type": "article-journal",
+            "volume": "67"
         }
     ],
     "project_biblios": [
