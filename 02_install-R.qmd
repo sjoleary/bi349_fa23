@@ -1,7 +1,7 @@
 
 # Getting set up with R and Rstudio
 
-```{r include=FALSE}
+```{r}
 #| label: set-up
 #| include: false
 

@@ -1,0 +1,6 @@
+"0","catch %>%
+  mutate(unknown_sex = Sex == ""U"")
+"
+"2","Error in catch %>% mutate(unknown_sex = Sex == ""U"") : 
+  could not find function ""%>%""
+"

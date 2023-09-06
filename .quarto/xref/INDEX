@@ -47,5 +47,20 @@
   },
   "z_references.qmd": {
     "z_references.html": "28f9194a"
+  },
+  "06_data-frames.qmd": {
+    "06_data-frames.html": "09217b22"
+  },
+  "zz_template.qmd": {
+    "zz_template.html": "46e44e87"
+  },
+  "07_data-transformation-i.qmd": {
+    "07_data-transformation-i.html": "85abbc01"
+  },
+  "08_data-transformation-ii.qmd": {
+    "08_data-transformation-ii.html": "5db70bab"
+  },
+  "09_tidy-data.qmd": {
+    "09_tidy-data.html": "04937704"
   }
 }

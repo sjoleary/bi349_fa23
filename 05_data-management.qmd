@@ -1,7 +1,7 @@
 
 # Data management using spreadsheets
 
-[Go ahead and download the research compendium for this module using this link](https://drive.google.com/drive/folders/1Sh4mtvdii1k_vU4-mfvgIGwJsZvo8MOt?usp=sharing), make sure the directory is unzipped and move it to your 
+[Go ahead and download the research compendium for this module using this link](https://drive.google.com/drive/folders/1Sh4mtvdii1k_vU4-mfvgIGwJsZvo8MOt?usp=sharing), make sure the directory is unzipped and move it to your `bi328` directory that holds all of this semesters work.
 
 **Learning Objectives**
 
@@ -359,7 +359,7 @@ Select `File` > `Save as` from the ribbon, then select `Comma Separated Values` 
 
 Now, repeat the same process to export as a tab-delimited file. You will have multiple options to export as text file, make sure that it says `tab-delimited`.
 
-Open both files in a text editor and compare them. If you double click on a `*.csv` file your computer will typicall open it in excel, you may need to right click and then select `open with` to open in a text editor.
+Open both files in a text editor and compare them. If you double click on a `*.csv` file your computer will typically open it in excel, you may need to right click and then select `open with` to open in a text editor.
 
 :::
 

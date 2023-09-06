@@ -1,0 +1,633 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+# Data Transformation: Organizing rows & Columns
+
+```{r}
+#| label: setup
+#| include: false
+
+# set options
+knitr::opts_chunk$set(
+  tidy = FALSE, 
+  message = FALSE,
+  warning = FALSE)
+
+options(htmltools.dir.version = FALSE)
+
+```
+
+
+**Learning Objectives**
+
+After completing this lab you should be able to 
+
+* use `filter()` and `select()` to include/exclude rows and columns from a data frame.
+* use `distinct()` to select only unique/distinct rows from a data frame.
+* use `separate()` and `unite()` to separate content from a column across multiple columns and vice versa.
+
+For each of our modules we will have a project-folder with an `Rproject`, `*.qmd`-files, and sub-directories for data, scripts, and results as described in our `Rproject` Tutorial. You should have a directory on your Desktop or Documents folder on your laptop (name it something like `bi349`) as a home directory for all of our project folders this semester. 
+
+[You should have already downloaded the project directory for this module](https://drive.google.com/drive/folders/1Sh4mtvdii1k_vU4-mfvgIGwJsZvo8MOt?usp=sharing), make sure the directory is unzipped and move it to your `bi328` directory. You can open the `Rproj` for this module either by double clicking on it which will launch `Rstudio` or by opening `Rstudio` and then using `File > Open Project` or by clicking on the `Rproject` icon in the top right of your program window and selecting `Open Project`. 
+
+Once you have opened a project you should see the project name in the top right corner^[Pro tip: If you run into issues where a quarto document won't render or file paths aren't working (especially if things were working previously) one of your first steps should be to double check that the correct `Rproj` is loaded.].
+
+There should be a document named `07_data-transformation-i.qmd` in your project directory. Use that file to work through this tutorial - you will hand in your rendered ("knitted") `quarto` file as your homework assignment. So, first thing in the `YAML` header, change the author to your name. You will use this `quarto` document to record your answers. Remember to use comments to annotate your code; at minimum you should have one comment per code set^[You should do this whether you are adding code yourself or using code from our manual, even if it isn't commented in the manual... especially when the code is already included for you, add comments to describe how the function works/what it does as we introduce it during the participatory coding session so you can refer back to it.] you may of course add as many comments as you need to be able to recall what you did]. Similarly, take notes in the document as we discuss discussion/reflection questions but make sure that you go back and clean them up for "public consumption".
+
+Let's start by loading the packages we will need for this activity.
+
+```{r}
+
+# load libraries
+library(knitr)
+library(tidyverse)
+
+```
+
+## Data Wrangling
+
+Now that we have a data frame to play with, let's explore some data wrangling options using `dplyr`. The `d` stands for `data` and the `plyr` stands for `plyers` - this package is designed to manipulate data frames^[This is also known as `data wrangling` or `data munging`, manipulating is not a negative thing in this case it means you can clean up and format the data in appropriate way to fit the questions you are asking and allow to to transform the information in a helpful way so that you can apply analysis and modeling as needed in the next step]. We are going to focus on the central actions (`verbs`) that will allow you to manipulate the data frame.
+
+The main advantages to using a command line program like R/code compared to a spreadsheet program such as Excel or Google sheets are:
+
+* You aren't manipulating the raw data set - if you make a mistake or accidentally overwrite something you haven't made any permanent damage.
+* You can manipulate data sets too large to easily handle in a spreadsheet
+* If you update your data set or have a second identically formatted data set you just have to re-run the code.
+
+Be sure to record all the steps (code chunks) in your `quarto` document - both the examples given here and the applications you will be asked to make. You can copy and paste, but you will find that writing out the code will help you get more used to syntax, how auto complete etc. works. Be sure to annotate/comment your code as reminders while we go through new functions in class, and that you take the time to go over your comments before submitting your knotted `*.html` document. 
+
+These are central concepts that you will use and reuse throughout the semester so you will likely want to refer back to this document. A good way to create a "cheatsheet" would be to for example for each function write a short description of what it does in general before each code chunk, then make your comment in the code specific to your example. Similarly use normal text to refer to the question numbers in this manual as you work through the problem sets.
+
+
+## Selecting and organizing columns
+
+Let's start by loading our data set.
+
+```{r}
+
+# read catch data
+catch <- read_delim("data/longline_catchdata.txt", delim = "\t")
+
+```
+
+::: {.callout-warning}
+
+## Be mindful
+
+We will make heavy use of the magrittr pipe `%>%` this smester which allows you to link commands together; think of it as "and now do this". R for Data Science (2e) implements the native R pipe `|>`. For our intents and purposes they are identical.
+
+Because we are mostly interested in what the individual functions (verbs) do we will not always assign a new object, but just having it print to the console/below the code chunk we will be able to immediately assess the affect. By piping our function to `head()` it will print just the first 6 lines.
+
+:::
+
+
+The function `select()` is used to select a subset of columns from a data set.
+
+For example, you can select just the Site and Species columns^[Remember, the function `head()` allows you to just print the first few lines of the dataframe to the console, otherwise you can end up with several thousand lines!].
+
+```{r}
+
+catch %>%
+  select(Site, Species) %>%
+  head()
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+How would you select just Day, Month, and Year columns?
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+You can also specify individual columns to eliminate by name. For example, the `PCL` column doesn't contain any information (all `NA`s).
+
+```{r}
+
+catch %>%
+  select(-PCL) %>%
+  head()
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+How would you eliminate hook size from the data set?
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+You can also eliminate multiple columns by name, for example you would remove `Day`, `Month` and `Year` like this:
+
+```{r}
+
+catch %>%
+  select(-Day, -Month, -Year) %>%
+  head()
+
+```
+
+If you want to re-arrange columns in your data frame, you would also use `select()`.
+
+```{r}
+
+catch %>%
+  select(FL, Sex, Day) %>%
+  head()
+
+```
+
+::: {.callout-tip}
+
+## Protip
+
+If you wanted to move a set of columns to the front, but not not want to have to type in all the other column names you can use `everything()`.
+
+```{r}
+
+catch %>%
+  select(Day, Month, Year, everything()) %>%
+  head()
+
+```
+
+:::
+
+There you go, creating subsets of columns: Simple as that.
+
+
+## Separating & uniting columns
+
+Occasionally you will find that you want to combine the contents of two columns into a single column (e.g. first name, last name) or at other times you may want to separate the contents of a column over multiple columns (e.g. dates). 
+
+For example, you may have noticed that the Species is entered as `genus_species` - what if you wanted to have two separate columns with that information? 
+
+The function `separate()` will split the contents from one column across two or more columns. To do this you need to specify the new column names (`into = c("column1", "column2")`), and what pattern should be used to determine where the content should be split (`sep = "pattern"`).
+
+```{r}
+
+catch %>%
+  separate(Species, into = c("species", "genus"), sep = "_", remove = FALSE) %>%
+  head()
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+In some cases, there might not be a distinct pattern that you can use to identify where to split the column content. In this case it may be more helpful to use the position (e.g. "split at "third character from the left") Look up the `separate()` function in the help tab and determine how you could split the `Year` column so you get two new columns by splitting off the last two digits (i.e. 2021 would be 20 and 21). Then eliminate the column containing the first two digits.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+In other cases you might have information in two columns that you want to combine into a single column. This can be accomplished using the function `unite()`. 
+
+For example, if we wanted to create a column called date that had the day, month, and year of each sampling trip separated by an `_`.
+
+```{r}
+
+catch %>%
+  unite(Date, Day, Month, Year, sep = "_", remove = FALSE) %>%
+  head()
+
+```
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Create a data set with the following columns in this sequence and print the first few rows to the console.
+
+* Set_ID (combining day, month, year, and set)
+* Genus
+* Species
+* FL
+* STL
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+## Sorting dataframes by a specific column content
+
+Until you want to visualize a table how the rows are arranged is not really important. However, for example, when generating reports you might want values to be listed in a specific way. This can be done using the function `arrange()`.
+
+For example, if we wanted to sort our dataframe based on the `Observed_Stage` column we could do the following:
+
+```{r}
+
+catch %>%
+  arrange(Observed_Stage)
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+How would sort your table by Sex?
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+By default, characters are sorted alphabetically, numeric columns from smallest to largest value. If you want to order your values from largest to smallest, you can specify that using `desc()`
+
+```{r}
+
+catch %>%
+  arrange(desc(FL))
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+How would sort your site column from Z to A?
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+## Filtering (subsetting) rows
+
+Frequently, we are less interested in being able to sort columns by content, rather, we want to extract a subset of rows based on specific content.
+
+The function `filter()` is used to subset a data frame by row based on `regular expressions` and the `boolean operators` we previously encounter to describe the content of sets of rows.
+
+For example, we might a `data.frame` with only Gafftop sail catfish (*Bagre marinus*)^[Remember for exact matches we use `==` not `=`].
+
+```{r}
+
+catch %>%
+  filter(Species == "Bagre_marinus")
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+How would you select only rows containing Scalloped Hammerheads (*Sphyrna lewini*)?"
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+If we want all rows but Gafftop sailfish you can use a `!` to say "not that" instead of having to list all the species that you do want to keep^[This is frequently called "blacklisting", while creating a list of content that you *do* want to keep would be referred to as "whitelisting".].
+
+```{r}
+
+catch %>%
+  filter(!Species == "Bagre_marinus")
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+How would you create a dataframe without Scalloped Hammerheads (*Sphyrna lewini*) entries?
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+Sometimes you might want to select rows that match one of a set of values^[Recall, the function `c()` (concatenate) creates a vector]. In this case we would use `%in%` to indicate "keep any of these".
+
+```{r}
+
+catch %>%
+  filter(Species %in% c("Sciades_felis", "Bagre_marinus", "Synodus_foetens"))
+
+
+```
+
+Again, if you wanted everything but rows containing those values you would preface it with a `!`.
+
+```{r}
+
+catch %>%
+  filter(!Species %in% c("Sciades_felis", "Bagre_marinus", "Synodus_foetens"))
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+How would you subset a data frame to contain only entries for different species in the genus Carcharhinus aka the sharky-sharks? There are four species in the data set - bullsharks (*Carcharhinus leucas*), spinner sharks (*Carcharhinus brevipinna*), blacktip sharks (*Carcharhinus limbatus*), and smalltail sharks (*Carcharhinus porosus*).
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+For numbers you likely aren't just searching for exact matches, you also want to be able to set threshold values and select everything above or below. For example, you can select all rows with values greater than a certain value using `>`.
+
+```{r}
+
+catch %>%
+  filter(FL > 440)
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Create a data frame containing only entries with a forklength shorter than 300mm, then create a data frame that contains only entries with a forklength equal to or smaller than 300mm.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+In this second piece of code you used a single boolean operator to include two conditions, "smaller than" and "equal two". That is a special case of wanting to retain data than fulfills one of either of two conditions and we have a specific boolean operator that can combine the two. 
+
+This is not always the case, for example, you might want to retain data that fulfills conditions in two different columns. In this case you can combine expressions using `&` to indicate that it must fulfill all conditions indicated or `|` to indicate that it must retain at least one of the.
+
+For example to select only scalloped hammerheads that are also smaller than 300 cm you would use
+
+```{r}
+
+catch %>%
+  filter(Species == "Sphyrna_lewini" & FL < 300)
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+How would you subset a data frame to contain only entries for different species in the genus Carcharhinus that have a forklength larger than 500 cm?
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+By contrast, if you wanted all entries that are either gafftops or a fork length smaller than 300 cm you could use the following code:
+
+```{r}
+
+catch %>%
+  filter(Species == "Sphyrna_lewini" | FL < 300)
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+How would you select fish that have a forklength either smaller than 200 cm or larger than 300cm?
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+## Sneak peak: grouping rows for specific wrangling actions
+
+We have already see that it can be helpful to subset rows based on conditions that are met by the content of more than one column. In those cases, we were creating conditions based on Boolean operators.
+
+In many cases we might be interested in subsetting a dataframe in a way where our conditions cannot be expressed by a `TRUE`/`FALSE` scenario using Boolean operators. 
+
+For example, we might want to extract the data entry for the longest fish in the data set based on forklength.
+
+The function `max()` can be used to get the maximum value for a vector of numbers. In this case, the vector we are looking at is the `FL` column of the `catch` dataframe.
+
+```{r}
+
+catch %>%
+  filter(FL == max(FL, na.rm = TRUE))
+
+```
+
+That's great, now we now what the largest fish is that we caught.
+
+What about if we wanted to subset the dataframe to retain the largest fish based on forklength *for each species*?
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Conceptually lay out the individual steps that you would need to complete to do this (don't worry about whether or not you actually know how to code this).
+
+:::
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+The tidyverse has a central concept call "split-apply-combine", which means that occasionally we want to group entries in a dataframe (split), do some sort of manipulation (apply), but end up with a single data frame (combine). We will look at how useful this is in the next chapter but let's take a quick sneak peak at how this is implemented in `dplyr` using `group_by()`.
+
+```{r}
+
+catch %>%
+  group_by(Species) %>%
+  filter(FL == max(FL, na.rm = TRUE)) %>%
+  ungroup()
+
+```
+
+This is also an example of how we can use the pipe (`%>%`) to string a bunch of commands, in this example we are saying "take the object catch, and then group rows by Species and then for each group retain only the maximum forklength value for that group and then ungroup them again."
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+How would you group rows by Species and then retain the individual caught on the largest hook size for each species?
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+::: {.callout-tip}
+
+## Protip
+
+Specifically for cases where we want to retain the largest or smallest values, we can use family of of functions called `slice()` which allow us to subset rows based on their position.
+
+For example, we can retain the largest 5 individuals per species based on forklength using `slice_max()`
+
+```{r}
+
+catch %>%
+  group_by(Species) %>%
+  slice_max(order_by = FL, n = 5)
+
+```
+
+
+:::
+
+
+## Create a subset with only unique entries
+
+Occasionally, you might want to create a subset of the data set that shows only the unique (distinct) entries for a specific column; this is especially common during an exploratory analysis of a data set that you are getting an overview of. This can be achieved using the function `distinct()`.
+
+For example, we might want to know which years the survey took place.
+
+```{r}
+
+catch %>%
+  distinct(Year)
+
+```
+
+Notice how that dropped all the other columns. You can switch that off using `.keep_all = FALSE`.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+How would you produce a table with only one representative per species?
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+You can also combine columns. For example if we wanted to determine the individual sets of the data set we could use 
+
+```{r}
+
+catch %>%
+  distinct(Day, Month, Year, Set)
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+How would you produce a table showing all the species caught per station using distinct(), presented as arranged alphabetically by Site and Species within Site?
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+

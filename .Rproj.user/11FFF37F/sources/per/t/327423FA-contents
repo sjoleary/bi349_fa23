@@ -1,0 +1,742 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+# Relational data
+
+```{r}
+#| label: setup
+#| include: false
+
+# set options
+knitr::opts_chunk$set(
+  tidy = FALSE, 
+  message = FALSE,
+	warning = FALSE)
+
+options(htmltools.dir.version = FALSE)
+
+```
+
+
+**Learning Objectives**
+
+After completing this lab you should be able to 
+
+* understand the differences between absolute abundance, relative abundance, and catch per unit effort (CPUE) and how to use them appropriately.
+* `bind_rows()`
+* `left_join()`
+* apply a "conditional mutate".
+
+
+For each of our modules we will have a project-folder with an `Rproject`, `*.qmd`-files, and sub-directories for data, scripts, and results as described in our `Rproject` Tutorial. You should have a directory on your Desktop or Documents folder on your laptop (name it something like `bi349`) as a home directory for all of our project folders this semester. 
+
+[You should have already downloaded the project directory for this module ](https://drive.google.com/drive/folders/1Sh4mtvdii1k_vU4-mfvgIGwJsZvo8MOt?usp=sharing), make sure the directory is unzipped and move it to your `bi328` directory. You can open the `Rproj` for this module either by double clicking on it which will launch `Rstudio` or by opening `Rstudio` and then using `File > Open Project` or by clicking on the `Rproject` icon in the top right of your program window and selecting `Open Project`. 
+
+Once you have opened a project you should see the project name in the top right corner^[Pro tip: If you run into issues where a quarto document won't render or file paths aren't working (especially if things were working previously) one of your first steps should be to double check that the correct `Rproj` is loaded.].
+
+There should be a document names `10_relational-data.qmd` in your project directory. Use that file to work through this tutorial - you will hand in your rendered ("knitted") `quarto` file as your homework assignment. So, first thing in the `YAML` header, change the author to your name. You will use this `quarto` document to record your answers. Remember to use comments to annotate your code; at minimum you should have one comment per code set^[You should do this whether you are adding code yourself or using code from our manual, even if it isn't commented in the manual... especially when the code is already included for you, add comments to describe how the function works/what it does as we introduce it during the participatory coding session so you can refer back to it.] you may of course add as many comments as you need to be able to recall what you did]. Similarly, take notes in the document as we discuss discussion/reflection questions but make sure that you go back and clean them up for "public consumption".
+
+Now that you've got your basic data wrangling skills down, let's see what we can learn from the long-lining survey data. Remember, the overarching goal of the study was to answer these questions:
+
+1. How does the composition of elasmobranch communities compare across sites?
+2. How does the catch-per-unit-effort (CPUE) per species and life history compare across sites?
+3. What do the sex ratios look like?
+4. What environmental predictors can we use to predict presence of elasmobranchs?
+
+We are going to stick to the first two questions to practice our data wrangling skills (and possibly pick up a few new ones ...)
+
+As always, let's start by loading our packages needed for this analysis.
+
+We are missing one package that we will need to install the first time, it contains a specialized function that we will need down the line.
+
+```{r}
+#| eval: false
+
+# install packages
+install.packages("FSA")
+
+```
+
+Now let's load our packages.
+
+```{r}
+
+# load libraries
+library(knitr)
+library(tidyverse)
+library(FSA)
+
+```
+
+
+## Composition of elasmobranch communities compare across sites
+
+Let's start by reading in the data set we will use for this analysis^[This is a data set that has been cleaned up to contain only the elasmobranchs caught during the survey since that is the taxonomic group we are interested in].
+
+```{r}
+
+elasmos <- read_delim("data/longline_elasmobranchs.txt", delim = "\t")
+
+```
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Produce a table that contains the number of times a species was caught at each site and overall during the long-lining survey and give a brief description of the pattern(s) you see. Briefly, compare the list of species that were caught to the species identified in the longterm TWPD gill net monitoring program.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+Your table should look something like this. 
+
+```{r echo=FALSE}
+#| label: tbl-species-counts
+#| tbl-cap: Number of individuals per caught per site and overall across all sites and years.
+#| echo: false
+
+kable(
+  elasmos %>%
+    group_by(Species, Site) %>%
+    count() %>%
+    pivot_wider(names_from = Site, values_from = n) %>%
+    replace(is.na(.), 0) %>%
+    mutate(Total = Aransas_Bay + Corpus_Christi_Bay + Redfish_Bay)
+)
+
+```
+
+::: {.callout-tip}
+
+## Protip
+
+You can use `replace(is.na(.), 0)` to replace `NA` values in all columns with a `0`.
+
+:::
+
+We are not only interested in which species are observed at each site, we also want to know what at what life stages different species are using the estuaries. Typically, we can classify sharks as young-of-the-year (YOY), juveniles (JUV), or mature (MAT). There are ways to observe this in the field, for example YOY can be identified using their umbilical scar and in male sharks whether or not the claspers are calcified is an indication of maturity. 
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Determine how many individuals have information on their life history stage.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+Another way to determine the life history stage is to used previously information on length-at-maturity and how quickly YOY grow during their first year of life. This information is species-specific and has been determined for various species using life-history studies that rely on data sets that contain information on size, level of maturity and age^[Sharks can be aged using their vertebrae similar to how we can use growth rings on trees to age them.].
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+
+For example, Carlson and Baremore 2005 [@Carlson2005] determined the following length/history stage relationships for spinner sharks (*C. brevipinna*)
+
+* YOY
+  + females < 844mm
+  + males < 812mm
+* Juveniles
+  + females 844 - 1360mm
+  + males 812 - 1380mm
+* mature (adults)
+  + females > 1360 mm
+  + males > 1380 mm
+
+
+While Neer et al. 2005 published these details for bull sharks (*C. leucas*)
+
+* YOY
+  + females < 700mm
+  + males < 700mm
+* Juveniles
+  + females 700 - 2250mm
+  + males 700 - 2100mm
+* mature (adults)
+  + females > 2250mm
+  + males > 2100mm
+  
+First, conceptually describe how you could add this information to your data sheet in excel as a new column called `Estimated_Stage`.
+
+Now, let's consider how we could use our data wrangling skills to add a new column `Estimated_Stage` that contains life history stage based on length estimates. Let's first work this out for the two species above to keep it simple. 
+
+When confronted with a more complex problems like this it can be helpful to first walk through the individual steps necessary^[Some people find it helpful to write things out in 'pseudo-code' first and then work out what the code needs to look like for the specific language they are working in].
+
+Briefly outline what you think our approach should look like - even if you don't know the functions you need to achieve this.
+
+
+:::
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-tip collapse=true}
+
+## Solution
+
+There are two approaches we can take.
+
+The first one would involve sub-setting your `data.frame` using `filter()` to contain only individuals that fulfill the conditions of specific length ranges that fit the ranges above for each life history stage and the add a new column with the correctly assigned life history stage^[Remember, you can use `&` and `|` to combine two conditions].
+
+```{r}
+
+# C. brevipinna, Carlson & Baremore 2005
+
+C.brevipinna_YOY <- filter(elasmos, Species=="Carcharhinus_brevipinna" & Sex=="M" & FL<=812 | Species=="Carcharhinus_brevipinna" & Sex=="F" & FL<=844 | Species=="Carcharhinus_brevipinna" & Sex=="U" & FL<=844) %>%
+  mutate(Estimated_Stage="YOY")
+
+C.brevipinna_JUV <- filter(elasmos, Species=="Carcharhinus_brevipinna" & Sex=="M" & FL>812 & FL<=1380 | Species=="Carcharhinus_brevipinna" & Sex=="F" & FL>844 & FL<=1360 | Species=="Carcharhinus_brevipinna" & Sex=="U" & FL>844 & FL<=1360) %>%
+  mutate(Estimated_Stage="JUV")
+
+C.brevipinna_MAT <- filter(elasmos, Species=="Carcharhinus_brevipinna" & Sex=="M" & FL>1380 | Species=="Carcharhinus_brevipinna" & Sex=="F" & FL>1360 | Species=="Carcharhinus_brevipinna" & Sex=="U" & FL>1360) %>%
+  mutate(Estimated_Stage="MAT")
+
+
+# C. leucas, Neer et al. 2005
+
+C.leucas_YOY <- filter(elasmos, Species=="Carcharhinus_leucas" & FL<=700) %>%
+  mutate(Estimated_Stage="YOY")
+
+C.leucas_JUV <- filter(elasmos, Species=="Carcharhinus_leucas" & Sex=="M" & FL>700 & FL<=2100 | Species=="Carcharhinus_leucas" & Sex=="F" & FL>700 & FL<=2250 | Species=="Carcharhinus_leucas" & Sex=="U" & FL>700 & FL<=2250) %>%
+  mutate(Estimated_Stage="JUV")
+
+C.leucas_MAT <- filter(elasmos, Species=="Carcharhinus_leucas" & Sex=="M" & FL>2100 | Species=="Carcharhinus_leucas" & Sex=="F" & FL>2250 | Species=="Carcharhinus_leucas" & Sex=="U" & FL>2250) %>%
+  mutate(Estimated_Stage="MAT")
+
+
+```
+
+Now you have a bunch of individual `data.frames` that we need to put back together into a single `data.frame`. We can do this using `bind_rows()` which will combine `data.frames` that have the same set of columns.
+
+```{r}
+
+elasmos_stage <- bind_rows(C.brevipinna_YOY, C.brevipinna_JUV, C.brevipinna_MAT,
+                           C.leucas_YOY, C.leucas_JUV, C.leucas_MAT)
+
+```
+
+This fits into our general scheme of "split-apply-combine" except that we actually created multiple objects during our "split" stage. Is there a way to do this without creating individual objects?
+
+Indeed, our second option circumvents having to first create subsets of the initial `data.frame` using something called a "conditional mutate".
+
+```{r}
+
+elasmos_stage <- elasmos %>%
+  filter(Species %in% c("Carcharhinus_leucas", "Carcharhinus_brevipinna")) %>%
+  mutate(Estimated_Stage = case_when(Species == "Carcharhinus_brevipinna" & Sex=="M" & FL<=812 |
+                                       Species == "Carcharhinus_brevipinna" & Sex=="F" & FL<=844 |
+                                       Species == "Carcharhinus_brevipinna" & Sex=="U" & FL<=844 ~ "YOY",
+         Species=="Carcharhinus_brevipinna" & Sex=="M" & FL>812 & FL<=1380 |
+           Species=="Carcharhinus_brevipinna" & Sex=="F" & FL>844 & FL<=1360 |
+           Species=="Carcharhinus_brevipinna" & Sex=="U" & FL>844 & FL<=1360 ~ "JUV",
+         Species=="Carcharhinus_brevipinna" & Sex=="M" & FL>1380 |
+           Species=="Carcharhinus_brevipinna" & Sex=="F" & FL>1360 |
+           Species=="Carcharhinus_brevipinna" & Sex=="U" & FL>1360 ~ "MAT",
+         Species=="Carcharhinus_leucas" & FL<=700 ~ "YOY",
+         Species=="Carcharhinus_leucas" & Sex=="M" & FL>700 & FL<=2100 | 
+           Species=="Carcharhinus_leucas" & Sex=="F" & FL>700 & FL<=2250 | 
+           Species=="Carcharhinus_leucas" & Sex=="U" & FL>700 & FL<=2250 ~ "JUV",
+         Species=="Carcharhinus_leucas" & Sex=="M" & FL>2100 | 
+           Species=="Carcharhinus_leucas" & Sex=="F" & FL>2250 | 
+           Species=="Carcharhinus_leucas" & Sex=="U" & FL>2250 ~ "MAT"))
+
+```
+
+This is of course a fairly complicated conditional mutate as we are generally combining multiple conditions per category. In this case we could also leave out the `|` and instead add a `~ STAGE` to each line depending on our coding preferences.
+
+:::
+
+Normally, we would have to extend our code to estimate life history stage for all of our sampled individuals but I have done this for you and you can load that file from your `data` folder.
+
+```{r}
+
+elasmos <- read_delim("data/elasmos_complete.txt", delim = "\t")
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Use this data set to create a table with the number of individuals per life history stage caught at each site.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+```{r}
+#| label: tbl-life-hist-counts
+#| tbl-cap: Number of individuals per species caught at each site by life history stage.
+#| echo: false
+
+kable(
+  elasmos %>%
+    group_by(Species, Site, Estimated_Stage) %>%
+    count() %>%
+    pivot_wider(names_from = Estimated_Stage, values_from = n) %>%
+    replace(is.na(.), 0) %>%
+    mutate(Total = YOY + JUV + MAT + UND) %>%
+    select(Species, Site, Total, YOY, JUV, MAT, UND) %>%
+    arrange(Species)
+)
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Briefly describe your results to compare total catch across sites accounting for differences in life history stage.
+
+:::
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Subset your data to contain only YOY and generate a table to investigate whether they were caught across all years sampling occured. Summarize your results in 2-3 sentences.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+```{r}
+#| label: tbl-YOY-years
+#| tbl-cap: "Number of YOY caught at each site in each sampling year."
+#| echo: false
+#| 
+
+kable(
+  elasmos %>%
+    filter(Estimated_Stage == "YOY") %>%
+    group_by(Site, Year, Species) %>%
+    count() %>%
+    arrange(Year) %>%
+    pivot_wider(names_from = Year, values_from = n) %>%
+    replace(is.na(.), 0) %>%
+    arrange(Site, Species)
+)
+
+```
+
+
+## Comparison of CPUE per species across sites
+
+::: {.callout-important icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Consider disadvantages of using absolute counts of occurrence to compare composition across sites. What measure could you use instead of total catch to fix this issue?
+
+:::
+
+::: {.callout-note icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+Catch-per-unit-effort (CPUE) is a indirect measure of abundance. Essentially, it is a way to measure relative abundance and be able to account for differences in sampling effort - the key is defining how you will measure "effort".
+
+::: {.callout-important icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Briefly discuss what measures we could use to determine effort.
+
+:::
+
+::: {.callout-note icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+We are going to calculate effort as "hook hours". 
+
+To do this we need to know how many hooks were on the line per set^[A set means that baited hooks on leaders (individual lines) where attached to the main line and that main line was then "set" in the water for a given period of time before pulling it back in and determining which fish were caught on hooks.] and how long the entire line was in the water per set (this is called soak time), then we can easily calculate hook hours of each set as the number of hooks multiplied by the soak time. And then we can divide the number of e.g. sharks caught on a set ("catch) by hook hours ("effort") to calculate CPUE.
+
+Your `data` folder contains as tab-delimited file with set meta-data. This includes information that describes the set itself including date of the set, site, soak time, and location and also parameters describing the conditions of the set such as temperature, salinity, depth, and dissolved oxygen.
+
+Let's read in the data set.
+
+```{r}
+
+set_meta <- read_delim("data/set_data.txt", delim = "\t")
+
+```
+
+`r msmbstyle::question(label = "ques:shn-7", text = "")`
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Take a quick look at the data set to determine what columns are included and what information we can learn about each individual set. How can you amend the data set to include hook hours?
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+::: {.callout-tip collapse=true}
+
+## Solution
+
+Correct, a simple `mutate()` will do the trick.
+
+```{r}
+
+set_meta <- set_meta %>%
+  mutate(Hook_Hours = Hooks * Soak_Time)
+
+```
+
+:::
+
+Next we need to count the number of sharks caught per set.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+If we look at our elasmo data.frame you will notice that we have a column called Set but that number indicates the nth set of a give sample day. How can you add a column called Set_ID that consists of the date and the set number?
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+::: {.callout-tip collapse=true}
+
+## Solution
+
+```{r}
+
+elasmos <- elasmos %>%
+  unite(Set_ID, Year, Month, Day, Set, sep = "_", remove = FALSE) %>%
+  arrange(Set_ID)
+
+```
+
+:::
+
+
+`r msmbstyle::question(label = "ques:shn-9", text = "Now create a new object called elasmos_set that contains the number of sharks caught per set.")`
+
+`r msmbstyle::solution_begin()`
+
+```{r}
+
+elasmos_set <- elasmos %>%
+  count(Set_ID)
+
+```
+
+`r msmbstyle::solution_end()`
+
+Now we have two `data.frame`s one contains the information on how many sharks were caught per set and a second one that contains information about the set, including hook hours. This means that our next step will need to be to combine these two data sets.
+
+`r msmbstyle::question_begin(label = "ques:shn-10")`
+
+Earlier we learned about `bind_rows()` which allows us to combine two `data.frame`s that contain identical columns, i.e. row-wise. There is an equivalent function called `bind_columns()` which allows us to combine `data.frame`s column-wise. 
+
+Consider what the problem would be in using `bind_columns()` to combine these two data sets.
+
+`r msmbstyle::question_end()`
+
+Having multiple tables containing data pertaining to the same question is referred to as **relational data** - we are interested in how the contents of a pair of table related to each other, not just the individual data sets. Combining two tables is called a **join**. In this case the type of join we want to execute is called a **mutating join** which means we can add new variables from one `data.frame` (`set_meta`) to matching observations in another (`elasmos_set`).
+
+In order to do that we need to have one column (the **key**) that way the function can match observations in one `data.frame` by that **key** and then copy the matching observations in the columns from the second `data.frame` across. 
+
+When performing a **join**, new columns are added to the right. We will use the function `full_join()` which means that all the rows from the left and right `data.frame` will be retained - when we used `count()` that excluded sets where no sharks were caught, by using a `full_join()` we can add those back in.
+
+We currently do not have a matching column between the two data sets, so our first step will be to add a new column called `Set_ID` to our `set_meta` `data.frame`, then we can use `full_join()` to join the two tables. The argument `by` can be used to specify the column to use as the key. For our example here we have a column with the same name - in general, the function is "smart" enough to identify shared columns and so you do not necessarily have to specify it^[You can pull up the help page using `?full_join` to learn how to join tables that have multiple columns in common or that might have a column in common though it is named differently between the two tables.]. 
+
+```{r}
+
+# add set id column
+set_meta <- set_meta %>%
+  unite(Set_ID, Year, Month, Day, Set, sep = "_", remove = FALSE)
+
+# join data sets
+elasmos_set <- elasmos_set %>%
+  full_join(set_meta) %>%
+  replace_na(list(n = 0))
+
+```
+
+Note the notation `elasmo_set <- full_join(elasmos_set, set_meta, by = "Set_ID")` will produce the same result.
+
+Now we can calculate CPUE for sharks per site.
+
+```{r}
+
+elasmos_set <- elasmos_set %>%
+  mutate(CPUE = n/Hook_Hours)
+
+```
+
+And from that we can easily calculate mean and standard deviation CPUE of catching sharks by site.
+
+```{r echo=FALSE}
+
+kable(
+  elasmos_set %>%
+    group_by(Site) %>%
+    summarize(mean_CPUE = mean(CPUE),
+            std_CPUE = sd(CPUE)),
+  caption = "mean +/- sd CPUE"
+)
+
+```
+
+We are going to perform a Kruskal-Wallis rank sum test to determine if there is significant heterogeneity among sites^[You are probably more familiar with the framework of using an ANOVA to test for significant heterogeneity and pairwise t-tests to test for equality of means of a set of values. KW is similar but is a non-parametric approach and does not make assumptions about the distribution of values.].
+
+```{r}
+
+# KW to test for significant heterogeneity
+kruskal.test(CPUE ~ Site, data = elasmos_set)
+
+```
+
+And we will follow that using a Dunn's test for pairwise comparisons.
+
+```{r}
+
+# post-hoc Dunn test
+dunnTest(CPUE ~ Site, data = elasmos_set, method = "bh")
+
+```
+
+`r msmbstyle::question(label = "ques:shn-11", text = "Briefly describe your results and discuss what this result could mean for our overarching question of identifying shark nurseries.")`
+
+Of course, we are interested how CPUE compares across species and sites.
+
+`r msmbstyle::question(label = "ques:shn-12", text = "Choose one species and calculate the CPUE per set. For convenience convert CPUE to effort per 1000 hook hours and then calculate the mean CPUE per 1000 hooks per site for that species.")`
+
+`r msmbstyle::solution_begin()`
+
+This is what that could look like for a single species.
+
+```{r echo=FALSE}
+
+species <- "Carcharhinus_brevipinna"
+
+species_CPUE <- elasmos %>%
+  filter(Species == species) %>%
+  count(Set_ID) %>%
+  full_join(set_meta) %>%
+  replace_na(list(n = 0)) %>%
+  mutate(CPUE = n/Hook_Hours,
+         CPUE_1000 = CPUE * 1000) %>%
+  group_by(Site) %>%
+  summarize(mean_CPUE = mean(CPUE_1000))
+
+kable(
+  species_CPUE %>%
+    pivot_wider(names_from = Site, values_from = mean_CPUE) %>%
+    replace(is.na(.), 0),
+  caption = "Catch per unit effort (1000 hook hours) for each site.",
+  digits = 2
+)
+
+```
+
+We actually want to have this information for all species, rather than create individual `data.frame`s for each species and then combine those using `bind_rows()`, I will show you a more efficient way of coding this using a `for loop`^[There are a few other ways of during this but for now let's just stick to the fact that this is an efficient way to get results.].
+
+```{r}
+
+# create empty list
+species_CPUE <- list()
+
+# calculate hook hours for each species per site
+for(species in unique(elasmos$Species)){
+  
+  species_CPUE[[species]] <- elasmos %>%
+    filter(Species == species) %>%
+    count(Set_ID) %>%
+    full_join(set_meta) %>%
+    replace_na(list(n = 0)) %>%
+    mutate(CPUE = n/Hook_Hours,
+           CPUE_1000 = CPUE * 1000)
+
+}
+
+# combine data frames in list into single 
+CPUE <- bind_rows(species_CPUE, .id = "Species")
+
+```
+
+Similarly, we would want to run KW tests to determine if there are significant differences among sites. 
+
+```{r}
+
+# create empty dataframe for results
+results <- setNames(data.frame(matrix(ncol = 2, nrow = 0)), 
+                    c("Species", "pvalue")) %>%
+  mutate(Species = as.character(Species),
+         pvalue = as.numeric(pvalue))
+
+for(species in unique(CPUE$Species)){
+  
+  # filter CPUE per species
+  tmp <- CPUE %>%
+    filter(Species == species)
+  
+  # KW to test for significant heterogeneity
+  KW <- kruskal.test(CPUE ~ Site, data = tmp)
+  
+  # extract p-value
+  df <- data.frame("Species" = species,
+                   "pvalue" = as.numeric(KW$p.value))
+  
+  results <- bind_rows(results, df)
+
+}
+
+```
+
+Let's calculate mean CPUE per species and site, turn that into a wide table for easier comparison and add the p-values.
+
+```{r}
+
+CPUE_sign <- CPUE %>%
+    group_by(Species, Site) %>%
+    summarize(mean_CPUE = mean(CPUE_1000)) %>%
+    pivot_wider(names_from = Site, values_from = mean_CPUE) %>%
+    left_join(results) %>%
+    arrange(Species)
+
+```
+
+```{r echo=FALSE}
+
+kable(
+  CPUE_sign,
+  digits = 2,
+  caption = "Catch per unit effort (per 1000 hook hours) for each species by site."
+)
+
+```
+
+`r msmbstyle::solution_end()`
+
+`r msmbstyle::question(label = "ques:shn-13", text = "Briefly describe the results comparing CPUE per species and site and relate that to our overarching question of identifying shark nurseries; you may need to run additional pairwise tests (Dunn's test) to determine significant differences.")`
+
+
+## Comparison of CPUE for different life history stages
+
+Of course, we are not only interested in which species were caught at each site, we also want to know what life history stages those individuals were at when they were caught.
+
+We will use a similar strategy as above to create a data frame with CPUE per site, species, and life history stage and produce a table comparing the means.
+
+```{r echo=FALSE}
+
+# create empty list
+species_CPUE <- list()
+
+# calculate hook hours for each species per site
+for(species in unique(elasmos$Species)){
+  
+  for(stage in unique(elasmos$Estimated_Stage)){
+    
+      species_CPUE[[paste(species, stage, sep = ":")]] <- elasmos %>%
+        filter(Species == species & Estimated_Stage == stage) %>%
+        count(Set_ID) %>%
+        full_join(set_meta) %>%
+        replace_na(list(n = 0)) %>%
+        mutate(Estimate_Stage = stage, 
+               CPUE = n/Hook_Hours,
+               CPUE_1000 = CPUE * 1000)
+
+  }
+  
+}
+
+# combine data frames in list into single 
+CPUE <- bind_rows(species_CPUE, .id = "Species_Stage") %>%
+  select(Species_Stage, Set_ID, Site, Hooks, Soak_Time, Hook_Hours, CPUE, CPUE_1000) %>%
+  separate(Species_Stage, into = c("Species", "Stage"), sep = ":", remove = FALSE)
+
+kable(
+  CPUE %>%
+    group_by(Species_Stage, Site) %>%
+    summarize(mean_CPUE = mean(CPUE_1000)) %>%
+    pivot_wider(names_from = Site, values_from = mean_CPUE) %>%
+    filter(if_any(c(Aransas_Bay, Corpus_Christi_Bay, Redfish_Bay), ~ . > 0)) %>%
+    separate(Species_Stage, into = c("Species", "Stage"), sep = ":") %>%
+    filter(!Stage == "UND")
+)
+
+```
+
+`r msmbstyle::question(label = "ques:shn-14", text = "Briefly describe the results comparing CPUE per life history stage and site and relate that to our overarching question of identifying shark nurseries; these results are all statistically significant.")`
+
+
+

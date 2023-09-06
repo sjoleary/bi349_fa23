@@ -1,0 +1,71 @@
+
+::: {.callout-warning}
+
+## Be mindful
+
+
+:::
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+
+
+:::
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+
+::: {.callout-tip}
+
+## Protip
+
+
+:::
+
+
+
+
+
+::: {.callout-tip icon=false collapse=true}
+
+## {{< fa person-chalkboard >}}    Pointers
+
+surprise!
+
+:::
+
+::: {.callout-tip collapse=true}
+
+## Solution
+
+
+
+:::
+
+
+
+::: {.column-margin}
+
+
+
+:::

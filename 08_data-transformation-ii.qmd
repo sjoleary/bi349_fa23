@@ -1,0 +1,401 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+# Data Transformation: 
+
+```{r}
+#| label: setup
+#| include: false
+
+# set options
+knitr::opts_chunk$set(
+  tidy = FALSE, 
+  message = FALSE,
+	warning = FALSE)
+
+options(htmltools.dir.version = FALSE)
+
+```
+
+
+**Learning Objectives**
+
+After completing this lab you should be able to 
+
+* use `mutate()` to add new columns.
+* use `group_by()` to group rows.
+* use `summarize()` to calculate summary statistics.
+
+For each of our modules we will have a project-folder with an `Rproject`, `*.qmd`-files, and sub-directories for data, scripts, and results as described in our `Rproject` Tutorial. You should have a directory on your Desktop or Documents folder on your laptop (name it something like `bi349`) as a home directory for all of our project folders this semester. 
+
+[You should have already downloaded the project directory for this module ](https://drive.google.com/drive/folders/1Sh4mtvdii1k_vU4-mfvgIGwJsZvo8MOt?usp=sharing), make sure the directory is unzipped and move it to your `bi328` directory. You can open the `Rproj` for this module either by double clicking on it which will launch `Rstudio` or by opening `Rstudio` and then using `File > Open Project` or by clicking on the `Rproject` icon in the top right of your program window and selecting `Open Project`. 
+
+Once you have opened a project you should see the project name in the top right corner^[Pro tip: If you run into issues where a quarto document won't render or file paths aren't working (especially if things were working previously) one of your first steps should be to double check that the correct `Rproj` is loaded.].
+
+There should be a document names `08_data-transformation-ii.qmd` in your project directory. Use that file to work through this tutorial - you will hand in your rendered ("knitted") `quarto` file as your homework assignment. So, first thing in the `YAML` header, change the author to your name. You will use this `quarto` document to record your answers. Remember to use comments to annotate your code; at minimum you should have one comment per code set^[You should do this whether you are adding code yourself or using code from our manual, even if it isn't commented in the manual... especially when the code is already included for you, add comments to describe how the function works/what it does as we introduce it during the participatory coding session so you can refer back to it.] you may of course add as many comments as you need to be able to recall what you did]. Similarly, take notes in the document as we discuss discussion/reflection questions but make sure that you go back and clean them up for "public consumption".
+
+Let's start by loading the packages we will need for this activity.
+
+```{r}
+
+# load libraries
+library(knitr)
+library(tidyverse)
+
+```
+
+And we will want to make sure that we have read in our data set as a dataframe.
+
+```{r}
+
+# read catch data
+catch <- read_delim("data/longline_catchdata.txt", delim = "\t")
+
+```
+
+
+## Adding new variables
+
+So,turns out selecting columns and filtering based on content in rows is pretty straightforward. 
+
+But frequently when we are processing our raw data sets we end up wanting to compute additional metrics or use the existing raw data to create new categories.
+
+The function `mutate()` can be used to create new columns. Frequently, this is done based on columns already existing in the data frame. This is a very powerful function with endless possibilities, but we are going to stick to some of the basics for now^[Rest assured if your answer is "Oh, could I ..." the answer is "Yes".].
+
+Let's say you wanted create a column that contained the difference between the fork length and the stretch total length^[By default `mutate()` appends (adds) the new column as the last column. So we can see our results better we'll used `select()` to move it to be the first column in the dataframe)]:
+
+```{r}
+
+catch %>%
+  mutate(difference = STL - FL) %>%
+  select(difference, everything())
+
+```
+
+You should now have a column called `difference` at the end of the data frame^[Instead of `-` to substract, you can other mathematical operators such as `+` to add , `*` to multiple, and `/` to divide values when creating a new column.].
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+How would you create a new column called ratio, that is the ratio of the fork to stretch total length?
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+You can also create a column that contains a logical value (`TRUE`/`FALSE`). For example we might need a column that indicates if the Sex is unknown.
+
+```{r}
+
+catch %>%
+  mutate(unknown_sex = Sex == "U") %>%
+  select(unknown_sex, everything())
+
+```
+
+You should know have a column called `unknown_sex` where if the animal that was caught was not sexed contains the value `TRUE`, if it was identified as male or female it would say `FALSE`.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+How would you create a new column called post_2017 that is TRUE if fish were caught after 2017?
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+::: {.column-margin}
+
+For that last problem, a "conditional mutate" using an `ifelse` statement (if this then do that, else do that) could have come in handy. Another option is `case_when()` which allows you to create multiple sets of conditions as opposed to `ifelse` which sets up a `TRUE`/`FALSE` dichotomy (file this information away for "maybe useful later").
+
+:::
+
+
+## `group_by()` and `mutate()`
+
+Many problems in data science require you to split your data set into subsets according to some grouping variable, apply a function, and then combine the results. `dplyr` is designed to make this straightforward; you have already sen an example of this while you were learning about `filter()`. 
+
+Similarly, you can combine `mutate()` with `group_by()`.
+
+::: {.column-margin}
+
+The function `mean()` will calculate the mean value of a vector of numbers, the argument `na.rm=TRUE` tells the function to ignore any `NA`-values in the data set.
+
+:::
+
+
+For example, let's say you wanted to create a column that is the difference between the fork length of an individual and the mean fork length of *that species*.
+
+```{r}
+
+catch %>%
+  group_by(Species) %>%
+  mutate(diff_mean = FL-mean(FL, na.rm = TRUE))
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+How would you create a new column called that contains the difference between the fork length of an individual and the mean fork length of that species for each month?
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+## Create new `data.frame` based on another
+
+Not infrequently we are more interested in summary (descriptive) stats of a data set rather than all the raw data - `Tidyverse` got you covered with the function `summarize()`.
+
+For example, we might want to calculate the mean and standard deviation of the measured fork length.
+
+```{r}
+
+catch %>%
+  summarize(mean_FL = mean(FL, na.rm = TRUE),
+            sd_FL = sd(FL, na.rm = TRUE))
+
+```
+
+::: {.column-margin}
+
+Remember, that earlier we've have used the function `max()` to obtain the largest value in a vector.
+
+:::
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+How could you use summarize to get the maximum forklength?
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+That's cool but really we could have also just used 
+
+```{r}
+
+mean(catch$FL, na.rm = TRUE)
+
+max(catch$FL, na.rm = TRUE)
+
+```
+
+to get that information, since we are only interested in one column (vector).
+
+`summarize()` becomes especially powerful once we leverage `group_by()` to start calculating summary stats for entries grouped by a grouping variable.
+
+For example we can calculate summary stats by species and generate a table to include in a report.
+
+```{r}
+
+catch %>%
+  group_by(Species) %>%
+  summarize(mean_FL = mean(FL, na.rm = TRUE),
+           median_FL = median(FL, na.rm = TRUE),
+           max_FL = max(FL, na.rm = TRUE),
+           min_FL = min(FL, na.rm = TRUE),
+           sd_FL = sd(FL, na.rm = TRUE)) %>%
+  ungroup()
+
+```
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+If you look closely you should see that you are getting a few NA, NaN, -Inf, and Inf values - any guesses why? You might want to pull up the catch data frame in the view panel to see what is going on with those species.
+
+:::
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+How could you use `summarize()` to calculate a range of summary stats for the stretch total length for individuals grouped by sex?
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+So far, we have been manipulating our data frame using code and printing it directly to the console (and our quarto document). This can be useful for example to generate tables for reports. However, in many cases we want to create a new object that has been manipulated according to our code and then we will further process, visualize, or analyze that dataframe down the line.
+
+```{r}
+
+summary <- catch %>%
+  group_by(Species) %>%
+  summarize(mean_FL = mean(FL, na.rm = TRUE),
+           median_FL = median(FL, na.rm = TRUE),
+           max_FL = max(FL, na.rm = TRUE),
+           min_FL = min(FL, na.rm = TRUE),
+           sd_FL = sd(FL, na.rm = TRUE)) %>%
+  ungroup()
+
+```
+
+When you execute this code, you'll notice that the code (and probably a warning) is printed to the console but there is no output. Instead, if you look at the environment in the bottom left panel you should now see a new object called `summary`. Per usual, you can pull that up in the Editor/View pane (top left) using either `View(summary)` in the console or by clicking on the object in the environment.
+
+You will be presenting results in reports over the course of the semester, when you `knit` an `quarto` file you will get tables formatted in a standard way according to defaults in the resulting `html` file. If you want finer control over the output, you can use the `kable()` function. This will allow you to further format the table, for example, you may specify the number of digits printed using the argument `digits = `.
+
+By adding a chunk options for a label as `#| label: tbl-sum-stats` and table caption as `#| tbl-cap: "Summary statistics for the forklength of each species`, you can further modify the output that adheres to typical reporting standards for reports and research articles.
+
+```{r}
+#| label: tbl-sum-stats
+#| tbl-cap: "Summary statistics for the forklength of each species in the catch data"
+
+kable(
+  summary,
+  digits = 1
+)
+
+```
+
+
+## Combining verbs
+
+We've already combined most of our `dplyr` verbs with `group_by()`. 
+
+When you are wrangling data you will find that making use of the pipe (`%>%`) to combine `select()`, `filter()`, `mutate()`, and `summarize()` as a series of commands will be necessary to get your data set in the correct format and further process it.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Executre the following the code chunk. Then describe what each line is doing to manipulate the data frame.
+
+```{r}
+
+catch %>%
+  select(-PCL, -Hook_Size) %>%
+  separate(Species, into = c("genus", "species"), remove = TRUE) %>%
+  unite(Date, Day, Month, Year) %>%
+  filter(genus == "Carcharhinus" & Sex %in% c("F", "M")) %>%
+  group_by(Site, genus, species, Sex) %>%
+  filter(FL == max(FL)) %>%
+  arrange(species)
+
+```
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+Generate the code that will manipulate the data frame as follows^[some bullet points may require more than one line of code; you do not have to perform the steps in the sequence presented, play around a little bit to see how to code this more efficiently]:
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Challenge 1:
+
+* order columns so Day, Month, Year, Set are at the beginning.
+* retain all male individuals in the genus Carcharhinus.
+* get rid of columns containing information on observed stage, precaudal length, and hook size
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Challenge 2:
+
+* create a new variable called Set_ID consisting of Day, Month, Year, and Set number.
+* determine the number of individuals per species per set^[There is a function called `n()` that allows us to count rows fulfilling a specific condition].
+
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+
+Challenge 3:
+
+* remove all gafftops
+* calculate mean forklength for each species by sex and month of the year.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+

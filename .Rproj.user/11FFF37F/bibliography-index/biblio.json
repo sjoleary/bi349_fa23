@@ -1,0 +1,228 @@
+{
+    "sources": [
+        {
+            "DOI": "10.1071/MF18081",
+            "ISSN": "1448-6059, 1448-6059",
+            "URL": "https://www.publish.csiro.au/mf/MF18081",
+            "accessed": {
+                "date-parts": [
+                    [
+                        2023,
+                        8,
+                        30
+                    ]
+                ]
+            },
+            "author": [
+                {
+                    "family": "Heupel",
+                    "given": "Michelle R."
+                },
+                {
+                    "family": "Kanno",
+                    "given": "Shiori"
+                },
+                {
+                    "family": "Martins",
+                    "given": "Ana P. B."
+                },
+                {
+                    "family": "Simpfendorfer",
+                    "given": "Colin A."
+                },
+                {
+                    "family": "Heupel",
+                    "given": "Michelle R."
+                },
+                {
+                    "family": "Kanno",
+                    "given": "Shiori"
+                },
+                {
+                    "family": "Martins",
+                    "given": "Ana P. B."
+                },
+                {
+                    "family": "Simpfendorfer",
+                    "given": "Colin A."
+                }
+            ],
+            "container-title": "Marine and Freshwater Research",
+            "container-title-short": "Mar. Freshwater Res.",
+            "id": "heupelAdvancesUnderstandingRoles2018",
+            "issue": "7",
+            "issued": {
+                "date-parts": [
+                    [
+                        2018,
+                        9,
+                        18
+                    ]
+                ]
+            },
+            "language": "en-US",
+            "page": "897-907",
+            "publisher": "CSIRO PUBLISHING",
+            "title": "Advances in understanding the roles and benefits of nursery areas for elasmobranch populations",
+            "type": "article-journal",
+            "volume": "70"
+        },
+        {
+            "DOI": "10.3354/meps337287",
+            "ISSN": "0171-8630, 1616-1599",
+            "URL": "https://www.int-res.com/abstracts/meps/v337/p287-297/",
+            "accessed": {
+                "date-parts": [
+                    [
+                        2023,
+                        8,
+                        30
+                    ]
+                ]
+            },
+            "author": [
+                {
+                    "family": "Heupel",
+                    "given": "Michelle R."
+                },
+                {
+                    "family": "Carlson",
+                    "given": "John K."
+                },
+                {
+                    "family": "Simpfendorfer",
+                    "given": "Colin A."
+                }
+            ],
+            "container-title": "Marine Ecology Progress Series",
+            "id": "heupelSharkNurseryAreas2007",
+            "issued": {
+                "date-parts": [
+                    [
+                        2007,
+                        5,
+                        14
+                    ]
+                ]
+            },
+            "keyword": "Definition,Habitat,Nursery area,Shark",
+            "language": "en-US",
+            "page": "287-297",
+            "title": "Shark nursery areas: Concepts, definition, characterization and assumptions",
+            "title-short": "Shark nursery areas",
+            "type": "article-journal",
+            "volume": "337"
+        },
+        {
+            "DOI": "10.1016/j.ecss.2018.02.023",
+            "ISSN": "0272-7714",
+            "URL": "https://www.sciencedirect.com/science/article/pii/S0272771417307564",
+            "accessed": {
+                "date-parts": [
+                    [
+                        2023,
+                        8,
+                        30
+                    ]
+                ]
+            },
+            "author": [
+                {
+                    "family": "Plumlee",
+                    "given": "Jeffrey D."
+                },
+                {
+                    "family": "Dance",
+                    "given": "Kaylan M."
+                },
+                {
+                    "family": "Matich",
+                    "given": "Philip"
+                },
+                {
+                    "family": "Mohan",
+                    "given": "John A."
+                },
+                {
+                    "family": "Richards",
+                    "given": "Travis M."
+                },
+                {
+                    "family": "TinHan",
+                    "given": "Thomas C."
+                },
+                {
+                    "family": "Fisher",
+                    "given": "Mark R."
+                },
+                {
+                    "family": "Wells",
+                    "given": "R. J. David"
+                }
+            ],
+            "container-title": "Estuarine, Coastal and Shelf Science",
+            "container-title-short": "Estuarine, Coastal and Shelf Science",
+            "id": "plumleeCommunityStructureElasmobranchs2018a",
+            "issued": {
+                "date-parts": [
+                    [
+                        2018,
+                        5,
+                        1
+                    ]
+                ]
+            },
+            "keyword": "Community structure,Diversity,Elasmobranch,Estuary,Gulf of Mexico,Salinity",
+            "page": "103-113",
+            "title": "Community structure of elasmobranchs in estuaries along the northwest Gulf of Mexico",
+            "type": "article-journal",
+            "volume": "204"
+        },
+        {
+            "DOI": "10.1007/s12237-020-00797-y",
+            "ISSN": "1559-2731",
+            "URL": "https://doi.org/10.1007/s12237-020-00797-y",
+            "accessed": {
+                "date-parts": [
+                    [
+                        2023,
+                        8,
+                        30
+                    ]
+                ]
+            },
+            "author": [
+                {
+                    "family": "Swift",
+                    "given": "Dominic G."
+                },
+                {
+                    "family": "Portnoy",
+                    "given": "David S."
+                }
+            ],
+            "container-title": "Estuaries and Coasts",
+            "container-title-short": "Estuaries and Coasts",
+            "id": "swiftIdentificationDelineationEssential2021",
+            "issue": "3",
+            "issued": {
+                "date-parts": [
+                    [
+                        2021,
+                        5,
+                        1
+                    ]
+                ]
+            },
+            "keyword": "Batoids,Gulf of Mexico,Longline survey,Nursery habitat,Sharks",
+            "language": "en-US",
+            "page": "788-800",
+            "title": "Identification and Delineation of Essential Habitat for Elasmobranchs in Estuaries on the Texas Coast",
+            "type": "article-journal",
+            "volume": "44"
+        }
+    ],
+    "project_biblios": [
+        "references.bib"
+    ]
+}
