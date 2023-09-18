@@ -1,0 +1,77 @@
+# Bioinformatics and Assessment of Biological Communities using eDNA {.unnumbered}
+
+For each of our modules we will have a project-folder with an `Rproject`, `*.qmd`-files, and sub-directories for data, scripts, and results as described in our `Rproject` Tutorial. You should have a directory on your Desktop or Documents folder on your laptop (name it something like `bi349`) as a home directory for all of our project folders this semester. 
+
+[Download the directory for this project here](), make sure the directory is unzipped and move it to your `bi328` directory. You can open the `Rproj` for this module either by double clicking on it which will launch `Rstudio` or by opening `Rstudio` and then using `File > Open Project` or by clicking on the `Rproject` icon in the top right of your program window and selecting `Open Project`. 
+
+Once you have opened a project you should see the project name in the top right corner^[Pro tip: If you run into issues where a quarto document won't render or file paths aren't working (especially if things were working previously) one of your first steps should be to double check that the correct `Rproj` is loaded.].
+
+
+## Genetic barcoding
+
+Genetic barcoding, also known as DNA barcoding, is a molecular biology technique used to identify and distinguish between different species of organisms by analyzing a short and standardized DNA sequence. This method is based on the idea that each species has a unique DNA barcode or genetic signature within a particular region of its genome and is particularly useful for rapid species identification, especially when dealing with complex or difficult-to-identify specimens even from small, damaged, or industrial processed material.
+
+Genetic barcoding relies on the ability to amplify a standard gene (locus) across a wide range of taxonomic groups using universal primers. A good barcoding locus is typically a short, conserved section of DNA that contains enough genetic variation to differentiate between species (intraspecific variance) but remains relatively constant within a species (little to no intraspecific variance). The mitochondrial cytochrome c oxidase subunit 1 (COI) gene is a commonly used barcode region in animals, while other genes or regions may be used for plants, fungi, and microorganisms. The data set we will look at is fungi for which ITS2 is commonly used.
+
+Regardless of which genetic region is actually implemented the key steps remain the same: 
+
+1. **DNA Extraction**: Genetic material (usually DNA) is extracted from the biological sample of interest, this can be tissue, cells, or even environmental DNA (eDNA) extracted from water, soil, or other sources.
+2. **PCR Amplification**: Polymerase chain reaction (PCR) is employed to selectively amplify the barcode region from the extracted DNA. Generally, a set of universal primers are used that will amplify in a wide range of taxonomic groups.
+3. **Sequencing**: The PCR-amplified DNA fragments (Amplicons) are subjected to DNA sequencing, typically using Sanger sequencing. The resulting sequence data contain the barcode information.
+4. **Comparison to reference database**: The obtained DNA barcode sequence is compared to a reference database containing sequences from known species. Bioinformatics tools and algorithms are used to search for matches or close matches in the database.
+5. **Species Identification**: Based on the comparison results, researchers can identify the species of the specimen. If the sequence closely matches a known barcode sequence in the database, the specimen can be confidently identified.
+
+## Metabarcoding 
+
+Metabarcoding of samples with mixed DNA templates allows us to characterize biological communities. Barcoding generally required there to be only one species present in the extracted DNA in order to get a clean sequence for comparison and taxonomic assignment. However, for many applications it would be useful to amplify and sequence DNA that potentially contains DNA from multiple species. Advances in sequencing technology (high throughput sequencing and next generation sequencing) has allowed us to perform metabarcoding studies for which the same steps apply except that during sequencing a large number of reads are produced. These sequences then need to be analyzed to identify the unique sequences present in the data set and then those are matched to a database.
+
+ 
+ 
+## eDNA
+Environmental DNA is DNA captured from an environmental sample without the need for pre-isolating specific targets. Macroorganisms shed DNA as cellular or extracellular material into the environment. Typical sources include mucous, the excretion of bodily fluids (feces, urine), and the sloughing off of skin cells, scales or other tissue. 
+This means that we can capture DNA from an environmental sample without pre-isolating specific target organisms. For example, we take a water sample (1 – 5l) and then use a nitrocellulose filter to trap the DNA and then extract that DNA using very straightforward protocols.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Environmental samples cover a wide range of ecosystems and habitats and spatiotemporal scales. Use examples to describe this variety of samples that can be used.
+
+:::
+
+Generally, we refer to environmental DNA as DNA that is a "trace" of an organism in the environment, not the organisms itself. However, in some cases the same methods used to characterize biological communities using environmental DNA are applied to community DNA.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Compare and contrast eDNA and community DNA and argue whether you would consider a gut content analysis to be eDNA or community DNA.
+
+:::
+
+::: {.callout-tip icon=false collapse=true}
+
+## {{< fa person-chalkboard >}}    Pointers
+
+DNA can be isolated from bulk-extracted from mixtures of organisms isolated from an environmental sample (Community DNA).
+
+:::
+
+eDNA has high potential as a complementary method to characterize and monitor biological communities but users must be aware of biases and caveats to analyze the resulting data sets in a meaningful way.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Describe the potential of eDNA in terms of applications and contrast this with some of the challenges that still need to be overcome.
+
+:::
+
+## Our Data set
+
+The data set that we will be exploring used metabarcoding to characterize fungi communities in soil samples taken from different depths (soil horizons) in forests dominated by different trees and their mutualistic mycorrhizal fungi to explore how this affects resource competition with free-living saptrotrophs.
+
+Here is the abstract from [@carteronTemperateForestsDominated2021].
+
+> In temperate and boreal forests, competition for soil resources between free-living saprotrophs and ectomycorrhizal (EcM) fungi has been suggested to restrict saprotrophic fungal dominance to the most superficial organic soil horizons in forests dominated by EcM trees. By contrast, lower niche overlap with arbuscular mycorrhizal (AM) fungi could allow fungal saprotrophs to maintain this dominance into deeper soil horizons in AM-dominated forests. Here we used a natural gradient of adjacent forest patches that were dominated by either AM or EcM trees, or a mixture of both to determine how fungal communities characterized with highthroughput amplicon sequencing change across organic and mineral soil horizons. We found a general shift from saprotrophic to mycorrhizal fungal dominance with increasing soil depth in all forest mycorrhizal types, especially in organic horizons. Vertical changes in soil chemistry, including pH, organic matter, exchangeable cations, and extractable phosphorus, coincided with shifts in fungal community composition. Although fungal communities and soil chemistry differed among adjacent forest mycorrhizal types, variations were stronger within a given soil profile, pointing to the importance of considering horizons when characterizing soil fungal communities. Our results also suggest that in temperate forests, vertical shifts from saprotrophic to mycorrhizal fungi within organic and mineral horizons occur similarly in both ectomycorrhizal and arbuscular mycorrhizal forests.
+

@@ -24,6 +24,11 @@ book:
         - 08_data-transformation-ii.qmd
         - 09_tidy-data.qmd
         - 10_relational-data.qmd
+        
+    - part: C_bioinformatics-eDNA.qmd
+      chapters:
+        - 11_bioinformatics.qmd
+        - 12_community-diversity.qmd
 
     - part: z_appendix.qmd
       chapters:

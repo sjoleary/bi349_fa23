@@ -1,0 +1,913 @@
+
+# Bioinformatics
+
+```{r}
+#| label: setup
+#| include: false
+
+library(ggplot2)
+library(ggthemes)
+
+# custom functions ----
+
+theme_standard <- theme_classic() +
+  theme(
+    axis.text = element_text(size = 11, color = "black"),
+    axis.title = element_text(size = 16, color = "black"),
+    axis.title.y = element_text(vjust = 1.5, color = "black"),
+    axis.line = element_line(color = "black"),
+    
+    legend.position = "bottom",
+    
+    panel.background = element_rect(fill = "white", color = NA), 
+    panel.border = element_blank(), 
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(), 
+    strip.background = element_rect(fill = "grey95", color = "black"), 
+    strip.text.x = element_text(size = 16, color = "black"),
+    strip.text.y = element_text(size = 16, color = "black")) 
+
+theme_facet <- theme_classic() +
+  theme(
+    axis.text = element_text(size = 11, color = "black"),
+    axis.title = element_text(size = 16, color = "black"),
+    axis.title.y = element_text(vjust = 1.5, color = "black"),
+    axis.line = element_line(color = "black"),
+    
+    legend.position = "bottom",
+    
+    panel.background = element_rect(fill = "white", color = NA), 
+    panel.border = element_rect(fill = NA, color = "black"), 
+    panel.grid.major = element_line(color = "grey85"), 
+    panel.grid.minor = element_blank(), 
+    strip.background = element_rect(fill = "grey95", color = "black"), 
+    strip.text.x = element_text(size = 16, color = "black"),
+    strip.text.y = element_text(size = 16, color = "black")) 
+
+# other options ----
+
+knitr::opts_chunk$set(
+  tidy = FALSE, 
+  message = FALSE,
+	warning = FALSE)
+
+options(htmltools.dir.version = FALSE)
+
+```
+
+**Learning Objectives**
+
+After completing this lab you should be able to 
+
+* use `glue()` to paste strings into a file path (or other string).
+* use `pull()` to exract single values from a dataframe.
+* use inline code in documents to report results.
+* define genetic barcoding.
+* describe what metabarcoding is and how it can be applied to characterize biological communities.
+* compare and contrast Operational Taxonomic Units (OTUs) and Amplicon Sequence Variants (ASVs).
+* describe the general steps used to compile high-throughput sequence data into Amplicon Sequence Variants and outline how this is implemented in `DADA2`.
+* describe the general process of assigning ASVs to taxonomic groups and discuss potential problems that can arise 
+
+
+[Download the directory for this project here](https://drive.google.com/drive/folders/1Zxltr7neJcLzU39emYpXyjpSArFgrh-l?usp=sharing), make sure the directory is unzipped and move it to your `bi328` directory. You can open the `Rproj` for this module either by double clicking on it which will launch `Rstudio` or by opening `Rstudio` and then using `File > Open Project` or by clicking on the `Rproject` icon in the top right of your program window and selecting `Open Project`. 
+
+Once you have opened a project you should see the project name in the top right corner^[Pro tip: If you run into issues where a quarto document won't render or file paths aren't working (especially if things were working previously) one of your first steps should be to double check that the correct `Rproj` is loaded.].
+
+There should be a file named `11_bioinformatics.qmd` in that project directory. Use that file to work through this tutorial - you will hand in your rendered ("knitted") `quarto` file as your homework assignment. So, first thing in the `YAML` header, change the author to your name. You will use this `quarto` document to record your answers. Remember to use comments to annotate your code; at minimum you should have one comment per code set^[You should do this whether you are adding code yourself or using code from our manual, even if it isn't commented in the manual... especially when the code is already included for you, add comments to describe how the function works/what it does as we introduce it during the participatory coding session so you can refer back to it.] you may of course add as many comments as you need to be able to recall what you did. Similarly, take notes in the document as we discuss discussion/reflection questions but make sure that you go back and clean them up for "public consumption".
+
+::: {.column-margin}
+
+CRAN (Comprehensive R Archive) is the central archive for R packages. However, it is not uncommon for some packages there are specialized archives that are field specific. For example, [Bioconductor](https://bioconductor.org/install/) hosts many packages used for bioinformatics. After installing Bioconducter you can then install packages hosted there using `BiocManager::install()`.
+
+Previously we have always called functions just using the function name. Given that you have loaded your packages, R automatically "knows" which package to call a function from. However, sometimes it might be helpful to specify which package a function is common from, either for documenting purposes (so that somebody else would know what library that function is from) or because sometimes there might be a function with the same name in more than one library and this way you can tell R explicitly which function you are calling.
+
+:::
+
+We will need to install some new packages before we can get rolling. Execute the following commands to install them - note that the code chunk has the code chunk option `eval` set as `false` which means that when you render your quarto document it won't execute this code chunk and try to re-install these packages.
+
+```{r}
+#| eval: false
+
+# install neonUtilities from CRAN
+install.packages(c("neonUtilities"))
+
+# install Bioconductor
+install.packages("BiocManager")
+
+# install dependency for data
+BiocManager::install("ShortRead") 
+
+# install dada2
+BiocManager::install("dada2")
+
+# install Biostrings
+BiocManager::install("Biostrings")
+
+# if these packages are not yet installed install patchwork and plotly 
+install.packages("plotly", "patchwork")
+
+```
+
+Now let's load our packages so we get started.
+
+```{r}
+
+# load libraries ----
+
+# documentation
+library(knitr)
+
+# eDNA analysis
+library(dada2)
+
+
+# wrangling
+library(tidyr)
+library(dplyr)
+library(tibble)
+library(readr)
+library(glue)
+
+# visualization
+library(ggplot2)
+library(ggthemes)
+library(plotly)
+library(patchwork)
+
+
+
+```
+
+## Next-generation sequence data enable metabarcoding to describe community composition
+
+High-throughput sequencing data, often referred to as next-generation sequencing (NGS) data, is a type of biological data generated through advanced sequencing technologies that allow for the rapid and simultaneous sequencing of a large number of DNA or RNA molecules. These technologies have revolutionized genomics, transcriptomics, and other related fields by enabling the efficient and cost-effective analysis of genetic material on a massive scale. There are various high-throughput sequencing platforms available, including Illumina, Ion Torrent, Pacific Biosciences (PacBio), Oxford Nanopore Technologies (ONT), and others. High-throughput sequencing has become more cost-effective over time, making it accessible to a broader range of researchers and enabling large-scale genomics projects. 
+
+The key difference between high-throughput sequencing platforms compared to traditional Sanger sequencing^[anger sequencing, also known as dideoxy sequencing or chain-termination sequencing, is a traditional DNA sequencing method that was developed by Frederick Sanger and his colleagues in the late 1970s. It was the primary method for DNA sequencing for several decades before the advent of high-throughput next-generation sequencing (NGS) technologies. Sanger sequencing is still used today for specific applications, such as sequencing individual genes or validating NGS results.] is that they are capable of simultaneously sequencing thousands to millions of DNA fragments or RNA molecules in a single sequencing run. This parallel processing greatly increases the speed and efficiency of sequencing compared to traditional Sanger sequencing.
+
+NGS platforms produce a vast amount of data. A single sequencing run can generate gigabytes to terabytes of raw sequencing data, depending on the instrument's capacity and the type of experiment being conducted^[ Don't worry, we are going to use a data set that consists of samples have been modified to reduce size but still preserve realistic sequence variation and errors to create small example data set that your laptops can handle.]. Typically, high-throughput sequencing generates short sequences, referred to as "reads." The length of these reads can vary depending on the sequencing platform but is typically in the range of 50 to 300 base pairs. Usually you get one forward and one reverse read per sequenced template DNA.
+
+In the context of metabarcoding of environmental DNA this means that we can use universal primers to amplify template DNA present in the environmental sample that potentially are from different organisms^[If you used Sanger sequencing you would just get a bunch of noise, because the sequencer would not be able to make a distinct base call for any position] because we can sequence all the amplified template DNA strands at once. 
+
+## Bioinformatics pipelines are important tools to processing NGS data
+
+Analyzing high-throughput sequencing data requires sophisticated bioinformatics tools and pipelines. Bioinformatics pipelines are widely used in genomics and related fields to streamline and standardize data analysis workflows. They comprise a series of structured and automated series of computational and data analysis steps designed to process and analyze biological data. Frequently, data takes on of several paths through the pipeline where the output from one step becomes the input for the next step. 
+
+Generally, a bioinformatics pipeline takes a specific type(s) or raw input data, such as DNA or RNA sequence data, frequently generated from high-throughput techniques. This data set then goes through the first stage of the pipeline where it is pre-processed for analysis steps, including quality control, data cleaning, and format conversion to ensure the data set is robust and meets a standardized format for downstream analysis. Pipelines frequently consists of a series of analysis steps or modules tailored to specific research questions/tasks, for example sequence alignment, variant calling, gene expression quantification, protein structure prediction.
+
+Because pipelines are designed to allow for a high degree of automation to reduce error and maximize efficiency. Frequently, users use scripts or specific workflow management tools to execute each analysis step in a predefined errors. Because of this automation, it can be tempting to "blackbox" the analysis where an inexperienced user can run complex data analysis without understanding what is happening at each stage. However, for an analysis appropriate to a specific data set it is critical that scientists understand how to configure parameters and options for each analysis step to customize the pipeline for the specific data set and research objectives.
+
+Bioinformatics tools are often run from the command line. Linux is frequently the operating system of choice^[You're laptop is likely MacOS or Windows and Linux would be the third common OS, however, it is not designed to be as user-friendly as Mac/Windows and has a steep learning curve.] as it provides a powerful and standardized command-line interface that makes it easy to automate tasks, write scripts, and integrate various tools into analysis pipelines. It also offers a high degree of customization and flexibility due to its open source nature^[This also means its free!]. In addition, it is known for its efficiency and stability which is critical when running resource-intensive analysis.
+
+High performance clusters allow for efficient handling of large data set by allowing multiple tasks to be executed in parallel^[Your laptop probably has two to four cores, which means you could run tasks in parallel on up to two threads. Many linux servers have upward of 20 threads to run things in parallel on, for high performance clusters (HPCs you may be looking at 100s)].
+
+Don't worry, you're not going to have to learn how to use a Linux Terminal. We will be using a pipeline that runs in `R`.
+
+`Dada2` [@callahanDADA2HighresolutionSample2016] is a bioinformatics pipeline which implements functions that can be used for the quality control, denoising, and analysis of amplicon sequencing data, particularly data generated from high-throughput sequencing technologies like Illumina's MiSeq or HiSeq platforms. It is widely used in microbiome research and is becoming increasingly popular for the analysis of environmental DNA (eDNA) metabarcoding data sets.
+
+The key modules (steps) include
+
+1. **Quality Filtering**: DADA2 begins by assessing the quality of each sequence read in the dataset. Low-quality reads, which may contain sequencing errors or noise, are filtered out. This step helps improve the accuracy of downstream analysis.
+2. **Sequence Dereplication**: Identical sequences are collapsed into unique sequence variants (also known as amplicon sequence variants or ASVs). This step reduces redundancy in the dataset and accounts for potential PCR or sequencing errors.
+3. **Denoising**: DADA2 employs a statistical model to distinguish between true biological sequence variants and sequencing errors. By modeling the error profile of the sequencing data, it can identify and correct errors, resulting in more accurate sequence variants.
+4. **Chimera Removal**: DADA2 identifies and removes chimera sequences, which are artificial sequences generated during PCR that can lead to incorrect biological interpretations.
+5. **Phylogenetic Assignment**: After denoising, `DADA2` assigns taxonomy to the sequence variants by comparing them to reference databases, allowing researchers to identify the taxa present in the sample.
+
+In contrast to other pipelines used to process metabarcoding data sets, `DADA2` generates ASVs.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Explain what the difference between an OTU and and ASV (include what each abbreviation stands for). You will want to revisit this question after having completed this tutorial and having a better understanding of the methods implemented in `DADA2`.
+
+:::
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+Enough chit chat! Let's go!
+
+## Demultiplexing
+
+Generally, multiple samples are pooled and run on the same NGS sequencing lane. The amplified sequences (amplicons) of each sample are tagged with the same unique molecular barcode or index. This means that the first step is to take the entire output of a sequencing run and demultiplex it, i.e. each sequence read is assigned back to its respective sample based on the barcode/index combination.
+
+::: {.column-margin}
+
+`FASTQ` files are a common file format used to store biological sequence data, particularly data generated by next-generation sequencing (NGS) technologies like Illumina sequencing platforms. In contrast to `FASTA` files which contain only sequence data, `FASTQ` files contain information about the sequences of DNA or RNA fragments, associated quality scores, and optional sequence identifiers.
+
+:::
+
+
+This data set has already been demultiplexed and the individual `fastq` files are in your `data` folder.
+
+
+## Quality check and filter sequences 
+
+If you look in the `data` folder your project directory, you will see that you have a folder called `seq` that contains a folder for your raw sequences and also one that we will use to hold your sequences once we have done some quality filtering and trimming.
+
+Before we get started we are going to create a series of vectors that contain our file paths and sample names that we can use throughout the analysis^[There are some key advantages to setting up vectors in this way. First, you only need to type in the information once, and then you can just call the vector which is a lot shorter and easier to type in. Second, you make the code more easily reusable for another analysis because you only need to change the file paths in one location and don't have to find all the spots in your code where the file path needs to be changed. Finally, as you will see you are working with a large number of individual files, so when we create sample names based on the file names we don't have to type them in all by hand which saves time and also minimizes the chances of typos.]. We are also going to extract the sample names and save them in a variable. We are able to do this because all of our filenames have a similar pattern.
+
+```{r}
+
+# designate file paths ----
+
+# create variable with initially trimmed reads
+raw <- "data/seq/raw"
+
+# path for filtered reads
+filt <- "data/seq/filt"
+
+
+# create lists of matched forward & reverse fastq files ----
+
+# forward reads
+fnFs <- sort(list.files(raw, pattern = "_R1.fastq", full.names = TRUE))
+
+# reverse reads
+fnRs <- sort(list.files(raw, pattern = "_R2.fastq", full.names = TRUE))
+
+# create vector with sample names
+sample.names <- substr(basename(fnFs), 1, (nchar(fnFs)-25))
+
+
+# create file names & paths for filtered reads ----
+
+# named vectors of forward reads 
+filtFs <- file.path(filt, glue("{sample.names}_R1.fastq.gz"))
+names(filtFs) <- sample.names
+
+# named vectors of reverse reads 
+filtRs <- file.path(filt, glue("{sample.names}_R2.fastq.gz"))
+names(filtRs) <- sample.names
+
+```
+
+There are `r length(fnFs)` samples in the data set.
+
+Now that we have all of our file paths set up our next step is to take a look at the quality profile of the sequences. We could look at all of them, however, usually it is sufficient to spot check a few sequences to get an idea of what the quality looks like to give us an idea of what threshold values we should be using for quality filtering.
+
+`DADA2` has a built in function `plotQualityProfile()` that pulls the information from the `fastq` files which contains the quality information for each nucleotide call. Quality is measured as PHRED scores, a score of 40 should be interpreted as an expected 1 in 10,000 error rate, 20 would be a 1 in 100 chance of a base call being incorrect.
+
+::: {.column-margin}
+
+We are wrapping the plotting function in `ggplotly()` which is built on the `plotly` package to generate interactive figures. It will take a second for your figure to pup up in the `Viewer` pane on the bottom left of `Rstudio`. If you hover over different points of the plot with your mouse you will see a little pop that lists the exact values.
+
+:::
+
+Let's go ahead an plot the quality sequence for the first sample We can do this by passing the first file path in the `fnFs` vector using `[1]` to indicate the first element of the vector.
+
+```{r}
+#| label: fig-err-forw
+#| fig-cap: "Quality scores for the forward reads of the first sample. Grey-scale underlying heatmap shows frequency of each score at each base position (darker color is higher frequency), green line is em quality score for base position, orange lines indicate the quartiles (solid is median, dashed = 25th and 75th quartile). The red line indicates the percentage of reads that extend to at least that position."
+#| fig-height: 9
+
+ggplotly(plotQualityProfile(fnFs[1]))
+
+```
+
+As you can see there is a lot going on in this figure. The x-axis indicates the cycle number which is equivalent to the base position in the sequence (one base call is added per cycle) while the y-axis indicates the quality score. In the bottom left you can see the number of reads (sequences) in the file indicated. You can see grey shading which is a heatmap indicating the frequency of each score at each position. Darker colors indicate that a certain quality score is more common at that position across all the reads in the sample. The green line is the mean quality score, orange lines are the quartiles. The read lines indicates the proportion of reads that extend to that position.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Go ahead and plot the reverse reads for the 12th sample in the data set. Then describe the quality patterns you are seeing for your forward and reverse reads. You can use the table below that summarizes how to interpret the quality scores.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+::: {.callout-tip collapse=true}
+
+## Solution
+
+```{r}
+#| label: fig-err-rev
+#| fig-cap: "Quality scores for the reverse reads in 12th sample. Grey-scale underlying heatmap shows frequency of each score at each base position (darker color is higher frequency), green line is median quality score for base position, orange lines indicate the quartiles (solid is median, dashed = 25th and 75th quartile). The red line indicates the percentage of reads that extend to at least that position."
+#| fig-height: 9
+#| echo: false
+
+ggplotly(plotQualityProfile(fnRs[12]))
+
+```
+
+Reverse reads typically have lower quality and larger drop-off compared to forward reads. Trimming too conservatively can result in downstream issues when forward and reverse reads cannot be merged due to a lack of overlap.
+
+:::
+
+
+| **Quality score of base call** | **Confidence of base call being correct** |
+|--------------------------------|-------------------------------------------|
+| 10                             | 90                                        |
+| 20                             | 99                                        |
+| 30                             | 99.9                                      |
+| 40                             | 99.99                                     |
+
+
+## Trim sequences
+
+We will use the information from the quality scores to make decision on appropriate threshold values to use to trim our sequences.
+
+We are going to use a series of filters to remove low quality reads from the samples. Specifically, we will remove any basecalls that were too ambiguous to call,^[`N` are unknown nucleotides. If the signal for a base is too ambiguous to make a call, the Illumina platform will call it `N`. `DADA2` assumes there are no `NNN` in the data set so we have to remove them.] and any remaining PhiX reads still in the data set^[PhiX is a bacteriophage. It's DNA is spiked into libraries being sequenced to improve the quality sequencing run by increasing the sequence diversity]. Next, the first and last xx bases are trimmed for each read as these are usually low quality. Additionally, reads are truncated at first instance of a quality score < 6. Finally, reads < 35 bp after trimming are removed.
+
+We are assuming matching order of forward and reverse reads for each sample.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Look up the `filterAndTrim()` function and annotate each line of the code to indicate what each argument does, include both what the argument controls in general and then specifically what this means for this example.
+
+:::
+
+```{r}
+
+# filter reads
+out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, #
+                     truncLen = c(280, 280),     #
+                     trimLeft = c(18, 2),        #
+                     truncQ = 6,                 #
+                     maxEE = c(2,2),             #
+                     minLen = 35,                #
+                     rm.phix = TRUE,             #
+                     matchIDs = FALSE,           #
+                     compress = TRUE)            #
+
+```
+
+::: {.callout-tip collapse=true}
+
+## Pointers
+
+Here are descriptions of the key arguments that set thresholds for quality filters
+
+* `truncQ`: sets a minimum Q score. At the first instance of a quality score less than or equal to truncQ, the sequence is truncated.
+* `truncLen`: sets the length at which the sequences will be truncated. Sequences shorter than the length are eliminated.
+* `trimLeft`: sets the length that will be removed on the 5’ side of the reads. This allows you to remove the primers if it has not been done beforehand^[Primers used are ITS3_KYO2: GATGAAGAACGYAGYRAA = 18bp
+ITS4: TCCTCCGCTTATTGATATGC = 20b].
+* `maxEE`: sets the maximum number of “expected errors” allowed in a read. This filter is based on the Q index. The more the number is increased, the less strict we are.
+
+:::
+
+Let's take a look at what that function has done. We assigned the output to a variable called `out`. 
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Use the functions `class()` and `head()` to get an idea of what type of object we have created and then briefly describe what information is contained in that object.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+::: {.callout-tip collapse=true}
+
+## Solution
+
+Wait - that function has created a matrix array (a type of object you could describe as a multidimensional vector or a poor man's data frame) that tells us how many reads per sample went into a the filters and then who many came out. 
+
+But where did our filtered reads go? Remember, we gave the function the file paths for both the input files (`data/seq/raw/*.fastq.gz`) and where to write the filtered files and what to name them (`data/seq/fil/*.fastq.gz`). If you use the file navigation pane you should see that it now contains those files.
+
+The object we created that is now in our environment holds the record of what occurred during filtering. It is very common that bioinformatics pipelines generate output files at various steps that let the user track what is happening that can be used to ensure everything is going as expected and also allow them to pick up on unusual patterns that might be indicative of the fact that your threshold values might not be appropriate, that there is something odd going on with the data, or that perhaps commands where not properly formulated and therefore didn't take place the way the researcher expected them to.
+
+:::
+
+
+Let's take a look to see how many reads where removed from the data set.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+This code chunk converts the matrix into a dataframe. Use your coding skills to create a new column called `perc_lost` that contains the percent of reads that were lost in this filtering step. Then calculate the mean and standard deviation of the percent reads lost and the mean and standard deviation of the number of reads that remain per sample.
+
+Then use `kable()` to display your function in the console/your rendered html report. 
+
+Note the inline code below that is pulling the key pieces of information directly from your data frame. This can be really helpful because e.g. if you are rerunning code on an updated data set you would not have to dig through your output to make sure that you updated all the results, instead R can do that for you. You can indicate that it is inline code using backticks and then indicating the engine using `r`. You will see that notation through out this document.
+
+The function `pull()` allows you to extract (pull) a single value from a column.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+```{r}
+#| eval: false
+
+
+# summarize proportion of reads lost during trimming
+check <- as.data.frame(out) %>%
+  
+
+```
+
+:::
+
+::: {.callout-tip collapse=true}
+
+## Solution
+
+```{r}
+#| label: tbl-filt-results
+#| tbl-cap: "Mean and standard deviation of the proportion of reads lost due to quality filtering and the mean and standard deviation of the number of remaining reads per sample post filtering."
+#| echo: false
+
+# summarize proportion of reads lost during trimming
+check <- as.data.frame(out) %>%
+  mutate(perc_lost = 100-(reads.out/reads.in*100)) %>%
+  summarize(mean_loss = mean(perc_lost),
+            std_loss = sd(perc_lost),
+            mean_reads = mean(reads.out),
+            std_reads = sd(reads.out))
+
+kable(
+  check
+)
+
+```
+
+:::
+
+After quality trimming samples contain approx. `r round(check %>% pull(mean_reads), digits = 0)`% (+/- `r round(check %>% pull(std_reads), digits = 0)`) reads. Quality trimming removed `r round(check %>% pull(mean_loss), digits = 1)`% (+/- `r round(check %>% pull(std_loss), digits = 1)`%) reads from each sample.
+
+We will track how many reads we "lose" at each step to understand how different steps affect the number of reads that remain in the sample.
+
+Next to knowing how many low quality reads where removed we will want to take a look at the quality of the remaining reads after we have trimmed.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Plot the quality scores for the forward and reverse of one random sample and compare your results to the raw data. Make sure to add a figure caption using the code chunk options!
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-tip collapse=true}
+
+## Solution
+
+This is what the plot for your forward reads should look like.
+
+```{r}
+#| label: fig-err-for-fil
+#| fig-cap: "Quality scores of forward reads for 16 random samples in the data set after trimming. Grey-scale underlying heatmap shows frequency of each score at each base position (darker color is higher frequency), green line is median quality score for base position, orange lines indicate the quartiles (solid is median, dashed = 25th and 75th quartile). The read line indicates the percentage of reads that extend to at least that position."
+#| fig-height: 9
+#| echo: false
+
+ggplotly(plotQualityProfile(filtFs[4]))
+
+```
+
+Remember to plot the reverse reads *for the same sample*.
+
+```{r}
+#| label: fig-err-rev-fil
+#| fig-cap: "Quality scores of reverse reads for 12 random samples in the data set after trimming. Grey-scale underlying heatmap shows frequency of each score at each base position (darker color is higher frequency), green line is median quality score for base position, orange lines indicate the quartiles (solid is median, dashed = 25th and 75th quartile). The read line indicates the percentage of reads that extend to at least that position."
+#| fig-height: 9
+#| echo: false
+
+
+ggplotly(plotQualityProfile(filtRs[4]))
+
+```
+
+:::
+
+## Generate error model
+
+Next, we need to be able to distinguish between error due to for example PCR or sequencing error and actual biological differences among sequences. We can train `DADA2` to be able to do this using a subset of our data as a training set using a machine learning approach to establish a parametric error model^[Note that the error rate is specific to a sequencing run] to estimate error rates.
+
+Error rates are generally expected to drop with increased quality. By default 100 Million bases are used to generate the error model, this number can be increased for a better estimate.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Run the code belwo to generate the error models. This will take a few seconds. While you wait, pull up the description of what this function does in the help pane and use comments to indicate what the function as a whole does and what the different arguments control.
+
+```{r}
+#| cache: true
+
+# forward reads
+errF <- learnErrors(filtFs,               # 
+                    nbases = 1e8,         # 
+                    multithread = FALSE)  # 
+
+# reverse reads
+errR <- learnErrors(filtRs, 
+                    nbases = 1e8,
+                    multithread = FALSE)
+
+```
+
+:::
+
+Machine learning estimates and observed values should show close overlap to indicate the quality (fit) of the model. The observed error rates should be consistent with the expected learned error rates for the 16 possible base transitions. If they do not, the number of bases used can be increased to allow the ML algorithm to train on a larger subset of the data. 
+
+We can use the function `dada2::plotErrors()` to compare the observed and estimated error plots as an indication of how good our error models are. We will plot both the forward and reverse error model and assign those to objects so we can use the `patchwork` package to plot them next to each other in a single plot^[the package `patchwork` allows us to combine multiple plots in one file. You can [read up on the basic layout options using `+`, `\` and `|` here](https://patchwork.data-imaginist.com/articles/guides/assembly.html) and more a [sneak peak of more complex layouts here ](https://patchwork.data-imaginist.com/articles/guides/layout.html)].
+
+```{r}
+#| label: fig-err-rates
+#| fig-cap: "Error rates for each possible transition for forward (top) and reverse reads (bottom). Observed (grey points) and estimated (black line) error rates for each consensus quality score. Expected error rates for nominal definition of the quality score are in red."
+#| fig-height: 15
+
+# Visualize estimated error
+p1 <- plotErrors(errF, nominalQ = TRUE)
+
+p2 <- plotErrors(errR, nominalQ = TRUE)
+
+p1 / p2
+
+```
+
+::: {.column-margin}
+
+The plot will pop up in the Plot pane. You can change the size of the pane to resize and make it larger, it can also be helpful to use the `zoom` button to create a popout window for an even better look.
+
+Note also that you can use the code chunk option `fig-height:` to control the size in your rendered html output file.
+
+:::
+
+As you can see this creates a series of plots - one for each possible transition e.g. the error frequency for an A being mistakenly called a C (`A2C`) etc. The black points are the observed error rates for each consensus quality scores. The black line is the estimated error rate after the model has converged. The red line indicates the expected error rates under the nominal definition of the Q-value for Illumina technology. 
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Use the figures to briefly describe how well our error models capture the observed data and how this compares to the expected error rates.
+
+:::
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+# Infer amplicon sequence variants (ASVs) and create sequence table
+
+`DADA2` uses exact variants instead of OTUs (operational taxonomic units)^[An OTU us a cluster of DNA sequences considered to belong to the same taxonomic unit based on a predefined sequence similarity threshold. By contrast, an ASV is a unique sequence variant obtained from raw, high resolution sequence data, there is no clustering based on similarity. As a result, multiple ASVs (haplotypes) may correspond to the same species.]. The pipeline infers ASVs from the set of reads by incorporating the census quality profiles and abundances of each unique sequence to determine whether a given sequence is more likely a true biological sequence or more likely spurious [@callahan_dada2_2016, @rosen_denoising_2012]. 
+
+Running this step on all samples at the same time is computationally more intensive than running the pipeline one sample at a time but increases the functions ability to resolve low-abundance ASV, including singletons.
+
+
+## Dereplicate, infer, and merge ASVs
+
+Now we are ready to identify the ASVs present in our data set.
+
+The first step to do this is dereplication, which means that we are collapsing all identical reads into a set of unique sequences. Dereplicating or denoising data is an important step in amplicon processing workflows, instead of keeping all identical sequences only one is kept for processing and the number of sequences represented is stored a long with it. A new consensus quality score profile is calculated for each unique sequence based on the average quality score of each base for all sequences that are replicates of that given amplicon. These quality profiles Dereplication makes downstream processing a lot more efficient and less memory intense by eliminating redundant comparisons.
+
+::: {.column-margin}
+
+The function `lapply()` is similar to a for loop, where it applies the same function to every file in the vector containing the filtered samples.
+
+:::
+
+```{r}
+#| results: hide
+
+derepFs <- lapply(filtFs,      
+                  derepFastq,      
+                  verbose = FALSE)  
+
+derepRs <- lapply(filtRs, 
+                  derepFastq, 
+                  verbose = FALSE)
+
+```
+
+In the next step, sequence variants are inferred using the dereplicated data and the inferred error rates. Using the consensus quality profiles significantly increases `DADA2`'s accuracy.
+
+::: {.column-margin}
+
+As we've mentioned previously, many metabarcoding pipelines use OTUs instead of ASVs. For OTU's reads that are at least 97% similar are clustered. There are two arguments for doing this, the first is many species have more than one haplotype for the same locus and so if you set the threshold for clustering at 100% you are oversplitting i.e. multiple unique sequences can "belong" to the same species. The second is that sequences from the same species might end up with different sequences not because of true biological differences but because of errors in the process of PCR amplifying sequences or during sequencing. However, ASVs are not the same thing as OTUs with a 100% threshold for clustering, instead, `DADA2` uses the information from the quality profiles and the error models to distinguish true biological differences that separate unique amplicons vs amplicons that are only different due to errors (i.e. base differences are artifacts).
+
+:::
+
+```{r}
+#| results: hide
+
+dadaFs <- dada(derepFs,            
+               err = errF,         
+               selfConsist = FALSE,
+               multithread = TRUE) 
+
+dadaRs <- dada(derepRs,
+               err = errR,
+               selfConsist = FALSE,
+               multithread = TRUE)
+
+```
+
+::: {.column-margin}
+
+Different sequence platforms and sequencing kits are limited by how long the reads can be. For example, this data set was sequenced on a 2x300bp Miseq platform. This means that each amplicon was sequenced 300 bp in the 5' to 3' direction and then 300bp in the 3' to 5' direction. This means that we can sequence inserts longer than 300 bp and merging the two strands (forward and reverse reads) increase the confidence in the reliability of the sequence in the overlapped region.
+
+:::
+
+Our last step is that we need to merge our forward and reverse reads to reconstruct the full target amplicon. 
+Forward and reverse-complement of corresponding reverse sequences are aligned and merging requires an overlap of 12 sequences and there are no mismatches permitted in the overlapping region. Paired reads that do not exactly overlap are removed to reduce spurious output.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Look up the `mergePairs()` function in the help pane and comment the code below to indicate what the function as a whole and each argument does.
+
+
+```{r}
+#| results: hide
+
+mergeASVs <- mergePairs(dadaFs, filtFs, 
+                        dadaRs, filtRs,
+                        minOverlap = 12,  
+                        maxMismatch = 0)
+
+```
+
+:::
+
+We can take a look at the results. The function returns a list^[Remember, we can think of a list as an object that is like a shelf where each shelf holds one element in this case each sample is an element]. Let's take a look at the first element.
+
+```{r}
+
+head(mergeASVs[1])
+
+```
+
+This contains a dataframe where for each sequence (ASV) in that sample we get information on what the sequence looks like, the number of reads corresponding to this forward/reverse combination (abundance) etc.
+
+For example we can query the largest and smallest overlap like this.
+
+```{r}
+
+# Largest overlap 
+max(mergeASVs[[1]]$nmatch) 
+
+# Smallest overlap
+min(mergeASVs[[1]]$nmatch) 
+
+```
+
+
+## Create a sequence table
+
+Now we have a fully denoised set of sequences that can be used to generate a sequence table for further analysis that contains the merged sequence, abundance and indices of forward and reverse sequence variants that were merged. 
+
+```{r}
+
+seqtab <- makeSequenceTable(mergeASVs)
+
+```
+
+Let's take a quick look at what this data set looks like.
+
+```{r}
+
+dim(seqtab)
+
+seqtab[,1]
+
+```
+
+We can see that it has 74 rows (each sample is a row) and 701 columns (each ASV is a row). If we print just the first column (ASV) you can see that the way a sequence table is organized is that for each sample the number of times an ASV is observed is recorded. 
+
+
+## Remove chimeras
+
+The `DADA2` algorithm accounts for indel errors and substitutions when inferring ASVs but before taxonomic assignment we also need to check for chimeras^[Chimeras are non-biological sequences were the left- and right segment of the merged sequence are from two or more parent sequences.]. `DADA2` identifies sequences that are likely chimeras by aligning each sequence with sets of sequences that were recovered in higher abundance and then determining if any lower-abundant sequences can be made by mixing left and right sequences from two of the more abundant ones.
+
+We can use the function `removeBimeraDenovo()` to identify and remove Chimeras and then creating and updated sequence table.
+
+
+```{r}
+
+
+seqtab.nochim <- removeBimeraDenovo(seqtab,
+                                    method = "consensus", 
+                                    multithread = FALSE, 
+                                    verbose = TRUE)
+
+```
+
+After removing chimeras, the data set consists of `r ncol(seqtab.nochim)` unique sequences across `r nrow(seqtab.nochim)` samples. 
+
+Even though chimeric sequences can frequently make up a large part of sequence variants and therefore initially make the data set seem more variable than it is, overall once you account for abundance, they should only be a very small component of the merged sequence reads. Here `r round((1-ncol(seqtab.nochim)/ncol(seqtab))*100, digits = 1)` % of merged sequence variants are chimeras, though once you account for abundance of these variants, overall `r round(100*sum(seqtab.nochim)/sum(seqtab), digits = 1)`% of merged sequences are not chimeric.
+
+Let's take a look at the distribution of our non-chimeric ASV lengths.
+
+```{r}
+#| label: fig-seq-length-ASV
+#| fig-cap: "Distribution of sequence length for merged ASVs. The red dotted line indicates sequences that are 100-105bp long. We are targeting a 106 bp amplicon and are using 2x150 bp sequencing. Primer sites are approx 25bp each. "
+#| echo: false
+
+getSequences(seqtab) %>%
+  nchar() %>%
+  as.data.frame() %>%
+  ggplot(aes(x = .)) +
+    geom_histogram(binwidth = 5, color = "black", fill = "darkorange") +
+    labs(x = "sequence length", y = "number of unique sequences") +
+    theme_standard
+
+```
+
+
+## Summary of read filtering & processing for QC
+
+At this point, we will want to take a look at how many reads where lost at each step to determine if those patterns look as expected. We can pull that information from various output files by counting the reads and putting them all in a dataframe.
+
+```{r}
+#| label: fig-change-n-reads
+#| fig-cap: "Comparison of change in the number of reads per sample at each filtering & processing stage. Red dotted line indicates targeted 150k reads per sample."
+
+# custom function to get read numbers
+getN <- function(x) sum(getUniques(x))
+
+# create data table with number of reads per sample at each step
+track <- cbind(out, sapply(dadaFs, getN), sapply(dadaRs, getN), sapply(mergeASVs, getN), rowSums(seqtab.nochim)) %>%
+  as.data.frame() %>%
+  rownames_to_column("sample") %>%
+  rename(trimmed = reads.out,
+         denoisedF = V3,
+         denoisedR = V4,
+         merged = V5,
+         rm_chimera = V6) %>%
+  pivot_longer(names_to = "filter", values_to = "reads", cols = 2:7) %>%
+  mutate(filter = ordered(filter, levels = c("reads.in", "trimmed", "denoisedF", "denoisedR", "merged", "rm_chimera")),
+         k_reads = reads/1000)
+
+# plot distribution
+ggplot(track, aes(x = filter, y = k_reads)) +
+  geom_boxplot(fill = "darkorange") +
+  labs(x = "filter/processing step", y = "thousand reads per sample") +
+  theme_standard
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Take a look at the boxplot and describe how the different processing steps have impacted the number of reads remaining in the data set.
+
+Remember that this is a modified data set where each sample has been subsampled to contain 1000 reads - normally that initial box describing the distribution of samples would be wider as different samples would contain different numbers of reads. Generally, researchers target > 75,000 - 150,000 reads per sample to make sure that all taxa present can be recovered in the data set.
+
+:::
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-tip collapse=true}
+
+## Solution
+
+Outside of the initial filtering there should not be any steps at which a substantial amount of reads are lost, the majority of reads should merge. If this is not the case, then trimming is likely to conservative and should be revisited. Similarly, only a small proportion should be chimeric. If primers are not completely removed, ambiguous nucleotides can interfere during chimera ID and that step of quality filtering should be revisited.
+
+:::
+
+
+## Taxonomic classification for ASVs present in each sample.
+
+We are now in the final stretch. Now that we have our ASVs and our sequence table the only thing that we still need to do is figure out which species (or other taxonomic groups) our ASVs correspond to. 
+
+This brings us to an important limitation of metabarcoding studies which is that our results are only ever as good as our reference database to which we can match our ASVs. 
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Our next step is to match the sequences to a list of sequences that have taxonomic information. In our case study this would be a sequenced fungi. Describe your expectations of the results - do you expect every ASV in the data set to find a match in the reference? What other issues could result in results being ambiguous?
+
+:::
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+`DADA2` has a built in function of a naive Bayesian classification menthod (`assignTaxonomy()`) that takes the sequences to be classified as the input along with a `fasta` file that contains the reference sequences^[`fasta` files consist of a header line that starts with `>` and can contain any information about the sequence and then the sequence itself is in the next line. A `multifasta` file can contain multiple sequences, the program using the file determines the start of a new sequence by the fact that it "sees" the `>` of the next header file.].
+
+Depending on the project, scientists will pull sequences available from public databases such as genbank or if you are working with species that do not have a lot of sequences available you would need to create your own database by sampling individuals representing the different species/taxonomic groups you expect to encounter and sequencing them. 
+
+We are using the [UNITE database of references](https://unite.ut.ee/repository.php) which is designed to gather available ITS sequences to identify Eukaryotes. 
+
+Running this function is going to take several minutes - depending on the speed of your computer. Note that this code has the chunk option `eval` set as false so that it won't run. Instead you can see that using the function `save()` I have writen the object out to your results folder. Then we can load it into your R environment in the next code chunk using `load()`.
+
+
+```{r}
+#| eval: false
+
+taxotab <- assignTaxonomy(seqtab.nochim,
+                          refFasta = "data/sh_general_release_dynamic_25.07.2023.fasta",
+                          minBoot = 50, 
+                          multithread = FALSE)
+
+save(taxotab, 
+     file = "results/taxotab.rds")
+
+```
+
+We can take a look at our results... there is a lot of information in this table so let's just pull the first 5 ASV's taxonomy without the ASV sequence for a better viewing experience.
+
+```{r}
+
+# load object into environment
+load("results/taxotab.rds")
+
+# look at first 5 ASVs' taxonomy without the ASV sequence
+write.table(taxotab[1:5,], row.names = FALSE)
+
+```
+
+We can also pull the unique species identified.
+
+```{r}
+
+unique(unname(taxotab[,7])) 
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Use your coding skills to additionally pull the unique genera, families, and orders contained in the data set and describe our results.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+## From the beginning ...
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Now that we have been through all the steps of processing next generation sequencing data set in a metabarcoding processing pipeline go back over the entire process, make sure you have understand what the key steps are and then outline that process below. Be sure to list the key steps in an organized manner and describe what occurs at each step in 2-3 sentences.
+
+:::
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+## Acknowledgements
+
+This chapter borrows heavily from the original `DADA2` tutorial as well as Alexis Carteron & Simon Morvan's tutorial based on the subset sequences from [@carteronTemperateForestsDominated2021].

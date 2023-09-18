@@ -1,0 +1,56 @@
+{
+  "index.qmd": {
+    "index.html": "0a35a58f"
+  },
+  "A_hello-world.qmd": {
+    "A_hello-world.html": "9529d6b4"
+  },
+  "01_intro-data-science.qmd": {
+    "01_intro-data-science.html": "7fdf494c"
+  },
+  "02_install-R.qmd": {
+    "02_install-R.html": "62205e78"
+  },
+  "03_Rbasics.qmd": {
+    "03_Rbasics.html": "78723033"
+  },
+  "04_Rproj.qmd": {
+    "04_Rproj.html": "03300d87"
+  },
+  "B_shark-wrangling.qmd": {
+    "B_shark-wrangling.html": "6d5b2c10"
+  },
+  "05_data-management.qmd": {
+    "05_data-management.html": "cfb25b11"
+  },
+  "06_data-frames.qmd": {
+    "06_data-frames.html": "f2315805"
+  },
+  "07_data-transformation-i.qmd": {
+    "07_data-transformation-i.html": "e312e791"
+  },
+  "08_data-transformation-ii.qmd": {
+    "08_data-transformation-ii.html": "18073b34"
+  },
+  "09_tidy-data.qmd": {
+    "09_tidy-data.html": "3cf20c0e"
+  },
+  "10_relational-data.qmd": {
+    "10_relational-data.html": "67cb2359"
+  },
+  "z_appendix.qmd": {
+    "z_appendix.html": "d65d4681"
+  },
+  "z_references.qmd": {
+    "z_references.html": "6210ebf3"
+  },
+  "C_bioinformatics-eDNA.qmd": {
+    "C_bioinformatics-eDNA.html": "61b9351c"
+  },
+  "12_community-diversity.qmd": {
+    "12_community-diversity.html": "8227497f"
+  },
+  "11_bioinformatics.qmd": {
+    "11_bioinformatics.html": "1fd469fa"
+  }
+}

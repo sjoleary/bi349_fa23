@@ -1,3 +1,9 @@
+::: {.column-margin}
+
+
+
+:::
+
 
 ::: {.callout-warning}
 
@@ -57,13 +63,6 @@ surprise!
 ## {{< fa pen >}}   Did it!
 
 [Your answer here]
-
-:::
-
-
-::: {.column-margin}
-
-
 
 :::
 

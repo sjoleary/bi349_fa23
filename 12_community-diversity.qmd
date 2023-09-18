@@ -1,0 +1,588 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+# Characterizing community diversity
+
+```{r}
+#| label: setup
+#| include: false
+
+# set options
+knitr::opts_chunk$set(
+  tidy = FALSE, 
+  message = FALSE,
+	warning = FALSE)
+
+options(htmltools.dir.version = FALSE)
+
+```
+
+
+**Learning Objectives**
+
+After completing this lab you should be able to 
+
+* transform metabarcoding results using `phyloseq`
+* use `vegan:diversity()` to calculate standard measure of diversity
+
+
+[You should have already downloaded the project directory for this module ](https://drive.google.com/drive/folders/1Zxltr7neJcLzU39emYpXyjpSArFgrh-l?usp=sharing), make sure the directory is unzipped and move it to your `bi328` directory. You can open the `Rproj` for this module either by double clicking on it which will launch `Rstudio` or by opening `Rstudio` and then using `File > Open Project` or by clicking on the `Rproject` icon in the top right of your program window and selecting `Open Project`. 
+
+Once you have opened a project you should see the project name in the top right corner^[Pro tip: If you run into issues where a quarto document won't render or file paths aren't working (especially if things were working previously) one of your first steps should be to double check that the correct `Rproj` is loaded.].
+
+There should be a document named `12_community-diversity.qmd` in your project directory. Use that file to work through this tutorial - you will hand in your rendered ("knitted") `quarto` file as your homework assignment. So, first thing in the `YAML` header, change the author to your name. You will use this `quarto` document to record your answers. 
+
+In this case, this chapter doubles as your skills challenge for the week.
+
+Before we start we need to install a package before we get started. `vegan` is a package that has a wide range of functions that implement standard 
+
+```{r}
+#| eval: false
+
+install.packages("vegan")
+
+BiocManager::install("phyloseq")
+
+```
+
+
+Now we can load the packages we need
+
+```{r}
+
+# load libraries
+library(phyloseq)
+library(vegan)
+
+library(knitr)
+library(tidyverse)
+
+```
+
+## Compile data sets
+
+We are going to import the data you will need for this chapter exploring how to characterize biological communities. We'll start by loading to objects into your environment. One is the ASV table and the second is the corresponding taxonomy table from the fungi data set we were working on in the previous chapter.
+
+We are going to read in a data set that contains information about the soil plots from which the fungi eDNA was isolated.
+
+```{r}
+
+# load sample data
+soil <- read_delim("data/soil.csv", delim = ";")
+
+```
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Use your coding skills to take a look at the soil data set and the describe what information it contains (typical things you want to check are row, column numbers, column names, determining if it is a tidy data set, figuring out what information/variables are in the data set).
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+The package `phyloseq` that we installed has various utility functions to deal with metabarcoding data set. It has a specific object class that allows us to store the asv table, taxonomy table, and sample meta data in different slots. Various functions can then be used to pull information from those slots. We can load the object `ps` directly into your environment using the following code.
+
+```{r}
+
+# create phyloseq object
+load(file = "data/ps.rdata")
+
+```
+
+
+## Data filtering and transformation
+
+Before we can start exploring our data set we have a few steps to complete to transform it into containing the data we want in the format we want tit.
+
+Let's start by taking a looking at how many taxa are currently present in the data set using `phyloseq::ntaxa()`
+
+```{r}
+
+ntaxa(ps)
+
+```
+
+We only want ASVs that were assigned as fungi in our reference database. We can use `phyloseq::subset_taxa` to filter by kingdom.
+
+```{r}
+
+ps_fungi <- subset_taxa(ps, Kingdom == "k__Fungi")
+
+```
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Figure out how many non-fungi groups were filtered.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+Next, we want to remove any singletons or doubletons. These are ASVs that are only represented by one or two reads - we can assume these are artifacts.
+
+```{r}
+
+ps_fungi_nosd <- filter_taxa(ps_fungi, function(x) sum(x) > 2, TRUE)
+
+```
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Figure out how many taxonomic groups are still in the data set.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+In many situations, metabarcoding eDNA samples is semi-quantitative^[We can always confidentally use metbarcoding data as qualitative data, i.e. as presence/absence data. Though even here we should be careful about whether "not detected" should be interpreted as absent.]. The number of DNA templates in the environment are correlated to the number of individuals/biomass of a given taxonomic group. While you cannot necessarily back calculate the absolute abundance or number of specimen present in an environment you can use the proportion of reads assigned to a taxonomic group as a metric of relative abundance.
+
+One way to convert species abundance from absolute to relative is using a Hellinger transformation which standardizes the abundances to the sample totals and then square roots them. The function `phyloseq::transform_sample_counts()` allows us to apply a function to transform sample counts.
+
+```{r}
+
+ps_fungi_nosd_hel <- transform_sample_counts(ps_fungi_nosd, function(x) sqrt(x/sum(x)))
+
+```
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Our data set could still contain multiple ASVs that have been assigned to the same species. Explain why this is an expected out come when using ASVs but would be rare/non-existant if you are using OTUs as the output of your bioinformatics pipeline. 
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+To complete our data filtering and transformation we will use `phyloseq::tax_glom()` to collapse ASVs asigned to the same taxonomic group at the species level.
+
+```{r}
+
+ps_transf = tax_glom(ps_fungi_nosd_hel, "Species", NArm = FALSE)
+
+```
+
+
+Let's explore our final transformed data set
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Apply the functions `ntaxa()`, `nsamples()`, `rank_names()`, and `sample_variable()` to our final transformed phyloseq object. Look up what each function does, make sure to comment/annotate your code and then briefly describe what you've learned about our data set.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+Recall that our `phyloseq` object contains a slot that holds our ASVs table and our taxonomic table that we can access at as such.
+
+```{r}
+
+otu_table(ps_transf)[1:2, 1:2]
+
+tax_table(ps_transf)[1:2, 1:2]
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Explain how the notation `[1:2, 1:2]` modifies the output
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+## Combine data sets
+
+We have three explanatory variables that could be driving differences in fungal communities among samples.
+
+* Soil samples were taken in differnt **forest plots** that were classified as dominated by *Acer saccharum* (AS) or  *Fagus grandifolia* (FG) or mixed with other small trees and shrubs present (mixed).
+* Soil samples where taken from different soil horizons (depths): L, F, H, Ae, or B
+* Soil chemistry (carbon, nitrogen, pH)
+
+This information is stored in our `soil` dataframe.
+
+Now that we've filtered and transformed our data set, let's pull it back out to create a dataframe as the object you are more familiar with in terms of being able to manipulate it.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Let's pull out our taxonomic table and transform it into a dataframe. Comment the following code line by line to describe what each function/arguments is doing.
+
+```{r}
+
+asv_tax <- tax_table(ps_transf) %>%  #
+  as.data.frame() %>%            #
+  rownames_to_column("asv")      #
+
+```
+
+:::
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Now, let's pull out our information on how many times each ASV is observed in a each sample. Comment the following code line by line to describe what each function/arguments is doing. You may need to look up some of the functions.
+
+
+```{r}
+
+asv_counts <- otu_table(ps_transf) %>%  #
+  t() %>%                               #
+  as.data.frame() %>%                   #
+  rownames_to_column("asv")             #
+
+```
+
+::: 
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Take a look at how your `asv_tax` and `asv_count` objects are now formatted and briefly describe it (remember, key things are number or rows, columns, what those columns are).
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Really, what we want is for our `asv_counts` table to contain the taxonomic information contained in the `asv_tax` table. Combine those two data sets into an object called `tax_count`. Remove the ASV sequence from the dataframe and arrange the remaining columns to first have all the taxonomic information, then the number of occurrences in each sample. Print the first few lines to the console when you are done. 
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+::: {.callout-tip icon=false collapse=true}
+
+## Pointers
+
+This is what your result should look like
+
+```{r}
+#| echo: false
+
+tax_count <- asv_counts %>%
+  left_join(asv_tax) %>%
+  select(Kingdom, Phylum, Class, Order, Family, Genus, Species, everything(), -asv)
+
+head(tax_count)
+
+```
+
+:::
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Take a look at your resulting data set and determine if it is a tidy data set or not. Then describe how you would transform it into a tidy data set and explain why those changes make it fulfill all the conditions for it to be tidy.
+
+Spoiler alert: It's not tidy ... go ahead and create an object called `tidy_counts` that's a tidy data frame.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-tip icon=false collapse=true}
+
+## Pointers
+
+This is what your result should look like (it's probably clear why tidy data sets are also referred to as long data sets at this point ...)
+
+```{r}
+#| echo: false
+
+tidy_counts <- tax_count %>%
+  pivot_longer(names_to = "ID", values_to = "count", 8:81)
+
+head(tidy_counts)
+
+```
+
+:::
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Hm, if only our `tidy_counts` object *also* contained the sample meta-data currently in our dataframe `soil`. Go ahead and add that information to our `tidy_counts` data frame. Print the first few rows of your data frame to the console to make sure this worked.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-tip icon=false collapse=true}
+
+## Pointers
+
+This is what your result should look like (are we having fun yet?)... if you are having problems combining these data frames recall that you need one column in common. It's easiest if those columns also share the same column name, but you can look up the function to see if there is a way around it if they don't match up.
+
+```{r}
+#| echo: false
+
+tidy_counts <- tidy_counts %>%
+  left_join(soil)
+
+head(tidy_counts)
+
+```
+
+:::
+
+## Characterize community diversity
+
+Okay... now we're ready to have some fun.
+
+First, let's find out what taxonomic groups are present in the entire data set.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Print a series of tables to the console and in your html document^[use the function `kable()` to print the entire data frame in a pretty table] that comprise a single column each that show all the phyla, classes, orders, famiies, genera, and species in the data set in alphabetical order, respectively. Note that the values in those columns have a prefix indicate the taxonomic level. Get rid of that in your output.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+::: {.callout-tip icon=false collapse=true}
+
+## {{< fa person-chalkboard >}}    Pointers
+
+Here's what the table for phylum should look like
+
+```{r}
+#| eval: false
+
+kable(
+tidy_counts %>%
+  distinct(Phylum) %>%
+  separate(Phylum, into = c("tmp", "Phylum"), sep = "__") %>%
+  arrange(Phylum)
+)
+
+```
+
+:::
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Now, let's compare patterns across different forest plot types. Create separate tables and print them to the console/have them print neatly in your rendered html files for easy comparison of the mean relative abundance for phylum, order, and family for each forest plot type. Print the first four digits only.
+
+Describe your results.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+::: {.callout-tip icon=false collapse=true}
+
+## {{< fa person-chalkboard >}}    Pointers
+
+Here's what the table for phylum should look like
+
+```{r}
+#| eval: false
+
+kable(
+tidy_counts %>%
+  group_by(forest, Phylum) %>%
+  summarize(mean_rel_abund = mean(count)) %>%
+  pivot_wider(names_from = "forest", values_from = "mean_rel_abund"),
+digits = 4
+)
+
+```
+
+:::
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Pick one forest plot type that you are interested in exploring further. Create tables that make it easy to compare the mean relative abundance for phylum, order, and family across the different soil horizons, and print those three table to the console and to your rendered html report. 
+
+Describe your results.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+Measures of diversity enable us to quantify the complexity of biological communities in a way that allows us to objectively compare communities across space and time. Measures of alpha diversity describe the diversity of a single sample and are based on the number of observed taxonomic groups or their relative abundance, beta diversity describes the variation between samples, gamma diversity describes the global diversity observed across a large number of communities. 
+
+Common alpha diversity statistics include:
+
+* **observed richness** the number of observed taxa. 
+* **Shannon Index** (Shannon-Weaver or Shannon-Wiener Index) quantifies how difficult it is to predict the identity of a randomly sampled individual. Ranges from 0 (total certainty) to log(S) (total uncertainty).
+* **Simpson Index** quantifies the probability that two randomly chosen individuals are the same taxonomic group (ranges from 0 to 1).
+* **Inverse Simpson Index** is defined as the number of species needed to have the same Simpson index value as the observed community assuming a theoretical community where all species are equally abundant. 
+
+The Shannon and Simpson Diversity are entropy-based indices that measure the disorder (diversity) of a system. In information theory entropy is used to describe the fact that we can quantify the degree of uncertainty associated with with predicted pieces of information. Applied to ecology this means that when describing diversity using these indices we are determining whether or not individuals randomly drawn from a community are the same or different species (or other taxonomic group). 
+
+The relationship between species richness and Shannon diversity is non-linear, i.e. at higher levels of species richness, communities appear more similar in terms of the magnitude of the index compared to lower levels of species richness - which is counter intuitive to the way species richness works. The solution to this is to linearize the indices. As a result, more recently, diversity indices have been proposed where diversity values are converted into equivalent (or *effective numbers*) of species [@jost_entropy_2006]. The effective number of species is the number of species in a theoretical community where all species (taxonomic groups) are equally abundant that would produce the same observed value of diversity (a similar principle is applies in genetics for the concept of effective population sizes). While the definition of effective numbers is not as intuitive as the entropy-based ones the values that we yield are. Not only are the "units" species (instead of being a unitless index), but they have properties that we intuitively understand. For example, effective numbers obey the doubling principle: If you have two communities with equally abundant but totally distinct species and combine them, that new community would have a diversity that is 2x that of the original ones.
+
+The package `vegan` has several functions implemented that allow us to calculate these diversity stats. Look up any functions you are not familiar with in the following code and comment it to describe what each line of code is doing.
+
+```{r}
+
+diversity <- tidy_counts %>%
+  group_by(ID, forest, horizon) %>%
+  summarize(richness = specnumber(count),
+            shannon = diversity(count, index = "shannon"),
+            simpson = diversity(count, index = "simpson"),
+            invsimpson = diversity(count, index = "invsimpson")) %>%
+  pivot_longer(cols = c(richness, shannon, simpson, invsimpson),
+               names_to = "metric")
+
+```
+
+We can create a series of plots that compare the different diversity stats for each forest plot type and soil horizon location^[Well, I can but you will be able to soon, too].
+
+```{r}
+
+ggplot(diversity, aes(x = forest, y = value, color = forest)) +
+  geom_boxplot(aes(color = forest), outlier.shape = NA, fill = "transparent", size = 1) +
+  geom_point(aes(fill = forest),
+             position = position_jitterdodge(jitter.width = .3),
+             shape = 21, color = "black", size = 3) +
+  facet_grid(metric ~ horizon, scales = "free") +
+  labs(x = " ", y = " ")
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Describe the results. 
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
