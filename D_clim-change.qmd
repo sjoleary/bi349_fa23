@@ -1,0 +1,78 @@
+# Climate Change: Drivers & Impacts {.unnumbered}
+
+For each of our modules we will have a project-folder with an `Rproject`, `*.qmd`-files, and sub-directories for data, scripts, and results as described in our `Rproject` Tutorial. You should have a directory on your Desktop or Documents folder on your laptop (name it something like `bi349`) as a home directory for all of our project folders this semester. 
+
+[Download the directory for this project here](https://drive.google.com/drive/folders/16TMHDkBq3OAVh1LtSJBQYfzUJ4GMA_iD?usp=sharing), make sure the directory is unzipped and move it to your `bi328` directory. You can open the `Rproj` for this module either by double clicking on it which will launch `Rstudio` or by opening `Rstudio` and then using `File > Open Project` or by clicking on the `Rproject` icon in the top right of your program window and selecting `Open Project`. 
+
+Once you have opened a project you should see the project name in the top right corner^[Pro tip: If you run into issues where a quarto document won't render or file paths aren't working (especially if things were working previously) one of your first steps should be to double check that the correct `Rproj` is loaded.].
+
+
+## Investigating Climate Change
+
+The most recent [IPCC Asessement](https://www.ipcc.ch/assessment-report/ar6/) has made two very clear statements regarding climate change:
+
+1. Climate change is “**unequivocally**” caused by humans.
+2. The impact of anthropogenic climate change is “**unprecedented**”.
+
+Based on their assessment of studies having looked at global warming and climate change to date, the global mean warming is estimated at 1.1°C compared to the pre-industrial record. Additionally, under every emission scenario and average warming of 1.5 °C is likely to be reached in in next 20 years. Finally, some effects such as melting glaciers, ice sheets and the permafrost have been deemed irreversible.
+
+In this module we are going to learn about data visualization using `ggplot2` as we explore drivers and impacts of climate change. For our exploration of the drivers of climate change we will pull data sets describing temperature and greenhouse gas concentrations past and present. As we explore the impacts, we will consider whether the effects of climate change are something we will observe in the future if no action is taken or if we are already experiences widespread impacts changing the earth-climate system in ways that we can currently observe. And while we're on the topic of visualizations and climate change we will then also explore how visualizations are used for misinformation.
+
+
+## The earth-climate system
+
+The Earth-climate system, also known as the Earth's climate system, refers to the complex and interconnected set of physical, chemical, biological, and atmospheric processes that govern the Earth's climate. It describes all the components and interactions that determine the planet's climate patterns and conditions over time. 
+
+The climate system is comprise of five major components: The hydrosphere, cryosphere, atmosphere, lithosphere, and biosphere.
+
+* The **atmosphere** consists of a mixture of gases, primarily nitrogen and oxygen, along with trace gases like carbon dioxide (CO2), methane (CH4), and water vapor (H2O). These gases play a critical role in regulating the planet's temperature through the greenhouse effect.
+* The **hydrosphere** encompasses all of Earth's water, including oceans, lakes, rivers, glaciers, and groundwater. The movement and distribution of water in the hydrosphere have a significant impact on climate patterns and weather events.
+* The **cryosphere** includes all of Earth's frozen water, such as polar ice caps, glaciers, and permafrost. Changes in the cryosphere, such as melting ice, can have profound effects on sea levels and regional climate.
+* The **lithosphere** refers to Earth's solid outer layer, including the continents, ocean floors, and the Earth's crust. It plays a role in the redistribution of heat and the formation of landforms that can influence climate patterns.
+* The **biosphere** consists of all living organisms on Earth, including plants, animals, and microorganisms. Biological processes, such as photosynthesis and respiration, influence the composition of greenhouse gases in the atmosphere and affect climate.
+
+You can think of the biosphere as the global ecosystem composed of all living organisms and the abiotics factors they derive energy and nutrients from. Another way to think of it is all the regions of the lithosphere, atmosphere, hydrosphere, and cryosphere occupied by living organisms. The fact that it is comprised of living organisms (biotic factors) sets it apart from the other components of the earth climate system.
+
+Overall, the climate system is an interactive system acted on by internal and external forcing mechanisms.
+
+The components of the climate system are open systems with the freedom to exchange mass, heat, and momentum. For example the ocean and atmosphere exchange gases like carbon dioxide as the ocean acts a large carbon sink. Similarly, we observe an exchange of mass through the water cycle that links the atmosphere and hydrosphere through processes such as evaporation and condensation/precipitation. Even here in New England you can observe the exchange of heat as summer (air) temperatures cause the ocean to warm (minimally). Finally, surface waves are the result of the exchange of momentum as the wind causes the surface waters to move.
+
+Next to these internal mechanisms of the different components of the earth climate system impacting each other from within, the earth climate system is additionally impacted by external factors, primarily solar radiation. For example, the output of the sun heats the hydropshere and atmosphere. As the lithosphere encompasses the rigid outer part of the earth consisting of the crust and upper mantle, plate tectonics and volcanic eruptions are frequently also considered external mechanisms. 
+
+
+## Climate regimes
+
+Weather is the condition of the atmosphere for a specific time & place – climate is a long-term statistical portrait of a specific place, region, or the entire planet.
+
+Weather is a snapshot of atmopsheric conditions at a specific time for a specific place. It is directly observable and can be broken down into readily measureable, discrete characteristics including temperature and precipitation but also extending to include among others wind speed and direction, cloud cover and type, visibility, or air pressure.
+
+By contrast, climate comprises the statistical averages of weather of long-term timescales & involves behavior of entire complex earth system. Generally, climate refers to the long-term patterns and average weather conditions along with extremes in a specific place, region or on Earth as a whole based on a single or multiple stations (locations). It represents the statistical summary of weather patterns over an extended period, typically 30 years or more.
+
+![Changes in weather, climate variability, and climate change occur on very different time scales.](images/clim-variability.png)
+
+Both weather and climate do vary over time for natural reasons but on very different time scales. While weather can change at a moment's notice^[And as we all know the length of the "moment's notice" is inversely proportional to the probability of you wearing an umbrella/having a jacket with you.], climate variability describes (natural) shifts in climate conditions on decadal time scales. Finally, climate change describes long-term changes on scales of centuries to millenia.
+
+
+## The energy budget and global temperatures
+
+Temperature is a primary determinant of climate. Overall, earth maintains a stable average temperature (climate) by balancing energy received from the sun with energy emitted by earth back into space. Global temperature is a function of how much energy the earth receives and stores which in turn is influenced by three major factors:
+
+1. The amount of energy received from the sun.
+2. Reflection of energy by earth's surface.
+3. Atmospheric composition (greenhouse gas effect).
+
+The Earth's energy budget is a concept that describes the balance between the incoming energy from the Sun and the outgoing energy radiated back into space from the Earth. It provides a framework for understanding how energy flows into and out of the Earth's climate system. The Earth's energy budget is essential for maintaining the planet's temperature and climate.
+
+
+![The atmospheric energy budget source: weather.gov](images/energy_balance.jpg)
+
+A material may transmit, reflect, emit or absorb radiation, and generally does more than one of these at a time. Earth's energy budget consists of two different form of radiation
+
+1. Incoming shortwave radiation from the sun (Insolation): This is the energy received from the Sun. Sunlight, or solar radiation, is the primary source of energy for the Earth's climate system. It includes both wavelengths in the visible and non-visible range, primarily UV.
+2. Outgoing longwave radiation: As the Earth's surface and atmosphere absorb solar energy, they emit heat in the form of infrared radiation. This outgoing longwave radiation is a crucial part of the Earth's energy budget.
+
+While some gases such as Ozone absorb shortwave (UV) radiation, Greenhouse gases such as water vapor, CO2, and Methane are defined by their property that they transmit short-wave radiation but absorb longwave radiation. This means that the greenhouse gases let through the incoming solar radiation but absorb large parts of the longwave radiation being emitted from earth's surface. This so called greenhouse effect is a crucial component of the Earth's climate system as it turns the atmosphere into a "warm blanket". Ultimately, the energy absorption by the atmosphere stores more energy near the earth's surface than if there was no atmosphere, making life on the planet possible in the first place.
+
+However, human activities have led to an enhance greenhouse effect. The reason why the IPCC describes current climate change as **anthropogenic** is that increasing levels of atmospheric CO2 and other greenhouse gases since the Industrial Revolution are driving the rapid increase in temperatures. Earth absorbs incoming solar radiation at its surface and emits long-wave radiation to maintain the energy balance at the surface. Only as small portion of that emitted radiation goes directly into space, most of it is absorbed by greenhouse gases (e.g. CO2) in the atmosphere. For the atmosphere to maintain its energy balance it emits radiation to space and back to earth. With increasing concentrations of GHG, the atmosphere absorbs and re-emits increasingly more energy. This creates an imbalance at earth's surface and as a response earth continues to emit more energy to re-balance the budget and as a result global temperatures increase.
+
+In this module we will look at several data sets that support the fact that the currently observed climate change is indeed unprecedented in the rate of change, that it is correlated to rapidly increasing greenhouse gases and therefore consistent with the description of being unequivocally human-caused and that the impacts of climate change are currently being observed across the earth climate system in a manner consistent with rapidly increasing global temperatures.

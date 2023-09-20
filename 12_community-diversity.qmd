@@ -1,8 +1,3 @@
----
-output: html_document
-editor_options: 
-  chunk_output_type: console
----
 
 # Characterizing community diversity
 
@@ -274,6 +269,9 @@ asv_tax <- tax_table(ps_transf) %>%  #
   as.data.frame() %>%            #
   rownames_to_column("asv")      #
 
+# write out interim file
+write_delim(asv_tax, "results/asv_tax.txt", delim = "\t")
+
 ```
 
 :::
@@ -291,6 +289,9 @@ asv_counts <- otu_table(ps_transf) %>%  #
   t() %>%                               #
   as.data.frame() %>%                   #
   rownames_to_column("asv")             #
+
+# write out interim file
+write_delim(asv_counts, "results/asv_counts.txt", delim = "\t")
 
 ```
 

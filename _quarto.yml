@@ -29,6 +29,10 @@ book:
       chapters:
         - 11_bioinformatics.qmd
         - 12_community-diversity.qmd
+        
+    - part: D_clim-change.qmd
+      chapters: 
+        - 13_greenhouse-gases.qmd
 
     - part: z_appendix.qmd
       chapters:

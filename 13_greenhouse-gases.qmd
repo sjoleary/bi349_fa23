@@ -1,0 +1,1059 @@
+
+# Climate change: Drivers
+
+```{r}
+#| label: setup
+#| include: false
+
+# custom functions ----
+
+library(ggplot2)
+
+theme_standard <- theme_classic() +
+  theme(
+    axis.text = element_text(size = 11, color = "black"),
+    axis.title = element_text(size = 16, color = "black"),
+    axis.title.y = element_text(vjust = 1.5, color = "black"),
+    axis.line = element_line(color = "black"),
+    
+    legend.position = "bottom",
+    
+    panel.background = element_rect(fill = "white", color = NA), 
+    panel.border = element_blank(), 
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(), 
+    strip.background = element_rect(fill = "grey95", color = "black"), 
+    strip.text.x = element_text(size = 16, color = "black"),
+    strip.text.y = element_text(size = 16, color = "black")) 
+
+theme_facet <- theme_classic() +
+  theme(
+    axis.text = element_text(size = 11, color = "black"),
+    axis.title = element_text(size = 16, color = "black"),
+    axis.title.y = element_text(vjust = 1.5, color = "black"),
+    axis.line = element_line(color = "black"),
+    
+    legend.position = "bottom",
+    
+    panel.background = element_rect(fill = "white", color = NA), 
+    panel.border = element_rect(fill = NA, color = "black"), 
+    panel.grid.major = element_line(color = "grey85"), 
+    panel.grid.minor = element_blank(), 
+    strip.background = element_rect(fill = "grey95", color = "black"), 
+    strip.text.x = element_text(size = 16, color = "black"),
+    strip.text.y = element_text(size = 16, color = "black")) 
+
+
+
+# set options
+knitr::opts_chunk$set(
+  tidy = FALSE, 
+  message = FALSE,
+	warning = FALSE)
+
+options(htmltools.dir.version = FALSE)
+
+```
+
+
+**Learning Objectives**
+
+After completing this tutorial you should be able to
+
+* analyze earth's global temperatures to determine if they are increasing
+* analyze CO<sub>2</sub> data to determine if atmospheric levels are increasing
+* compare rates of increase of CO<sub>2</sub> and global temperature
+* compare current trends of with rates of change during pre-historic periods using ice core data
+* interpret results to understand current climate change
+
+
+[Download the directory for this project here](https://drive.google.com/drive/folders/16TMHDkBq3OAVh1LtSJBQYfzUJ4GMA_iD?usp=sharing), make sure the directory is unzipped and move it to your `bi328` directory. You can open the `Rproj` for this module either by double clicking on it which will launch `Rstudio` or by opening `Rstudio` and then using `File > Open Project` or by clicking on the `Rproject` icon in the top right of your program window and selecting `Open Project`. 
+
+There should be a file named `13_greenhouse-gases.qmd` in that project directory. Use that file to work through this tutorial - you will hand in your rendered ("knitted") `quarto` file as your homework assignment. So, first thing in the `YAML` header, change the author to your name. You will use this `quarto` document to record your answers. Remember to use comments to annotate your code; at minimum you should have one comment per code set^[You should do this whether you are adding code yourself or using code from our manual, even if it isn't commented in the manual... especially when the code is already included for you, add comments to describe how the function works/what it does as we introduce it during the participatory coding session so you can refer back to it.] you may of course add as many comments as you need to be able to recall what you did. Similarly, take notes in the document as we discuss discussion/reflection questions but make sure that you go back and clean them up for "public consumption".
+
+Let's make sure to read in the libraries we need for this analysis
+
+```{r}
+
+
+# documentation
+library(knitr)
+
+# wrangling
+library(tidyr)
+library(dplyr)
+library(tibble)
+library(readr)
+library(glue)
+
+# visualization
+library(ggplot2)
+library(ggthemes)
+library(plotly)
+library(patchwork)
+
+```
+
+
+## Unequivocal and unprecedented?
+
+Current climate change is concerning not (only) because of absolute warmth of the earth but due to rate at which it is occurring. What this means is that over the history of our planet there have been times at which temperatures have been higher that what we are currently experiencing. The component that is "unprecedented" is the **rate** of increase and impact that is having on our planet^[We will look at examples of that impact using various data set describing change in the earth-climate system.]
+
+In this chapter, we are going to dive into a series of data sets that will allow us to explore whether we do indeed have evidence that the climate change we are currently observing is indeed unequivocal, driven by anthropogenic effects, and unprecedented in its rate.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Before we get started let's consider what data sets we need to investigate whether rates of temperature increase are indeed "unprecedented", to identify patterns of atmospheric CO2 concentrations consistent with anthropogenically driven climate change, and what we would expect our results to look like if the IPCC assessment is indeed correct in their claims.
+
+Take a few minutes to write out your thoughts for the following prompts:
+
+* what variables/measurements do we need?
+* what comparisons do we need to be able to make to determine if the rate of temperature increase is unprecedented?
+* what would patterns consistent with anthropogenically driven climate change look like?
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+We will also need to consider limitations of our approach. In this case, we will need to assess whether our approach is investigating a causal or mechanistic effect in and of itself or if we are uncovering evidence consistent with a known mechanism/process.
+
+
+## Current rates of air temperature change
+
+Let's start by taking a look at changes in global mean air temperatures.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Sketch out what the patterns of air temperature over time would look like if the (A) earth is warming, (B) cooling, (C) not changing at all and discuss with your class mates^[You can do this on a piece of paper and snap a picture or sketch directly on a computer/mobile device in an appropriate app. Save your picture as `scratch/glob-temp-patterns.jpg` and you can use the markdown code below to import it. If you end up with a different filename or file format, adjust your code accordingly.]. Determine what variables you would plot on the x-axis, y-axis and what the slope would look like. Then practice describing figures with a 1-2 sentence description of what each scenario.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+![Expectations of change in air patterns over time for different scenarios](scratch/glob-temp-patterns.jpg)
+
+:::
+
+The air temperature data we will be using is compiled by the Goddard Institute for Space Studies (NASA) and can be accessed in [on their webpage](https://data.giss.nasa.gov/gistemp/.) which also describes how their data set was compiled and processed.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+[Access the GISS Surfact Temperature Analysis Webpage](https://data.giss.nasa.gov/gistemp/.) and scroll down the page 
+to the section `Tables of Global and Hemispheric Monthly Means and Zonal Annual Means` and download the [`CSV`](https://data.giss.nasa.gov/gistemp/tabledata_v4/GLB.Ts+dSST.csv) version of the `Global-mean monthly seasonal, and annual means` data set.
+
+After you have downloaded the data set place it in your `data` folder in your project directory and read it into your `Global Environment`.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-tip collapse=true}
+
+## Solution
+
+Remember to correctly specify the `delim` argument for a `*.csv` file.
+
+```{r}
+
+# read csv file
+temperature <- read_delim("data/GLB.Ts+dSST.csv", delim = ",")
+
+```
+
+:::
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+This data is presented as temperature anomalies, i.e. as deviations from the corresponding 1951 - 1980 mean. Explain what this means and argue why this is a more appropriate way to present this data than to simply use the measured global temperature.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-tip icon=false collapse=true}
+
+## {{< fa person-chalkboard >}}    Pointers
+
+* Generally, climate patterns are long-term patterns. To describe climate patterns we generally use at least 30 years worth of data.
+* According to Oxford Languages, the definition of an anomaly is "*something that deviates from what is standard, normal, or expected*".
+* In the context of climate change is in more important to understand the actual temperature or the temperature change?
+
+:::
+
+
+Before we move on, let's check out our `temperature` object in the `Global Environment` to see if the file read in okay - spoiler alert, it did not^[You should create a habit of always checking that your data has read in as expected, immediately determining that something is wrong and correcting it will minimize issues with troubleshooting down the line.].
+
+**Troubleshooting Skills**: Your file didn't read in correctly. Let's figure out why. 
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+What ideas do you have for us to track down the issue? Document the process you used to identify and fix the issue using short bullet points for future reference.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-tip collapse=true}
+
+## Solution
+
+A good starting point is to open the file in a text editor to see if we missed anything. `Rstudio` now has a built in text editor. Use the file navigation pane to navigate to the `data` folder. Clicking on the temperature file will create a pop up, select `View File` and it will pop up in the View pane in a separate tab next to your quarto pane^[Be really careful not to accidentally edit the raw data file!].
+
+Sure enough there seems to be an additional line at the beginning which is probably causing the issue. One way to fix this is to simply delete the extra line ... before you do this, remember our first module looking at data wrangling and the cardinal rules we set in place? One key principle is "DO NOT EDIT YOUR RAW FILES": if we want to have a reproducible workflow we should avoid manually editing our data sets. 
+
+Instead use `?read_delim` to pull up the help file for the function. You should find an argument called `skip` which will let us tell the function how many extra lines there are at the beginning of the file.
+
+```{r}
+
+# read csv file skipping the first line
+temperature <- read_delim("data/GLB.Ts+dSST.csv", delim = ",", skip = 1)
+
+# check that dataframe is in order
+head(temperature)
+
+```
+
+That seems to have done the trick! Put that in your bag of tricks for future reference.
+
+:::
+
+Now that that is resolve, let's take a slightly more detailed look at our data set to make sure there aren't any additional changes we need to make. For example we need to determine if there are `NA` values and if they are properly formatted and we need to make sure all the columns are `numeric`.
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Take a look at your data frame, and make a few notes to document what information each column contains, if anything is out of order, and ideas on how to clean up any issues you have identified.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-tip collapse=true}
+
+## Solution
+
+`NA` values have been specified as `***`, which has caused some columns to be formatted as `character` instead of `numeric`. 
+
+We can use `replace()` to search every column (we specify this using `.` instead of a specific column name) and `mutate_if()` which tells `R` to check every column and if it is a character data type (`is.character`) to convert it to numeric (`as.numeric`).
+
+```{r}
+
+temperature <- temperature %>%
+  replace(. == "***", NA) %>%
+  mutate_if(is.character, as.numeric)
+
+```
+
+:::
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Now that we are all set, let's create a plot with the yearly mean global temperature anomaly across time. Briefly conceptually describe what parameters we need to plot on the x and y-axis to accomplish this.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-tip collapse=true}
+
+## Solution
+
+We are going to use `ggplot2` which is part of the `tidyverse` to plot our figure. This will introduce you to some of the standard syntax. Fear not, we will work through the details of the framework on which `ggplot2` relies in the next chapter so think of this as a sneak peak to get used to the syntax.
+
+```{r}
+#| eval: false
+
+ggplot(temperature, aes(x = Year, y = `J-D`)) +             # define data set and columns to plot on x and y axis
+  geom_line(color = "blue", size = 1) +                     # plot line plot
+  labs(x = "year", y = "temperature anomaly [C]",           # determine labels
+       title = "Annual mean global surface temperature relative to 1951-1980 average.",
+       caption = "source: NASA Goddard Institute for Space Studies")
+
+```
+
+Here's what your figure should look like based on that code.
+
+```{r}
+#| label: fig-temp-anomaly
+#| fig-cap: "Change in annual mean global surface temperature from 1880 - 2021 relative to 1951-1980 average."
+#| echo: false
+
+ggplot(temperature, aes(x = Year, y = `J-D`)) +
+  geom_line(color = "blue", size = 1) +
+  labs(x = "year", y = "temperature anomaly [C]",
+       title = "Annual mean global surface temperature relative to 1951-1980 average.",
+       caption = "source: NASA Goddard Institute for Space Studies") +
+  theme_standard
+
+```
+
+:::
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Describe & interpret the figure: Describe the change in the deviation of global temperature to the 1950-1980 mean. Include and explanation of what it means for values to be negative or positive.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+This figure gives us a qualitative view of changing global temperatures. 
+
+For a quantitative assessment we would want to determine the rate of change. For this case we would define the rate of change as the change in temperature divided by the change in time for a certain time period. A more general definition would be that you are calculating the **slope** of the line you have fit through the data as the change-in-y divided by the change-in-x^[If you compare the two figure you should see that fitting a linear regression is an oversimplification but it will allow us to make a quantitative comparison].
+
+We can visualize this by adding a layer to our figure using `geom_smooth()` and setting the method to `lm` (linear regression). 
+
+```{r}
+#| eval: false
+
+ggplot(temperature, aes(x = Year, y = as.numeric(`J-D`))) +
+  geom_line(color = "blue", size = 1) +
+  geom_smooth(method = "lm", color = "red", size = 1, se = FALSE) +
+  labs(x = "year", y = "temperature anomaly [C]",
+       title = "Annual mean global surface temperature relative to 1951-1980 average.",
+       caption = "source: NASA Goddard Institute for Space Studies")
+
+```
+
+Here is what your figure will look like with that added layer.
+
+```{r}
+#| label: fig-temp-anom-regress
+#| fig-cap: "Linear regression (red) for change in annual mean global surface anomaly from 1880-2021 (blue). Temperature anomaly measured relative to 1951-1980."
+#| echo: false
+
+ggplot(temperature, aes(x = Year, y = as.numeric(`J-D`))) +
+  geom_line(color = "blue", size = 1) +
+  geom_smooth(method = "lm", color = "red", size = 1, se = FALSE) +
+  labs(x = "year", y = "temperature anomaly [C]",
+       title = "Annual mean global surface temperature relative to 1951-1980 average.",
+       caption = "source: NASA Goddard Institute for Space Studies") +
+  theme_standard
+
+```
+
+That's helpful in terms of a visualization but for a to really quantitatively assess the rate of change, we need to fit a linear regression as `y = mx + b`. With `m` as the slope and `b` as the intercept to determine the rate of change; with that equation we can then determine the rate of change by extracting `m`. The larger the slope `m`, the steeper the fitted line and the more rapid the change in temperature.
+
+We can fit the linear regression using the function `lm()`.
+
+```{r}
+
+# fit linear regression
+score_model <- lm(`J-D` ~ Year, data = temperature)
+
+# view summary of results
+summary(score_model)
+
+```
+
+We are interested in the equation of the regression line, how well the data fits the line, and whether or not the regression is significant. We can use the output of the linear regression to determine that. The estimate columns shows the values for the intercept `b` and the slope `m` for the variable (in this case year).
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Take a look at your output from the linear regression model and determine what the equation for our line of best fit looks like and use this to determine the rate of change, including what the units would be.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+The adjusted R2 value describes the proportion of variance of the dependent value explained by the independent variable. In our figure what is the dependent and the independent value? How well does the regression fit our data? 
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Interpret the results of your analysis to determine whether you have evidence of a warming earth.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+1. Identify the time period where you observe the steepest rate of increase.
+2. Create a subset of the data set to contain only that time frame. 
+3. Plot you subset of data with a linear regression. 
+4. Perform a statistical analysis to determine the rate of change.
+5. Summarize your results and compare them to your results above.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+The time period with steep(est) rate of increase I selected is XXX - XXX.
+
+```{r}
+
+# create subset of data
+
+
+# Plot subset of data with a linear regression
+
+
+# linear regression
+
+```
+
+[Summarize your results and compare them to your results above.]
+
+:::
+
+## Rate of change of atmospheric CO<sub>2</sub>
+
+Next, let's determine the rate of change of atmospheric CO<sub>2</sub>. 
+
+Dr. Charles David Keeling (1928 - 2005) began collecting atmospheric CO<sub>2</sub> concentration data at the Mauna Observatory (Hawaii); this data set comprises the longest measurement of atmospheric CO<sub>2</sub> concentrations^[Longest measurement using instruments - we will see later that we can use proxy data to indirectly measure CO<sub>2</sub> levels for much longer time periods]. This data set has been fundamental to our understand the role of human activities such as fossil fuel burning in driving climate change.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Briefly argue why Hawaii is a good location for a long-term monitoring station for CO<sub>2</sub>.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+We can access the data set directly from the [Global Monitoring Laboratory](https://gml.noaa.gov/ccgg/trends/). Select the `Data` tab, then download the `csv` data set `Mauna Loa CO2 annual mean data`.
+
+Once you have downloaded the data set, make sure to move it to the `data` folder of your project directory, then read it into `Rstudio` using the follow code^[If you look at the raw data using a text editor you will quickly see why we need to include the `skip = 55` argument].
+
+```{r}
+
+CO2 <- read_delim("data/co2_annmean_mlo.csv", delim = ",", skip = 55)
+
+head(CO2)
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Explore your data set to determine if it is correctly formatted and briefly describe what information it contains - bullet points are fine.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Plot the change in CO2 over time and use a linear regression to determine the rate of change in atmospheric CO2 over the entire data set based on your analysis. Briefly summarize your results and argue how confident you are in these results.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+```{r}
+
+# plot the change over time 
+
+
+# perform linea regression
+
+```
+
+[Your results here]
+
+
+:::
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Compare your results of rates of change of average global temperature and atmospheric CO2 and describe the phenomenon that can be used to explain this.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-tip icon=false collapse=true}
+
+## {{< fa person-chalkboard >}}    Pointers
+
+```{r}
+#| label: fig-CO2-temp-comparison
+#| fig-cap: "Comparison of increase in mean global temperature anomaly relative to 1951-1980 (left) and increase in mean atmospheric CO2 concenttrations (right panel) measured a Mauna Loa Observatory. Regression lines indicating temporal trend included in red."
+#| fig-height: 4
+#| echo: false
+
+
+p1 <- temperature %>%
+  filter(Year >= 1959) %>%
+  ggplot(aes(x = Year, y = `J-D`)) +
+  geom_line(color = "blue", size = 1.5) +
+  geom_smooth(color = "red", size = 1, se = FALSE) +
+  labs(x = "year", y = "temperature anomaly [C]",
+       caption = "source: NASA Goddard Institute for Space Studies") +
+  theme_standard
+
+p2 <- ggplot(CO2, aes(x = year, y = mean)) +
+  geom_line(color = "blue", size = 1.5) +
+  geom_smooth(color = "red", size = 1, se = FALSE) +
+  labs(x = "year", y = "mean atmospheric CO2 [ppm]",
+       caption = "source: Global Monitoring Laboratry/NOAA") +
+  theme_standard
+
+p1 + p2
+
+```
+
+:::
+
+
+## Comparison of current and pre-historic rates of change 
+
+The most recent IPCC assessment has labeled the increase in temperatures driving contemporary climate change as "unprecedented". However, temperatures have changed in earth's past, and temperatures have even been higher than what we are experiencing now. What is unprecedented is the rate at which this is occurring, at least according to the IPCC.
+
+Shall we investigate?
+
+To do this we will need to look at past climate change. The two data sets we just took a look at are measurements of temperature and CO<sub>2</sub> using instrumentation, i.e. we have directly measured values for the parameters we are interested in at different points in time. Dr. Keeling was one of the first scientists to consider the importance of long-term monitoring sites. The rapid changes taking place in our environment have created a push to generate long-term data sets with a focus on making the accessible. We will take a look at some of these data sets later in this semester and you will likely use at least one of them for your own data science project.
+
+However, we frequently have questions that might extend beyond data sets like the two we used above.
+
+How can we access data from before we had instrumentation? One way to do this we have to use so-called [proxy data sets](https://www.ncdc.noaa.gov/news/what-are-proxy-data).
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+In general, a proxy is an intermediary or subsistute, i.e. it is a parameter that can be used to represent the value of something in a calculation. Paleoclimatologists use preserved physical characteristics of the environment to stand in for direct measurements using instruments, typical examples would be ice cores, tree rings, ocean sediments, or fossil pollen. Briefly discuss the pros and cons of proxy data compared to direct measurements using specialized instruments.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+
+For a deep dive on proxy data sets and climate archives, you can check out [a detailed interactive brief on proxy data](https://interactive.carbonbrief.org/how-proxy-data-reveals-climate-of-earths-distant-past/).
+
+For our assessment we are going to explore proxy data derived from ice cores which next to ocean sediments give us some of the longest records of past climate conditions. 
+
+Hundreds of ice cores extracted from polar ice have proven valuable to understanding changes in atmospheric chemistry over pre-historic time. Here, we can make use of the fact that as the ice is formed, air bubbles are trapped. Because these air bubbles have remained frozen, they still have the same composition of gases as at the time they were trapped. The depth of an ice core is correlated to time, deeper ice is older. In other words, ice cores form an archive of atmospheric conditions over time. We can directly measure CO<sub>2</sub> from the air bubbles trapped in the ice and we can measure isotopic ratios of oxygen in the water molecules of the core to derive temperature.
+
+Vostok Ice core data set has been constructed using ice cores from the Vostock research station in the Antarctica and can be access through the [Carbon Dioxide Information Analysis Center](https://data.ess-dive.lbl.gov/portals/CDIAC).
+
+Let's start by taking a look at the temperature data. Use the code below to read the data set that has been downloaded and placed in the `data` folder for you into `R` as a data frame^[We are using a slightly different method from before which allows us to directly download the data into our data folder. We are also using `read_table2()` from the `readr` package due to the fact that our text file is formatted using neither white space nor tabs.].
+
+```{r}
+
+# load dataset
+vostok_temp <- read_table2("data/vostok_temp.txt",
+                     skip = 60,
+                     col_names = c("depth", "age_ice", "deuterium", "temperature"))
+
+```
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Take a look at the data set and briefly describe what data is contained in the data set (you may want to take a peak at the original text file to get a better understanding).
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+Now we can create a plot of the temperature data over time. The age is recorded as years before present. For better visualization we will convert this to "thousand years ago" by dividing that number by 1,000.
+
+```{r}
+#| eval: false
+
+ggplot(vostok_temp, aes(x = age_ice/1000, y = temperature)) +
+  geom_line(color = "blue", size = 1) +
+  labs(x = "thousand years before present", y = "Temperature variation [C]",
+       title = "Temperature variation during glacial/interglacial periods",
+       caption = "Data: Carbon Dioxide Information Analysis Center (CDIAC)")
+
+```
+
+
+```{r}
+#| label: fig-vostock-temp
+#| fig-cap: "Temperature variation during glacial/interglacial periods derived from air bubbles in Vostock ice cores."
+#| fig-height: 6
+#| echo: false
+
+ggplot(vostok_temp, aes(x = age_ice/1000, y = temperature)) +
+  geom_line(color = "blue", size = 1) +
+  labs(x = "thousand years before present", y = "Temperature variation [C]",
+       title = "Temperature variation during glacial/interglacial periods",
+       caption = "Data: Carbon Dioxide Information Analysis Center (CDIAC)") +
+  theme_standard
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Before we move at looking at rates of change, we first need to determine how to properly read this plot. Think through the following aspects:
+
+* What does it mean that time (on the x-axis) is represented as "thousand years ago" or "time before present"? How does this differ from the other time series we have plotted today?
+* Temperature is being measured by proxy by looking at differences in isotope ratios; the data file lists this information as "Temperature variation". What does 0C mean on this plot?
+* Consider how long glacial and interglacial periods typically last - are we currently in a glacial or interglacial period?
+* In what parts of the figure is temperature increasing/decreasing (consider slope)?
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Now add a trend line to our ice core temperature data and run a linear regression model. Argue whether or not you think this trend line is a good representation of long-term temperature change.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-tip collapse=true}
+
+## Pointers
+
+Plot temperature data derived from vostok ice cores.
+
+```{r}
+#| eval: false
+
+ggplot(vostok_temp, aes(x = age_ice/1000, y = temperature)) +
+  geom_line(color = "blue", size = 1) +
+  geom_smooth(method = "lm", color = "red", se = FALSE) +
+  labs(x = "thousand years before present", y = "Temperature variation [C]",
+       title = "Temperature derived from Vostok ice core, Antarctica.",
+       caption = "Data: Carbon Dioxide Information Analysis Center (CDIAC)")
+
+```
+
+```{r}
+#| label: fig-lin-reg-vostock-temp
+#| fig-cap: "Change in temperature during glacial/interglacial periods derived from Vostok ice cores (blue) with fitted linear regression (red)."
+#| fig-width: 10
+#| fig-height: 6
+#| echo: false
+
+ggplot(vostok_temp, aes(x = age_ice/1000, y = temperature)) +
+  geom_line(color = "blue", size = 1) +
+  geom_smooth(method = "lm", color = "red", se = FALSE) +
+  labs(x = "thousand years before present", y = "Temperature variation [C]",
+       title = "Temperature derived from Vostok ice core, Antarctica.",
+       caption = "Data: Carbon Dioxide Information Analysis Center (CDIAC)") +
+  theme_standard
+
+```
+
+And then we still need to fit a linear regression.
+
+```{r}
+
+# fit linear regression
+score_model <- lm(temperature ~ age_ice, data = vostok_temp)
+
+# view summary of results
+summary(score_model)
+
+```
+
+*Remember, when you "argue" an answer you need to state your conclusion and then support that statement.*
+
+:::
+
+You're right - to determine if the currently observed rate of change is "unprecedented" or not, we need to identify past time periods with the fastest rate of change and calculate them.
+
+::: {.column-margin}
+
+You've already used `plotly` in a previous chapter to plot an interactive graph. This will make it a lot easier to identify specific time periods because as you hover over any part of the line graph the pop up will give you the data points. Previously we wrapped an entire function in the `ggplotly()` function. In this case, it is easier to first create an object that holds the `ggplot()` output and then use that as the argument for `ggplotly()`.
+
+:::
+
+To do this I will show you a little trick to plot an interactive figure:
+
+```{r fig.height=6}
+
+p1 <- ggplot(vostok_temp, aes(x = age_ice/1000, y = temperature)) +
+  geom_line(color = "blue", size = .75) +
+  labs(x = "thousand years before present", y = "Temperature variation [C]",
+       caption = "Data: Carbon Dioxide Information Analysis Center (CDIAC)")
+
+ggplotly(p1)
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Now you can use your cursor to identify individual points on the plot to select the subset you want plot. The plot that subset with a linear best line of fit and run a linear regression to get the slope to compare to current rates of change.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-tip collapse=true}
+
+## Solution
+
+Here's what your code could look like, we've previously used the technique where you create and object to hold your variables to make it easier to resue the code.
+
+```{r}
+#| eval: false
+
+# define time range
+min_year_vostok <- 
+max_year_vostok <- 
+
+# filter data set + plot
+vostok_temp_subset <- vostok_temp %>%
+  filter(age_ice >= min_year_vostok & age_ice <= max_year_vostok)
+
+ggplot(vostok_temp_subset, aes(x = age_ice/1000, y = temperature)) +
+  geom_line(color = "blue", size = 1) +
+  geom_smooth(method = "lm", color = "red", se = FALSE) +
+  labs(x = "thousand years before present", y = "Temperature variation [C]",
+       title = "Temperature change recorded in Vostok ice core (128357 - 138193 years ago).",
+       caption = "Data: Carbon Dioxide Information Analysis Center (CDIAC)")
+
+# fit linear regression
+score_model <- lm(temperature ~ age_ice, data = vostok_temp_subset)
+
+# view summary of results
+summary(score_model)
+
+```
+
+```{r}
+#| label: fig-temp-subset
+#| fig-cap: "Temperature trends (linear regression, red) recorded in Vostok ice core for time period from approx. 138 - 128 kyrs before present."
+#| echo: false
+
+# define time range
+min_year_vostok <- 128357
+max_year_vostok <- 138193
+
+# filter data set + plot
+vostok_temp_subset <- vostok_temp %>%
+  filter(age_ice >= min_year_vostok & age_ice <= max_year_vostok)
+
+ggplot(vostok_temp_subset, aes(x = age_ice/1000, y = temperature)) +
+  geom_line(color = "blue", size = 1) +
+  geom_smooth(method = "lm", color = "red", se = FALSE) +
+  labs(x = "thousand years before present", y = "Temperature variation [C]",
+       title = "Temperature change recorded in Vostok ice core.",
+       caption = "Data: Carbon Dioxide Information Analysis Center (CDIAC)") +
+  theme_standard
+
+```
+:::
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Identify two more ranges with increasing temperatures and determine the rate of change during that time period.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+Now, let's take a look at past patterns of changes in atmospheric CO<sub>2</sub> over time.
+
+```{r}
+
+# load dataset
+vostok_ice <- read_delim("data/vostok_ice.txt", delim = "\t",
+                     skip = 21,
+                     col_names = c("depth", "age_ice", "age_air", "CO2"))
+
+```
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Select one time period with rapid increase in CO2 concentrations and apply what you have learned identifying past periods of rapid temperature increase to calculating the rate of change.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+## Final Conclusions
+
+Now it's time to put everything together. You might want to refer back to the beginning of this section when we looked at some background information about the IPCC report, the atmospheric energy budget, formulated our central questions, thought about what data sets when can use to answer our question, and the limitations of our approach.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Before we summarize and then interpret our results, let's re-orient ourselves to what we've done with this analysis.
+
+* Write out the central question(s) we are asking.
+* List the data sets you used to investigate and what metric you calculated for each.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+Well-written papers frequently end their introduction section with a paragraph that summarizes what their study is investigating and how they are investigating that (set of) questions - it forms a "bridge" between the introduction that sets up relevant background information (why is my question important?) and the methods section which is a very detailed account of how data was acquired (experimental design), processed, and analyzed.
+
+If you read several of these paragraphs you will realize that they all contain a statement that follows a general formula along these lines:
+
+> In this study, we investigated [CENTRAL QUESTION OR HYPOTHESIS]. To do this we used [DESCRIPTION OF THE TYPE OF DATA SET GENERATED] to [METRICS THAT WERE CALCULATED].
+
+You should always be able to make a 2-3 sentence statement summarizing what you are investigating and how you did it, it's a good self-check that you know what you're trying to accomplish.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Use your results to compare current changes over the last approx. 200 years in atmospheric and CO2 concentrations and global temperature to pre-historic changes.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+*Be strategic in how you structure your answer to put together all the parts of our analysis. For example, start with temperature and compare the rate of change you calculate for recent times to the rate of change you calculated during the more distant past (glacials/interglacials)^[Remember to include units!]. In include your own rate of change + the answers your classmates posted in the slack channel. Then make a statement about whether or not we are currently observing an "unprecedent" change. Then do the same for CO2 concentrations. At this point you are just summarizing and describing your results, you can make clear statements of whether or not rates are positive/negative (your variables are increasing/decreasing), and whether you see the same/opposite trends but you should not yet interpret what those results mean. This would be equivalent to the results section of a lab report or research paper.*
+
+[Your answer here]
+
+:::
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Interpret your results to assess whether recent changes in temperature are due to natural vs anthropogenic factors. For your answer consider both arguments that attribute the change to anthropogenic factors and natural fluctuations.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+*Now you are entering the interpretation/discussion component of your analysis. At this point your now what your key results are and you need to figure out what they mean; essentially you are finally getting around to answering those key questions you asked before designing your experiment/study. You are going to use your results as evidence for/support of your conclusion. This means that you need to demonstrate that your results are consistent with your conclusion. You also want to consider alternative explanations, limitations of your data etc. Of course, ideally you can exclude those based on e.g. evidence from other studies/data sets.*
+
+[Your answer here]
+
+:::
+
+## Acknowledgments
+
+These activities are based on the EDDIE Climate Change Module^[O'Reilly, C.M., D.C. Richardson, and R.D. Gougis. 15 March 2017. Project EDDIE: Climate Change. Project EDDIE Module 8, Version 1.]
+
+
+

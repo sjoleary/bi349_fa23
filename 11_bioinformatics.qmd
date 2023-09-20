@@ -88,9 +88,6 @@ We will need to install some new packages before we can get rolling. Execute the
 ```{r}
 #| eval: false
 
-# install neonUtilities from CRAN
-install.packages(c("neonUtilities"))
-
 # install Bioconductor
 install.packages("BiocManager")
 
