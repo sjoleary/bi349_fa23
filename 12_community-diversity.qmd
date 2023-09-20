@@ -455,12 +455,13 @@ Print a series of tables to the console and in your html document^[use the funct
 Here's what the table for phylum should look like
 
 ```{r}
-#| eval: false
+#| echo: false
 
 kable(
 tidy_counts %>%
   distinct(Phylum) %>%
   separate(Phylum, into = c("tmp", "Phylum"), sep = "__") %>%
+  select(-tmp) %>%
   arrange(Phylum)
 )
 
@@ -494,7 +495,7 @@ Describe your results.
 Here's what the table for phylum should look like
 
 ```{r}
-#| eval: false
+#| echo: false
 
 kable(
 tidy_counts %>%
