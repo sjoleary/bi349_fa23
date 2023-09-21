@@ -33,6 +33,7 @@ book:
     - part: D_clim-change.qmd
       chapters: 
         - 13_greenhouse-gases.qmd
+        - 14_impacts.qmd
 
     - part: z_appendix.qmd
       chapters:

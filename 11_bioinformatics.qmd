@@ -259,11 +259,19 @@ We are wrapping the plotting function in `ggplotly()` which is built on the `plo
 Let's go ahead an plot the quality sequence for the first sample We can do this by passing the first file path in the `fnFs` vector using `[1]` to indicate the first element of the vector.
 
 ```{r}
+#| eval: false
+
+ggplotly(plotQualityProfile(fnFs[1]))
+
+```
+
+```{r}
 #| label: fig-err-forw
 #| fig-cap: "Quality scores for the forward reads of the first sample. Grey-scale underlying heatmap shows frequency of each score at each base position (darker color is higher frequency), green line is em quality score for base position, orange lines indicate the quartiles (solid is median, dashed = 25th and 75th quartile). The red line indicates the percentage of reads that extend to at least that position."
 #| fig-height: 9
+#| echo: false
 
-ggplotly(plotQualityProfile(fnFs[1]))
+plotQualityProfile(fnFs[1])
 
 ```
 
@@ -291,12 +299,19 @@ Go ahead and plot the reverse reads for the 12th sample in the data set. Then de
 ## Solution
 
 ```{r}
+#| eval: false
+
+ggplotly(plotQualityProfile(fnRs[12]))
+
+```
+
+```{r}
 #| label: fig-err-rev
 #| fig-cap: "Quality scores for the reverse reads in 12th sample. Grey-scale underlying heatmap shows frequency of each score at each base position (darker color is higher frequency), green line is median quality score for base position, orange lines indicate the quartiles (solid is median, dashed = 25th and 75th quartile). The red line indicates the percentage of reads that extend to at least that position."
 #| fig-height: 9
 #| echo: false
 
-ggplotly(plotQualityProfile(fnRs[12]))
+plotQualityProfile(fnRs[12])
 
 ```
 
@@ -484,7 +499,7 @@ This is what the plot for your forward reads should look like.
 #| fig-height: 9
 #| echo: false
 
-ggplotly(plotQualityProfile(filtFs[4]))
+plotQualityProfile(filtFs[4])
 
 ```
 
@@ -497,7 +512,7 @@ Remember to plot the reverse reads *for the same sample*.
 #| echo: false
 
 
-ggplotly(plotQualityProfile(filtRs[4]))
+plotQualityProfile(filtRs[4])
 
 ```
 
@@ -513,10 +528,9 @@ Error rates are generally expected to drop with increased quality. By default 10
 
 ## {{< fa clipboard-question >}}   Give it a whirl
 
-Run the code belwo to generate the error models. This will take a few seconds. While you wait, pull up the description of what this function does in the help pane and use comments to indicate what the function as a whole does and what the different arguments control.
+Run the code below to generate the error models. This will take a few seconds. While you wait, pull up the description of what this function does in the help pane and use comments to indicate what the function as a whole does and what the different arguments control.
 
 ```{r}
-#| cache: true
 
 # forward reads
 errF <- learnErrors(filtFs,               # 
