@@ -3,7 +3,7 @@
     "path": "~/bi349_fa23/14_impacts.qmd",
     "project_path": "14_impacts.qmd",
     "type": "quarto_markdown",
-    "hash": "514213785",
+    "hash": "0",
     "contents": "",
     "dirty": false,
     "created": 1695392473680.0,
@@ -11,7 +11,9 @@
     "relative_order": 2,
     "properties": {
         "source_window_id": "",
-        "Source": "Source"
+        "Source": "Source",
+        "cursorPosition": "5,17",
+        "scrollLine": "0"
     },
     "folds": "",
     "lastKnownWriteTime": 1695339181,
