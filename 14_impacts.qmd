@@ -1,8 +1,3 @@
----
-output: html_document
-editor_options: 
-  chunk_output_type: console
----
 
 # Climate change: Impacts
 
@@ -232,7 +227,7 @@ In this example we are using the arguments for individual geom functions to chan
 :::
 
 ```{r}
-#| label: fig-color
+#| label: fig-color-1
 #| fig-cap: "Line plot showing global mean temperature anomalies relative to 1951-1980 average. Individual data points added using geom_point(), color and fill for lines and shapes have been modified." 
 
 ggplot(data = temperature, aes(x = Year, y = `J-D`)) +
@@ -243,7 +238,7 @@ ggplot(data = temperature, aes(x = Year, y = `J-D`)) +
 
 Shapes for points can be specified using numbers; note how some shapes are "solid", i.e. specifying `color` will define the color of the shape. Others, like the one used in our example are filled, i.e. `color` will determine the color of the outline, and `fill` the color of the space inside. For "hollow" shapes (or e.g. X's) `color` will determine the line color.
 
-![Numeric codes for sympols.](images/points-symbols.png)
+![Numeric codes for sympols.](images/points-symbols.png){width=50%}
 
 You can specify colors either using [the color names defined by R](http://applied-r.com/r-color-tables/)  or using hex codes. 
 
@@ -294,7 +289,7 @@ To do this, we need a column that encodes that information... that of course is 
 We can manipulate our `data.frame` using the `dplyr` functions we are already familiar with. We can even use the `%>%` pipe to pass the data argument directly to the `ggplot()` function^[When you do this, remember that you need to switch back to using the `+` operator once you are adding your geom layers.]
 
 ```{r}
-#| label: fig-color
+#| label: fig-color-2
 #| fig-cap: "Bar plot showing global mean temperature anomalies relative to 1951-1980 average. Mapping aesthetics have been specified to color code according to variable included in the data set."
 
 temperature %>%
@@ -321,17 +316,20 @@ Let's see what else we can visualize using `ggplot`. Recall from when you explor
 
 Let's take a look at the distribution of mean global winter temperatures (`DJF` = December, January, February) using a histogram, (`geom_histogram()`). Note that we only need to define our x-axis to plot a histogram, this is because `ggplot2` will count how many observations fall into each bin for you ... this geom is a mixture of a geometry (bar plot) and a statistical transformation (binning data points into ranges and the plotting those as bar plots).].
 
-```{r fig.cap="Histogram displaying distribution of mean global winter temperatures."}
-#|
+```{r}
+#| label: fig-mean-glob-wint
+#| fig-cap: "Histogram summarizing the distribution of mean global winter temperatures."
 
 ggplot(temperature, aes(x = DJF)) +
   geom_histogram()
 
 ```
 
-We can refine our plot by choosing our own binwidth and by manipulating fill and color.
+We can refine our plot by choosing our own bin width and by manipulating fill and color.
 
-```{r fig.cap="Histogram displaying distribution of mean global winter temperatures with customized bin width and coloration."}
+```{r}
+#| label: fig-histog-color
+#| fig-cap: "Histogram displaying distribution of mean global winter temperatures with customized bin width and coloration."
 
 ggplot(temperature, aes(x = SON)) +
   geom_histogram(binwidth = 0.05, color = "black", fill = "darkorange")
@@ -340,13 +338,13 @@ ggplot(temperature, aes(x = SON)) +
 
 For our example we might also want to add a vertical line (`geom_vline()`) to indicate 0 (i.e. the long-term global temperature mean calculated for 1951 - 1980).
 
-```{r fig.cap="Histogram displaying distribution of mean global winter temperatures with customized binwidth and coloration and added vertical line (red)."}
-
+```{r}
+#| label: fig-custim-bin-widtg
+#| fig-cap: "Histogram displaying distribution of mean global winter temperatures with customized binwidth and coloration and added vertical line (red)."
 
 ggplot(temperature, aes(x = SON)) +
   geom_histogram(binwidth = 0.05, color = "black", fill = "darkorange") +
   geom_vline(xintercept = 0, color = "darkred", linetype = "dashed", size = 1)
-
 
 ```
 
@@ -366,7 +364,9 @@ tidy_season <- temperature %>%
 
 Now we can plot our seasons on the x-axis and the distribution of temperatures on the y-axis using `geom_boxplot()`.
 
-```{r fig.cap="Box plot comparing global mean temperature anomalies relative to 1951-1980 average for all four seasons."}
+```{r}
+#| label: fig-boxplot
+#| fig-cap: "Box plot comparing global mean temperature anomalies relative to 1951-1980 average for all four seasons."
 
 ggplot(tidy_season, aes(x = season, y = temperature)) +
   geom_boxplot()
@@ -375,7 +375,9 @@ ggplot(tidy_season, aes(x = season, y = temperature)) +
 
 Again, you can add additional information using the mapping aesthetics to e.g. color code the boxes by season.
 
-```{r fig.cap="Box plot comparing global mean temperature anomalies relative to 1951-1980 average for all four seasons color-coded by season."}
+```{r}
+#| label: fig-boxplot-modified
+#| fig-cap: "Box plot comparing global mean temperature anomalies relative to 1951-1980 average for all four seasons color-coded by season."
 
 ggplot(tidy_season, aes(x = season, y = temperature, fill = season)) +
   geom_boxplot()
@@ -385,7 +387,7 @@ ggplot(tidy_season, aes(x = season, y = temperature, fill = season)) +
 
 ## Faceting plots
 
-One of the advantages of `ggplot2` being based not only on the grammar of graphics but being designed to play extremely well with tidy data sets is being able to create faceted plots. A faceted plot involves splitting a single plot into a matrix of panels, where each panel shows a different subset of the data. This is especially helpful during exploratory analysis where you might first plot all your data points in a single graph but then want to look at whether or not individual subsets within the data set behave the same.
+One of the advantages of `ggplot2` being based not only on the grammar of graphics but also around the concept of a tidy data set is being able to create faceted plots. A faceted plot involves splitting a single plot into a matrix of panels, where each panel shows a different subset of the data. This is especially helpful during exploratory analysis where you might first plot all your data points in a single graph but then want to look at whether or not individual subsets within the data set behave the same.
 
 Let's look at an example to better understand what faceting plots looks like. For example, let's say we wanted to create individual plots of our bar plots showing our deviations of global temperatures from the 1951 - 1980 mean for each season.
 
@@ -395,7 +397,10 @@ Here is how you can do it using `facet_grid()`.
 
 Now we can plot our data and using `facet_grid()` we can specify that we want individual panels by month in separate rows.
 
-```{r fig.cap="Change in temperature anomaly relative to long-term avarage per season (rows)", fig.height=9}
+```{r}
+#| label: fig-facts-rows
+#| fig-cap: "Change in temperature anomaly relative to long-term avarage per season (rows)"
+#| fig-height: 10
 
 ggplot(tidy_season, aes(x = Year, y = temperature)) +
   geom_bar(stat = "identity", fill = "darkorange", color = "darkorange") +
@@ -405,7 +410,9 @@ ggplot(tidy_season, aes(x = Year, y = temperature)) +
 
 You could also specify that you want the individual plots to be separated into columns.
 
-```{r fig.cap="Change in temperature anomaly relative to long-term avarage per season (columns)"}
+```{r}
+#| label: fig-facet-col
+#| fig-cap: "Change in temperature anomaly relative to long-term avarage per season (columns)"
 
 ggplot(tidy_season, aes(x = Year, y = temperature)) +
   geom_bar(stat = "identity", fill = "darkorange", color = "darkorange") +
@@ -419,25 +426,26 @@ You can also use this syntax if you are only faceting by one variable as we are 
 
 For example, to plot this faceted data set in rows, you would use the following syntax - 
 
-```{r fig.cap="Change in temperature anomaly relative to long-term avarage per season (rows)", fig.height=9}
-
+```{r}
+#| label: fig-facet-row-2
+#| fig-cap: "Change in temperature anomaly relative to long-term avarage per season (rows)"
+#| fig-height: 10
 
 ggplot(tidy_season, aes(x = Year, y = temperature)) +
   geom_bar(stat = "identity", fill = "darkorange", color = "darkorange") +
   facet_grid(season ~ .)
 
-
 ```
 
 And to plot this data set column-wise you would specify it like so -
 
-```{r fig.cap="Change in temperature anomaly relative to long-term avarage per season (columns)"}
-
+```{r}
+#| label: fig-facet-col-2
+#| fig-cap: "Change in temperature anomaly relative to long-term avarage per season (columns)"
 
 ggplot(tidy_season, aes(x = Year, y = temperature)) +
   geom_bar(stat = "identity", fill = "darkorange", color = "darkorange") +
   facet_grid(. ~ season)
-
 
 ```
 
@@ -454,7 +462,10 @@ One of the first things we frequently want to changes is the axis labels. `ggplo
 
 For example we could customize our faceted figure to look like this:
 
-```{r fig.cap="Change in temperature anomaly relative to long-term avarage per season (rows)", fig.height=9}
+```{r}
+#| label: fig-customize
+#| fig-cap: "Change in temperature anomaly relative to long-term avarage per season (rows)"
+#| fig-height: 10
 
 ggplot(tidy_season, aes(x = Year, y = temperature)) +
   geom_bar(stat = "identity", fill = "darkorange", color = "darkorange") +
@@ -470,7 +481,10 @@ Pretty much every component of a `ggplot` figure can be further customized using
 
 The default theme is `theme_grey()`.
 
-```{r fig.cap="Change in temperature anomaly relative to long-term avarage per season (rows)", fig.height=9}
+```{r}
+#| label: fig-theme
+#| fig-cap: "Change in temperature anomaly relative to long-term avarage per season (rows)"
+#| fig-height: 10
 
 ggplot(tidy_season, aes(x = Year, y = temperature)) +
   geom_bar(stat = "identity", fill = "darkorange", color = "darkorange") +
@@ -485,18 +499,31 @@ ggplot(tidy_season, aes(x = Year, y = temperature)) +
 
 Here, we explicitly specified it using `theme_grey()`; if you do not specify a theme this is the theme that will be used for your plot. There are other themes that are part of the `ggplot` package that include `theme_bw()`, `theme_minimal()`, `theme_classic()` or `theme_light()`.
 
-`r msmbstyle::question_begin(label = "ques:Vis-1")`
+::: {.callout-note icon=false}
 
-Re-plot the same figure using the four themese specified above.
+## {{< fa clipboard-question >}}   Give it a whirl
 
-`r msmbstyle::question_end()`
+Re-plot the same figure using the four themes specified above.
+
+:::
 
 
-You will likely find a theme that you like but still want to make additional tweaks in that case `theme()` is your friend. 
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+You will likely find a theme that you like but still want or need to make additional tweaks. In that case the function `theme()` is your friend. 
 
 Let's go back to our bar plot of the global temperature anomaly to look at an example of likely the three most common things you will want to adjust which is the legend position, changing font size, color, turning x-axis labels by 90 degrees.
 
-```{r fig.cap="Change in mean global temperature relative to long-term avaerage with customized font sizes and legend positions."}
+```{r}
+#| label: fig-customize-theme
+#| fig-cap: "Change in mean global temperature relative to long-term avaerage with customized font sizes and legend positions."
+#| fig-height: 6
 
 temperature %>%
   mutate(year_type = ifelse(`J-D` <=0, "colder", "hotter")) %>%
@@ -522,13 +549,15 @@ As you start your visualization adventure the [R Cookbook](https://www.cookbook-
 
 ## Arranging plots
 
-We've already seen that we can create multi-panel plots in a very straightforward way when we are essentially plotting the same plot for different subsets of the data.
+We've already seen that we can create multi-panel plots in a very straightforward way when we are plotting the same plot for different subsets of the data (facetted plots).
 
 But what if we want to generate individual plots that might fit together thematically but aren't subsets that we can facet but we still want to be able to present them together? Fear not, this too can be solved; one option is using `patchwork`, a package designed for exactly this purpose. Let's generate a few additional plots so we can try this out.
 
 In our data folder there is a tab-delimited file with monthly mean CO2 concentrations (parts per million) from Maunua Loa. Let's read in that data set and create line plot with a regression line.
 
-```{r fig.cap="Mean monthly atmospheric CO2 concentrations measuread at Mauna Loa Observatory from 1958 - 2021."}
+```{r}
+#| label: fig-co2
+#| fig-cap: "Mean monthly atmospheric CO2 concentrations measuread at Mauna Loa Observatory from 1958 - 2021." 
 
 carbon <- read_delim("data/CO2_monthly.txt", delim = "\t")
 
@@ -545,7 +574,9 @@ ggplot(carbon, aes(x = date, y = average)) +
 
 We also have a data set from the Global Carbon Project downloaded from the [Our World in Data repository](https://github.com/owid/co2-data) that contains atmospheric CO2 emissions. We can plot that as a simple line plot with a regression.
 
-```{r fig.cap="Global atmospheric CO2 emissions."}
+```{r}
+#| label: fig-glob-co2-emissions
+#| fig-cap: "Global atmospheric CO2 emissions."
 
 emissions <- read_delim("data/emissions.txt", delim = "\t") %>%
   filter(iso_code == "OWID_WRL")
@@ -587,7 +618,10 @@ p2 <- ggplot(emissions, aes(x = year, y = co2)) +
 
 Now we can combine them side by side using a simple syntax.
 
-```{r fig.cap="Mean monthly atmospheric CO2 concentrations measuread at Mauna Loa Observatory (left panel) and Global atmospheric CO2 emissions (right panel)."}
+```{r}
+#| label: fig-patchwork-1
+#| fig-cap: "Mean monthly atmospheric CO2 concentrations measuread at Mauna Loa Observatory (left panel) and Global atmospheric CO2 emissions (right panel)."
+#| fig-height: 4
 
 p1 + p2
 
@@ -595,7 +629,10 @@ p1 + p2
 
 Similarly, we can plot them underneath each other like so -
 
-```{r fig.cap="Mean monthly atmospheric CO2 concentrations measuread at Mauna Loa Observatory (top panel) and Global atmospheric CO2 emissions (bottom panel).", fig.height=7}
+```{r}
+#| label: fig-patchwork-2
+#| fig-cap: "Mean monthly atmospheric CO2 concentrations measuread at Mauna Loa Observatory (top panel) and Global atmospheric CO2 emissions (bottom panel)."
+#| fig-height: 7
 
 p1 / p2
 
@@ -603,7 +640,10 @@ p1 / p2
 
 Oh, it gets better. Let's say we wanted to plot our global mean temperatures in the top row and our two emissions plots below.
 
-```{r fig.cap="Comparison of change in mean global temperature (top panel), atmospheric CO2 concentrations (bottom left), and atmospheric CO2 emissions (bottom right).", fig.height=11}
+```{r}
+#| label: fig-patchwork-3
+#| fig-cap: "Comparison of change in mean global temperature (top panel), atmospheric CO2 concentrations (bottom left), and atmospheric CO2 emissions (bottom right)."
+#| fig-height: 10
 
 p3 <- temperature %>%
   mutate(year_type = ifelse(`J-D` <=0, "colder", "hotter")) %>%
@@ -629,7 +669,7 @@ You can create complex compositions in `patchwork` using syntax combining `+`, `
 
 ## Exporting Plots
 
-The last thing we still have to figure out is how to save plots. You have a few options.
+The last thing we still have to figure out is how to save plots to file. You have a few options.
 
 The quickest and dirtiest option is to simply right click on the plot pane after plotting a figure and then save the figure using `Save image as`. This works and is easy to do but gives you very little control over the dimensions, resolution, file format etc.
 
@@ -639,7 +679,10 @@ Finally, the `ggplot2` has a function called `ggsave()` that will allow you to d
 
 By default it will save the last plot that was plotted. If you specify the format in the file name (e.g. `*.svg`, `*.jpg`, `*.png`) it will automatically recognize the format^[Remember that we have designed our research compendium to keep raw and processed data, and results separate? Figures are considered results so you should always save them to the `results` folder.].
 
-```{r fig.cap="Change in mean global temperature realtive to long-term average."}
+```{r}
+#| label: fig-save
+#| fig-cap: "Change in mean global temperature realtive to long-term average."
+#| fig-height: 6
 
 temperature %>%
   mutate(year_type = ifelse(`J-D` <=0, "colder", "hotter")) %>%
@@ -673,9 +716,14 @@ Increasing global temperatures are effecting change across the different compone
 
 We have looked at rising mean global temperatures and discovered that rapidly increasing emissions and atmospheric concentrations of CO2 are consistent with increased concentrations of greenhouse gases driving temperature change.
 
-The effects of global warming are observed throughout components of the climate system including the atmosphere (increase in atmospheric temperatures), the hydrosphere (marine and freshwater systems), crysophere (land and sea ice), and lithosphere (earth's surface/crust). Let's look at a few data sets that illustrate the impact of rising temperatures.
+The effects of global warming are observed throughout components of the climate system including the atmosphere, the hydrosphere (marine and freshwater systems), cryosphere (land and sea ice), and lithosphere (earth's surface/crust). Let's look at a few data sets that illustrate the impact of rising temperatures.
 
-`r msmbstyle::question_begin(label = "ques:Vis-2")`
+For all the plots, comment each line of your ggplot code (you can add comments between the lines or at the end), remember to caption your figure, list your data source and and label your axis in a meaningful way.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
 
 Increasing atmospheric temperatures result in land ice melting and the ocean heat content rising. The latter leads to thermal expansion which together with the increase freshwater inflow results in rising sea levels.
 
@@ -687,19 +735,46 @@ sealevel <- read_delim("data/sealevel.txt", delim = "\t")
 
 ```
 
-Take a quick look at the data set using `View()` and briefly summarize what data is contained in this data set^[Include things like the number of columns, what data is contained in each sample, what time periods are included etc. Practice deducing these types of things from the context of the data set description above and by browsing the content.]
+1. Take a quick look at the data set using `View()` and briefly summarize what data is contained in this data set^[Include things like the number of columns, what data is contained in each sample, what time periods are included etc. Practice deducing these types of things from the context of the data set description above and by browsing the content.]
+2. Plot the change in mean sea level over time as a line plot and color code the line(s) by method (see column names). Chose a theme and position your legend below the figure. 
+3. Figure out how to use `geom_hline()` to add a line at 0.
+4. Comment each line of your ggplot code (you can add comments between the lines or at the end), remember to caption your figure, list your data source and and label your axis in a meaningful way.
+5. Write a short description of your figure summarizing the key results displayed.
 
-Plot the change in mean sea level over time as a line plot and color code the line(s) by method (see column names). Chose a theme and position your legend below the figure. 
+:::
 
-Extra challenge^[YJust because it's extra doesno't mean it's optional ... you should be able to figure this out using the tool set you have and practicing reading the manual pages to learn how to use functions!]: Figure out how to use `geom_hline()` to add a line at 0.
 
-Comment each line of your ggplot code (you can add comments between the lines or at the end), remember to caption your figure, list your data source and and label your axis in a meaningful way.
+::: {.callout-important icon=false}
 
-Write a short description of your figure summarizing the key results displayed.
+## {{< fa pen >}}   Did it!
+
+**Data Set**:
+
+
+
+**Plot**
+
+
+
+**Summary of results**
+
+
+
+
+:::
+
+
+::: {.callout-tip icon=false collapse=true}
+
+## {{< fa person-chalkboard >}}    Pointers
 
 Here's an example of what tour final figure could look like.
 
-```{r fig.cap="Change in mean global coastal sea level using costal sea level tide gauges (blue) and satellite data (red).", echo=FALSE}
+```{r}
+#| echo: false
+
+#| label: fig-challenge-1
+#| fig-cap: "Change in mean global coastal sea level using costal sea level tide gauges (blue) and satellite data (red)."
 
 ggplot(sealevel, aes(x = date, y = gmsl, color = method)) +
   geom_line() +
@@ -714,10 +789,12 @@ ggplot(sealevel, aes(x = date, y = gmsl, color = method)) +
 
 ```
 
-`r msmbstyle::question_end()`
+:::
 
 
-`r msmbstyle::question_begin(label = "ques:Vis-3")`
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
 
 Our next data set is from the [National Snow and Ice Data Center](https://nsidc.org/data/seaice_index/archives) and contains the Arctic (Northern Hemisphere) July sea ice extent.
 
@@ -727,20 +804,39 @@ ice_arctic <- read_delim("data/arctic_ice.txt", delim = "\t")
 
 ```
 
-Take a quick look at the data set using `View()` and briefly summarize what data is contained in this data set. Be specific.
+1. Take a quick look at the data set using `View()` and briefly summarize what data is contained in this data set. Be specific.
+2. Plot the change in ice extent over time as a line plot. Chose a theme. Add a linear regression and confidence interval.
+3. Extra Challenge: Change the default colors of the regression line and the confidence interval.
+4. Comment each line of your ggplot code (you can add comments between the lines or at the end), remember to caption your figure, list your data source and and label your axis in a meaningful way.
+5. Write a short description of your figure summarizing the key results displayed.
 
-Plot the change in ice extent over time as a line plot. Chose a theme. Add a linear regression and confidence interval. 
-
-Extra Challenge: Change the default colors of the regression line and the confidence interval.
-
-Comment each line of your ggplot code (you can add comments between the lines or at the end), remember to caption your figure, list your data source and and label your axis in a meaningful way.
-
-Write a short description of your figure summarizing the key results displayed.
-
-`r msmbstyle::question_end()`
+:::
 
 
-`r msmbstyle::question_begin(label = "ques:Vis-4")`
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+**Data Set**:
+
+
+
+**Plot**
+
+
+
+**Summary of results**
+
+
+
+
+:::
+
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
 
 Let's take a look at the equivalent data set depicting sea ice extent in the Antarctic (Southern Hemisphere.)
 
@@ -750,22 +846,40 @@ ice_arctic <- read_delim("data/antarctic_ice.txt", delim = "\t")
 
 ```
 
-Take a quick look at the data set using `View()` and briefly summarize what data is contained in this data set. Be specific.
+1. Take a quick look at the data set using `View()` and briefly summarize what data is contained in this data set. Be specific.
+2. Plot the change in ice extent over time as a line plot. Chose a new theme from what you've been using previously. Add a linear regression and confidence interval. 
+3. Extra Challenge: Change the default colors of the regression line and the confidence interval.
+4. Comment each line of your ggplot code (you can add comments between the lines or at the end), remember to caption your figure, list your data source and and label your axis in a meaningful way.
+5. Write a short description of your figure summarizing the key results displayed.
 
-Plot the change in ice extent over time as a line plot. Chose a new theme from what you've been using previously. Add a linear regression and confidence interval. 
-
-Extra Challenge: Change the default colors of the regression line and the confidence interval.
-
-Comment each line of your ggplot code (you can add comments between the lines or at the end), remember to caption your figure, list your data source and and label your axis in a meaningful way.
-
-Write a short description of your figure summarizing the key results displayed.
-
-`r msmbstyle::question_end()`
+:::
 
 
-`r msmbstyle::question_begin(label = "ques:Vis-5")`
+::: {.callout-important icon=false}
 
-One more data set. This one is from the NOAA Hurricane Research Division. While interpreting the observed patterns in sea level and ice extent and modeling future projections is pretty straightforward, understanding whether extreme events are getting "worse" is a little bit more complicated.
+## {{< fa pen >}}   Did it!
+
+**Data Set**:
+
+
+
+**Plot**
+
+
+
+**Summary of results**
+
+
+
+:::
+
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+One more data set. This one is from the NOAA Hurricane Research Division. While interpreting the observed patterns in sea level and ice extent and modeling future projections is pretty straightforward, understanding whether extreme events are getting "worse" is a little bit more complicated^[We will take a closer look at this aspect when we combine our data wrangling and visualization skills to learn how to perform an exploratory analysis].
 
 Note: For this coding challenge you will need to combine your data wrangling and visualization skills!
 
@@ -777,13 +891,65 @@ hurricane <- read_delim("data/hurricanes.txt", delim = "\t")
 
 Take a quick look at the data set using `View()` and briefly summarize what data is contained in this data set. Be specific^[Note, several of the columns start with 'Revised' this just has to do with the entire data set having revised (most recent) definitions applied for the metrics included. You can ignore that component.].
 
-When thinking about hurricanes there are two metrics to consider when determining whether or not "hurricanes have gotten worse". First we can look at whether or not hurricanes have become more common by plotting the number of hurricanes for each year. Create a faceted plot with individual line plots showing the number of named storms (this would include not only hurricanes put also tropical storms), the number of hurricanes, the number of major hurricanes, and the number of hurricanes in the United States. Add a linear regression. Chose a custom theme.
+**Plot 1**:
 
-You will have to reformat the data set in order to plot it in this fashion. It can be helpful to first think about what your `ggplot` code should look like to create the plot described above and then format your data set to fit those needs^[Recall that ggplot is designed not only around the grammar of graphics but also the principles of tidy data... so, do we currently have a tidy data set? Or what would it need to look like for this plotting challenge?]. 
+When thinking about hurricanes there are two metrics to consider when determining whether or not "hurricanes have gotten worse". First, we can look at whether or not hurricanes have become more common by plotting the number of hurricanes for each year. 
 
-Extra Challenge: We've previously used `facet_grid()` to create faceted plots which requires us to specify how panels should be laid out in rows and/or columns. Figure out how to use `facet_wrap()` to just specify which variable to use to create individual panels with out them all needing to be laid out next to each other in columns or underneath each other in rows. 
+1. Create a faceted plot with individual line plots showing the number of named storms (this would include not only hurricanes put also tropical storms), the number of hurricanes, the number of major hurricanes, and the number of hurricanes in the United States. 
+2. Add a linear regression. 
+3. Chose a custom theme. 
 
-```{r eval=FALSE, include=FALSE}
+::: {.column-margin}
+
+You will have to reformat the data set in order to plot it in this fashion. It can be helpful to first think about what your `ggplot` code should look like to create the plot described above and then format your data set to fit those needs. Recall that ggplot is designed not only around the grammar of graphics but also the principles of tidy data... so, do we currently have a tidy data set? Or what would it need to look like for this plotting challenge?. 
+
+:::
+
+4. Extra Challenge: We've previously used `facet_grid()` to create faceted plots which requires us to specify how panels should be laid out in rows and/or columns. Figure out how to use `facet_wrap()` to just specify which variable to use to create individual panels with out them all needing to be laid out next to each other in columns or underneath each other in rows. 
+
+
+**Plot 2**:
+
+The other way to evaluate whether or not "hurricanes have gotten worse" is to not look at the number of storms but to determine whether individual storms or storms as a whole have become more intense and/or destructive. One of the columns you may not have been able to fully figure out what information it contains is the column containing information on the "accumulated cyclone energy"^[Now that you have this information gp ahead and update your notes to add it to your short data set description.].
+
+1. Create a bar plot showing the ACE for each year. 
+2. Chose a theme and customize the color of your bars^[You can specify color and fill for bar plots. Try setting the color and fill to the same and to different colors to see what happens when you have a bar plot with this many individual bars.] 3. Extra Challenge: Use `geom_hline()` to add a horizontal line indicating the mean ACE for the recorded time period.
+4. Write a short description for each figure summarizing the key results displayed and argue whether or not you think "hurricanes have gotten worse".
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+**Data Set**:
+
+
+
+**Plot 1:**
+
+
+
+**Plot 2:**
+
+
+
+**Summary of results**
+
+
+
+:::
+
+
+::: {.callout-tip icon=false collapse=true}
+
+## {{< fa person-chalkboard >}}    Pointers
+
+Here is what a draft of your first plot could look like before you finalize things like titles and themes:
+
+```{r}
+#| echo: false
 
 hurricane %>%
   select(-RevisedACE) %>%
@@ -791,36 +957,75 @@ hurricane %>%
   ggplot(aes(x = Year, y = frequency)) +
     geom_line() +
     geom_smooth(method = "lm") +
-    facet_wrap(~ category)
+    facet_wrap(~ category) +
+    theme_standard
 
 ```
 
-The other way to evaluate whether or not "hurricanes have gotten worse" is to not look at the number of storms but to determine whether individual storms or storms as a whole have become more intense and/or destructive.
+Here is what a draft of your first plot could look like before you finalize things like titles and themes:
 
-The one column you probably have not yet been able to figure out is the column containing information on the "accumulated cyclone energy"^[Now that you have this information if you have not already add it to your short data set description.].
-
-Create a bar plot showing the ACE for each year. Chose a theme and customize the color of your bars^[You can specify color and fill for bar plots. Try setting the color and fill to the same and to different colors to see what happens when you have a bar plot with this many individual bars.] 
-
-Extra Challenge: Use `geom_hline()` to add a horizontal line indicating the mean ACE for the recorded time period.
-
-```{r plot-14, eval=FALSE, include=FALSE}
+```{r}
+#| echo: false
 
 ggplot(hurricane, aes(x = Year, y = RevisedACE)) +
   geom_bar(stat = "identity", color = "darkorange", fill = "darkorange") +
-  geom_hline(aes(yintercept = mean(RevisedACE)))
+  geom_hline(aes(yintercept = mean(RevisedACE))) +
+  theme_standard
 
 ```
 
-For all the plots, comment each line of your ggplot code (you can add comments between the lines or at the end), remember to caption your figure, list your data source and and label your axis in a meaningful way.
+:::
 
-Write a short description for each figure summarizing the key results displayed and argue whether or not you thing "hurricanes have gotten worse".
 
-`r msmbstyle::question_end()`
+::: {.callout-note icon=false}
 
-`r msmbstyle::question_begin(label = "ques:Vis-6")`
+## {{< fa clipboard-question >}}   Give it a whirl
 
-Choose five of the plots we have generated in this module and combine them into a single plot using `patchwork`; include at least two columns and two rows in your layout. 
+Choose five of the plots we have generated in this chapter and combine them into a single plot using `patchwork`; include at least two columns and two rows in your layout^[This can include your temperature anomaly data set as well.]. 
 
-Extra challenge: You can use `fig.height=` and `fig.width=` in the first line starting a new code to specify the dimensions of the output of a figure in the knitted document. When you initially knit your `Rmarkdown` file you will find that the default dimensions will not format your you multi-panel plot in a way that does not make it super legible. Manipulate these parameters and re-knit your `html` to display your figure in an appropriate way.
+Save your plot in a way that retains proper proportions to make it easy for somebody else to easily see the details and discern the general patterns. Share your multi-panel plot in the `#assignment` channel of our slack workspace.
 
-`r msmbstyle::question_end()`
+Use your the figure you have created to support argue that "the observed changes in the different components of the climate system are internally and physically consistent with increased global temperatures". Draw from the descriptions you made for the figures throughout this challenges to summarize what you observe to support this claim. In your answer you will want to consider which of the data sets refer to which component of the earth-climate system and why the data sets you have looked at are consistent with increasing mean global temperatures.
+
+Extra challenge: You can use `#| fig-height` and `#| fig-width;` code chunk options to specify the dimensions of the output of a figure in the knitted document^[Yes, this does mean that you will need to check the format of your html output and potentially change it before you submit. Checking your html report before you submit is a good habit to have just to make sure that everything is rendering as expected]. When you initially render your `quarto` document you will find that the default dimensions will not format your you multi-panel plot in a way that does not make it super legible. Manipulate these parameters and re-knit your `html` to display your figure in an appropriate way.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+**Figure**
+
+
+
+**The observed changes in the different components of the climate system are internally and physically consistent with increased global temperatures**
+
+
+
+
+:::
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Consider the following and write a short paragraph (7-10 sentences):
+
+* Think back over the analyses we have performed for this and the previous chapter and argue whether the analysis you have performed should be considered descriptive, exploratory, inferential/predictive, or causal/mechanistic. 
+* Describe both what you actually did, and then also briefly sketch out what your experimental design/analysis would need to look like if you had performed analysis in the other categories. 
+* Causal/mechanistic analyses are the most involved frequently also the most difficult to perform. Argue whether or not your results are less meaningful or informative if they are not mechanistic/causal or whether they are still useful to support the initial thesis that climate change is unprecedented, unequivocally anthropogenic, and the impacts are already impacting all components of the earth-climate system.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
