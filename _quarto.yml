@@ -43,9 +43,9 @@ bibliography: references.bib
 
 format:
   html:
-    theme: cosmo
+    theme: superhero
     toc: true
-    toc-depth: 2
+    toc-depth: 3
     toc-location: left
     code-fold: false
     code-overflow: scroll

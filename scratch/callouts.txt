@@ -31,6 +31,16 @@
 :::
 
 
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+
 ::: {.callout-tip icon=false collapse=true}
 
 ## {{< fa person-chalkboard >}}    Pointers
@@ -69,7 +79,7 @@ surprise!
 
 ::: {.callout-note icon=false}
 
-## {{< fa laptop-code >}} 
+## {{< fa laptop-code >}}
 
 
 
@@ -95,7 +105,7 @@ surprise!
 
 ::: {.callout-note icon=false}
 
-## {{< fa highlighter >}} 
+## {{< fa highlighter >}}
 
 
 
