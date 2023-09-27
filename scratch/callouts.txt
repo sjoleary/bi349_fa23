@@ -4,6 +4,9 @@
 
 :::
 
+::: {.callout-tip icon=false appearance="simple"}
+
+:::
 
 ::: {.callout-warning}
 

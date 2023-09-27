@@ -1,0 +1,2527 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Data Science for a Changing Planet - 6&nbsp; Intro to dataframes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./07_data-transformation-i.html" rel="next">
+<link href="./05_data-management.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/quarto-contrib/fontawesome6-0.1.0/all.css" rel="stylesheet">
+<link href="site_libs/quarto-contrib/fontawesome6-0.1.0/latex-fontsize.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar floating slimcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./B_shark-wrangling.html">Data/Shark wrangling</a></li><li class="breadcrumb-item"><a href="./06_data-frames.html"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Intro to dataframes</span></a></li></ol></nav>
+      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+      </a>
+      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Data Science for a Changing Planet</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Overview</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./A_hello-world.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Hello world</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01_intro-data-science.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">What even is Data Science?</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_install-R.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Getting set up with R and Rstudio</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03_Rbasics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">R: Functions, Objects, Vectors - oh my!</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04_Rproj.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Project management and Rmarkdown Basics</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./B_shark-wrangling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Data/Shark wrangling</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05_data-management.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Data management using spreadsheets</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06_data-frames.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Intro to dataframes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07_data-transformation-i.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Data Transformation: Organizing rows &amp; Columns</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08_data-transformation-ii.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Data Transformation:</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./09_tidy-data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Tidy data</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10_relational-data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Relational data</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./C_bioinformatics-eDNA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bioinformatics and Assessment of Biological Communities using eDNA</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11_bioinformatics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Bioinformatics</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./12_community-diversity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Characterizing community diversity</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./D_clim-change.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Climate Change: Drivers &amp; Impacts</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./13_greenhouse-gases.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Climate change: Drivers</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./14_impacts.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Climate change: Impacts</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./15_misinformation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Climate change: Misinformation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./z_appendix.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./z_references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+    <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul class="collapse">
+  <li><a href="#reading-data-into-r" id="toc-reading-data-into-r" class="nav-link active" data-scroll-target="#reading-data-into-r"><span class="header-section-number">6.1</span> Reading data into R</a></li>
+  <li><a href="#inspecting-your-data.frame" id="toc-inspecting-your-data.frame" class="nav-link" data-scroll-target="#inspecting-your-data.frame"><span class="header-section-number">6.2</span> Inspecting your <code>data.frame</code></a></li>
+  <li><a href="#subsetting-your-dataframe" id="toc-subsetting-your-dataframe" class="nav-link" data-scroll-target="#subsetting-your-dataframe"><span class="header-section-number">6.3</span> Subsetting your dataframe</a></li>
+  <li><a href="#write-data.frame-to-file" id="toc-write-data.frame-to-file" class="nav-link" data-scroll-target="#write-data.frame-to-file"><span class="header-section-number">6.4</span> Write <code>data.frame</code> to file</a></li>
+  </ul>
+</nav>
+</nav>
+<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+    </div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Intro to dataframes</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<p><strong>Learning Objectives</strong></p>
+<p>After completing this lab you should be able to</p>
+<ul>
+<li>read a data from a csv or tab-delimited file into R as a <code>data.frame</code>.</li>
+<li>describe what a <code>data.frame</code> is.</li>
+<li>inspect the contents of a data frame to summarize the content.</li>
+<li>write a <code>data.frame</code> to file.</li>
+</ul>
+<p>For each of our modules we will have a project-folder with an <code>Rproject</code>, <code>*.qmd</code>-files, and sub-directories for data, scripts, and results as described in our <code>Rproject</code> Tutorial. You should have a directory on your Desktop or Documents folder on your laptop (name it something like <code>bi349</code>) as a home directory for all of our project folders this semester.</p>
+<p><a href="https://drive.google.com/drive/folders/1Sh4mtvdii1k_vU4-mfvgIGwJsZvo8MOt?usp=sharing">If you have not already, go ahead and download the research compendium for this module using this link</a>, make sure the directory is unzipped and move it to your <code>bi328</code> directory. You can open the <code>Rproj</code> for this module either by double clicking on it which will launch <code>Rstudio</code> or by opening <code>Rstudio</code> and then using <code>File &gt; Open Project</code> or by clicking on the <code>Rproject</code> icon in the top right of your program window and selecting <code>Open Project</code>.</p>
+<div class="page-columns page-full"><p>Once you have opened a project you should see the project name in the top right corner<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>.</p><div class="no-row-height column-margin column-container"><li id="fn1"><p><sup>1</sup>&nbsp;Pro tip: If you run into issues where a quarto document won’t render or file paths aren’t working (especially if things were working previously) one of your first steps should be to double check that the correct <code>Rproj</code> is loaded.</p></li></div></div>
+<div class="page-columns page-full"><p>There should be a document names <code>06_data-frames.qmd</code> in your project directory. Use that file to work through this tutorial - you will hand in your rendered (“knitted”) <code>quarto</code> file as your homework assignment. So, first thing in the <code>YAML</code> header, change the author to your name. You will use this <code>quarto</code> document to record your answers. Remember to use comments to annotate your code; at minimum you should have one comment per code set<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> you may of course add as many comments as you need to be able to recall what you did]. Similarly, take notes in the document as we discuss discussion/reflection questions but make sure that you go back and clean them up for “public consumption”.</p><div class="no-row-height column-margin column-container"><li id="fn2"><p><sup>2</sup>&nbsp;You should do this whether you are adding code yourself or using code from our manual, even if it isn’t commented in the manual… especially when the code is already included for you, add comments to describe how the function works/what it does as we introduce it during the participatory coding session so you can refer back to it.</p></li></div></div>
+<p>Let’s start by loading the packages we will need for this activity.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># load libraries</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="reading-data-into-r" class="level2" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="reading-data-into-r"><span class="header-section-number">6.1</span> Reading data into R</h2>
+<p><code>library(tidyverse)</code> is actually loading a set of packages used for data science that share a common design philosophy, and “grammar”. One of the packages we loaded is called <code>readr</code> which contains functions for reading in and parsing files.</p>
+<p>At the end of Chapter 5 when we were exploring the usefulness of spreadsheets for data entry and management. You would have export the excel file with the catch data as <code>*.csv</code> (comma delimited) and as a tab-delimited text file (<code>*.txt</code> or <code>*.tsv</code> if exporting from google sheets).</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<i class="fa-solid fa-clipboard-question" aria-label="clipboard-question"></i> Give it a whirl
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Use <code>?read_delim</code> to pull up the help page for the function we will using and explore the arguments. How do you think we read in our csv file?</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p><code>read_delim</code> has two required arguments, the <strong>path</strong> (<code>data/longline_catchdata.csv</code>) which tells <code>R</code> where your file is located and the <strong>delimiter</strong> in this case a comma (<code>,</code>) tells <code>R</code> how columns are separated from each other.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># read catch data</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>catch <span class="ot">&lt;-</span> <span class="fu">read_delim</span>(<span class="st">"data/longline_catchdata.csv"</span>, <span class="at">delim =</span> <span class="st">","</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>As we access data sets that are not as “clean” as the one we have here, you will find that some of the other arguments apart from specifying the delimiter will come in handy - but don’t worry about those for now.</p>
+</div>
+</div>
+</div>
+<p>Execute the code. If you look over in your environment pane you should now see the object <code>catch</code>. This is your dataframe. Click on it, you should see the command <code>View(catch)</code> in your console and a tab <code>catch</code> appear in your top left pane.</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<i class="fa-solid fa-clipboard-question" aria-label="clipboard-question"></i> Give it a whirl
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Based on how you read in the csv file how would you read in the tab-delimited version?</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>We need to change delimiter to indicate that it is tab-delimited. In this case, we would specify it as <code>\t</code> is “computer” for tab.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># read catch data</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>catch <span class="ot">&lt;-</span> <span class="fu">read_delim</span>(<span class="st">"data/longline_catchdata.txt"</span>, <span class="at">delim =</span> <span class="st">"</span><span class="sc">\t</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Another delimiter you might encounter are white space (<code>" "</code>) but technically it could be anything.</p>
+</div>
+</div>
+</div>
+<p>When you loaded your data set you should have seem an message along the lines of <code>parsed with column specification</code> and information on the number of columns and their data type. What this means is that <code>read_delim()</code> looks through the first 1,000 rows for each column and guesses the data type - usually this works pretty well though occasionally we will have to either specify the data types manually using the <code>col_types</code> argument or convert the data type later on.</p>
+<p>Let’s use <code>class()</code> to figure out what type of object we are dealing with.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(catch)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "spec_tbl_df" "tbl_df"      "tbl"         "data.frame" </code></pre>
+</div>
+</div>
+<p>You can see that this object actually has multiple classes attached to it. The last one in the list is <code>data.frame</code> which is the standard format for (rectangular) tabular data.</p>
+<p>Recall from our tutorial on vectors that each column in a <code>data.frame</code> is an atomic vector, they must all have the same length (hence, “rectangular”) and each must contain the same data type (characters, integers, …).</p>
+<p>The other three have the same basic properties as a <code>data.frame</code> along with some additional features. The <code>tbl</code> (pronounced tibble) was designed to be at the center of the <code>tidyverse</code> which means that when you use <code>readr</code> functions it will automatically be read in as a tibble and <code>data.frame</code>. If you do some exploring and/or troubleshooting on the web you will likely run into tibbles but for our intents of purposes we will use <code>data.frame</code> when talking about data in a rectangual, tabular shape.</p>
+</section>
+<section id="inspecting-your-data.frame" class="level2" data-number="6.2">
+<h2 data-number="6.2" class="anchored" data-anchor-id="inspecting-your-data.frame"><span class="header-section-number">6.2</span> Inspecting your <code>data.frame</code></h2>
+<p>You have of course already peaked at the data when you opened it in excel to export it in a text-based format. But not infrequently, you may access data from a public database or a collaborator might share a text-based formatted data set with you and the first thing that you are going to want to do is figure out what information is contained in the data set.</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<i class="fa-solid fa-clipboard-question" aria-label="clipboard-question"></i> Consider this
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>You know that this data set is the result from a long-lining survey and you’re now basically an expert in formatting data - what information do you expect to find in this data set? How would you expect it to be formatted if this is a ‘tidy data set’.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<i class="fa-solid fa-clipboard-question" aria-label="clipboard-question"></i> Give it a whirl
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>There are several functions that you can use for a preliminary inspection of your data, including figuring out what dimensions it has and what information is contained in your data set.</p>
+<p>Call the following functions on your object and describe what each function does, what information you can learn about your data set from executing them, and when these could be helpful.</p>
+<ul>
+<li><code>dim()</code>, <code>nrow()</code>, <code>ncol()</code></li>
+<li><code>str()</code>, <code>summary()</code></li>
+<li><code>head()</code>, <code>tail()</code></li>
+<li><code>colnames()</code>, <code>rownames()</code></li>
+<li><code>View()</code></li>
+</ul>
+</div>
+</div>
+</section>
+<section id="subsetting-your-dataframe" class="level2" data-number="6.3">
+<h2 data-number="6.3" class="anchored" data-anchor-id="subsetting-your-dataframe"><span class="header-section-number">6.3</span> Subsetting your dataframe</h2>
+<p>Similar to the way we were able to subset vectors, we can do the same things with our <code>data.frames</code> using rows and columns as our “coordinates” in the format <code>data_frame[row_index, column_index]</code>.</p>
+<section id="using-coordinates" class="level3" data-number="6.3.1">
+<h3 data-number="6.3.1" class="anchored" data-anchor-id="using-coordinates"><span class="header-section-number">6.3.1</span> Using coordinates</h3>
+<p>So for example we can extract the first row and column from our <code>catch</code> object as</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>catch[<span class="dv">1</span>, <span class="dv">1</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 1
+  Site       
+  &lt;chr&gt;      
+1 Aransas_Bay</code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<i class="fa-solid fa-clipboard-question" aria-label="clipboard-question"></i> Give it a whirl
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>How would you extract the 5th column from the third row?</p>
+</div>
+</div>
+<p>You can select multiple rows or columns by specifying them using a vector.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>catch[<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">20</span>, <span class="dv">40</span>), <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">5</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 2
+  Species         PCL
+  &lt;chr&gt;         &lt;dbl&gt;
+1 Bagre_marinus    NA
+2 Bagre_marinus    NA
+3 Bagre_marinus    NA</code></pre>
+</div>
+</div>
+<p>You can also select a set of adjacent rows (columns) using <code>:</code> as so</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>catch[<span class="dv">500</span><span class="sc">:</span><span class="dv">505</span>, <span class="dv">2</span><span class="sc">:</span><span class="dv">5</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 4
+  Species       Sex   Observed_Stage   PCL
+  &lt;chr&gt;         &lt;chr&gt; &lt;chr&gt;          &lt;dbl&gt;
+1 Bagre_marinus U     &lt;NA&gt;              NA
+2 Bagre_marinus U     &lt;NA&gt;              NA
+3 Bagre_marinus U     &lt;NA&gt;              NA
+4 Bagre_marinus U     &lt;NA&gt;              NA
+5 Bagre_marinus U     &lt;NA&gt;              NA
+6 Bagre_marinus U     &lt;NA&gt;              NA</code></pre>
+</div>
+</div>
+<p>You can exclude indices using <code>-</code></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>catch[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="sc">-</span><span class="dv">1</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 11
+  Species     Sex   Observed_Stage   PCL    FL   STL Hook_Size   Set   Day Month
+  &lt;chr&gt;       &lt;chr&gt; &lt;chr&gt;          &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+1 Bagre_mari… U     &lt;NA&gt;              NA   287   353        10     1    28     7
+2 Bagre_mari… U     &lt;NA&gt;              NA   425   495        10     1    28     7
+3 Bagre_mari… U     &lt;NA&gt;              NA   416   502        15     1    28     7
+4 Bagre_mari… U     &lt;NA&gt;              NA   416   507        10     1    28     7
+5 Bagre_mari… U     &lt;NA&gt;              NA   418   510        15     1    28     7
+# ℹ 1 more variable: Year &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<p>You can select all columns of a given row by leaving the column index blank; for example if we want to extract the first row.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>catch[<span class="dv">1</span>, ]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 12
+  Site      Species Sex   Observed_Stage   PCL    FL   STL Hook_Size   Set   Day
+  &lt;chr&gt;     &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;          &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+1 Aransas_… Bagre_… U     &lt;NA&gt;              NA   287   353        10     1    28
+# ℹ 2 more variables: Month &lt;dbl&gt;, Year &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<i class="fa-solid fa-clipboard-question" aria-label="clipboard-question"></i> Give it a whirl
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>How would you extract the entire 5th column?</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-9-contents" aria-controls="callout-9" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-9" class="callout-9-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>There are quite a few ways to do this:</p>
+<ul>
+<li>you can use indices by number (as we have done up until this point)</li>
+<li>instead of index numbers you can use the column name</li>
+</ul>
+<p>Here are two options using indices:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>catch[, <span class="dv">1</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2,325 × 1
+   Site       
+   &lt;chr&gt;      
+ 1 Aransas_Bay
+ 2 Aransas_Bay
+ 3 Aransas_Bay
+ 4 Aransas_Bay
+ 5 Aransas_Bay
+ 6 Aransas_Bay
+ 7 Aransas_Bay
+ 8 Aransas_Bay
+ 9 Aransas_Bay
+10 Aransas_Bay
+# ℹ 2,315 more rows</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>catch[<span class="dv">1</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2,325 × 1
+   Site       
+   &lt;chr&gt;      
+ 1 Aransas_Bay
+ 2 Aransas_Bay
+ 3 Aransas_Bay
+ 4 Aransas_Bay
+ 5 Aransas_Bay
+ 6 Aransas_Bay
+ 7 Aransas_Bay
+ 8 Aransas_Bay
+ 9 Aransas_Bay
+10 Aransas_Bay
+# ℹ 2,315 more rows</code></pre>
+</div>
+</div>
+<p>Instead of using indices you can also call their column names directly - both of these options will return a <code>data.frame</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>catch[<span class="st">"Site"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2,325 × 1
+   Site       
+   &lt;chr&gt;      
+ 1 Aransas_Bay
+ 2 Aransas_Bay
+ 3 Aransas_Bay
+ 4 Aransas_Bay
+ 5 Aransas_Bay
+ 6 Aransas_Bay
+ 7 Aransas_Bay
+ 8 Aransas_Bay
+ 9 Aransas_Bay
+10 Aransas_Bay
+# ℹ 2,315 more rows</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>catch[, <span class="st">"Site"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2,325 × 1
+   Site       
+   &lt;chr&gt;      
+ 1 Aransas_Bay
+ 2 Aransas_Bay
+ 3 Aransas_Bay
+ 4 Aransas_Bay
+ 5 Aransas_Bay
+ 6 Aransas_Bay
+ 7 Aransas_Bay
+ 8 Aransas_Bay
+ 9 Aransas_Bay
+10 Aransas_Bay
+# ℹ 2,315 more rows</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="extracting-columns-as-vectors" class="level3" data-number="6.3.2">
+<h3 data-number="6.3.2" class="anchored" data-anchor-id="extracting-columns-as-vectors"><span class="header-section-number">6.3.2</span> Extracting columns as vectors</h3>
+<p>Using <code>[]</code> will always return a subset of your dataframe as a data frame. Occassionally, we might want to extract the column as a vector. You can do this using square brackets <code>[[]]</code> or <code>$</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>catch[[<span class="st">"Site"</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   [1] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+   [4] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+   [7] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+  [10] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+  [13] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+  [16] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+  [19] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+  [22] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+  [25] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+  [28] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+  [31] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+  [34] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+  [37] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+  [40] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+  [43] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+  [46] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+  [49] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+  [52] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+  [55] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+  [58] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+  [61] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+  [64] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+  [67] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+  [70] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+  [73] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+  [76] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+  [79] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+  [82] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+  [85] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+  [88] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+  [91] "Redfish_Bay"        "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+  [94] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+  [97] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [100] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [103] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [106] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [109] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [112] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [115] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [118] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [121] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [124] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [127] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [130] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [133] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [136] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [139] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Aransas_Bay"       
+ [142] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [145] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [148] "Aransas_Bay"        "Aransas_Bay"        "Redfish_Bay"       
+ [151] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [154] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [157] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [160] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [163] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [166] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [169] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [172] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [175] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [178] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [181] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [184] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [187] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [190] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [193] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [196] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [199] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [202] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [205] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [208] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [211] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [214] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [217] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [220] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [223] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [226] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [229] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [232] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [235] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [238] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [241] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [244] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [247] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [250] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Aransas_Bay"       
+ [253] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [256] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [259] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [262] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [265] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [268] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [271] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [274] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [277] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [280] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [283] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [286] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [289] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [292] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [295] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [298] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [301] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [304] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [307] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [310] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [313] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [316] "Aransas_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [319] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [322] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [325] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [328] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [331] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [334] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [337] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [340] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [343] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [346] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [349] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [352] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [355] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [358] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [361] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [364] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [367] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [370] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [373] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [376] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [379] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [382] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [385] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [388] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [391] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [394] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [397] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [400] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [403] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [406] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [409] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [412] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Aransas_Bay"       
+ [415] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [418] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [421] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [424] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [427] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [430] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [433] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [436] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [439] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [442] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [445] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [448] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [451] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [454] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [457] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [460] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [463] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [466] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [469] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [472] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [475] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [478] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [481] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [484] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [487] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [490] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [493] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [496] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [499] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [502] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [505] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [508] "Redfish_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [511] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [514] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [517] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [520] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [523] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [526] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [529] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [532] "Aransas_Bay"        "Aransas_Bay"        "Redfish_Bay"       
+ [535] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [538] "Redfish_Bay"        "Redfish_Bay"        "Corpus_Christi_Bay"
+ [541] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [544] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [547] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [550] "Aransas_Bay"        "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [553] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [556] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [559] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [562] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [565] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [568] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [571] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [574] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [577] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [580] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [583] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [586] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [589] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [592] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [595] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [598] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [601] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [604] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [607] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [610] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [613] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [616] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [619] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [622] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [625] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [628] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [631] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [634] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [637] "Aransas_Bay"        "Aransas_Bay"        "Redfish_Bay"       
+ [640] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [643] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [646] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [649] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [652] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [655] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [658] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [661] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [664] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [667] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [670] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [673] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [676] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [679] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [682] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [685] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [688] "Redfish_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [691] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [694] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [697] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [700] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [703] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [706] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [709] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [712] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [715] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [718] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [721] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [724] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [727] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [730] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [733] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [736] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [739] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [742] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [745] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [748] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [751] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [754] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [757] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [760] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [763] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [766] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [769] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [772] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [775] "Corpus_Christi_Bay" "Aransas_Bay"        "Aransas_Bay"       
+ [778] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [781] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [784] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [787] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [790] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [793] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [796] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [799] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [802] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [805] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [808] "Aransas_Bay"        "Aransas_Bay"        "Redfish_Bay"       
+ [811] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [814] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [817] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [820] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [823] "Redfish_Bay"        "Redfish_Bay"        "Corpus_Christi_Bay"
+ [826] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [829] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [832] "Corpus_Christi_Bay" "Redfish_Bay"        "Redfish_Bay"       
+ [835] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [838] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [841] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [844] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [847] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [850] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [853] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [856] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [859] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [862] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [865] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [868] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [871] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [874] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [877] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [880] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [883] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [886] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [889] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [892] "Corpus_Christi_Bay" "Aransas_Bay"        "Aransas_Bay"       
+ [895] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [898] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [901] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [904] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [907] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [910] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [913] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [916] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [919] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [922] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [925] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [928] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [931] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [934] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [937] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [940] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [943] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [946] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [949] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [952] "Aransas_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [955] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [958] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [961] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [964] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [967] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [970] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [973] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [976] "Redfish_Bay"        "Redfish_Bay"        "Corpus_Christi_Bay"
+ [979] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [982] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [985] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [988] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [991] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [994] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Aransas_Bay"       
+ [997] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1000] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1003] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1006] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1009] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1012] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1015] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1018] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1021] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1024] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1027] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1030] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1033] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1036] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1039] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1042] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1045] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1048] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1051] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1054] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1057] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1060] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1063] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1066] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1069] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1072] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1075] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1078] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1081] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1084] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1087] "Aransas_Bay"        "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1090] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1093] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Redfish_Bay"       
+[1096] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1099] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1102] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1105] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1108] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1111] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1114] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1117] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1120] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1123] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1126] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1129] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1132] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1135] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1138] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1141] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1144] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1147] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1150] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1153] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1156] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1159] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1162] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1165] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1168] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1171] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1174] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1177] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1180] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1183] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1186] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1189] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1192] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1195] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1198] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1201] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1204] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1207] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1210] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1213] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1216] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1219] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1222] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1225] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1228] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1231] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1234] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1237] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1240] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1243] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1246] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1249] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1252] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1255] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1258] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1261] "Redfish_Bay"        "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1264] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1267] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1270] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1273] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1276] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1279] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1282] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1285] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1288] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1291] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1294] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1297] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1300] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1303] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1306] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1309] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1312] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1315] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1318] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1321] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1324] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1327] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1330] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1333] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1336] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1339] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1342] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1345] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1348] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1351] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1354] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1357] "Aransas_Bay"        "Aransas_Bay"        "Corpus_Christi_Bay"
+[1360] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1363] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1366] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1369] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1372] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1375] "Corpus_Christi_Bay" "Redfish_Bay"        "Redfish_Bay"       
+[1378] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1381] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1384] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1387] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1390] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1393] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1396] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1399] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1402] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1405] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1408] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1411] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1414] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1417] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1420] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1423] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1426] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1429] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1432] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1435] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1438] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1441] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1444] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1447] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1450] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1453] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1456] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1459] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1462] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1465] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1468] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1471] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1474] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1477] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1480] "Redfish_Bay"        "Redfish_Bay"        "Aransas_Bay"       
+[1483] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1486] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1489] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1492] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1495] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1498] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1501] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1504] "Aransas_Bay"        "Aransas_Bay"        "Redfish_Bay"       
+[1507] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1510] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1513] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1516] "Redfish_Bay"        "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1519] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1522] "Corpus_Christi_Bay" "Aransas_Bay"        "Aransas_Bay"       
+[1525] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1528] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1531] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1534] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1537] "Redfish_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1540] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1543] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1546] "Aransas_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1549] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1552] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1555] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1558] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1561] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1564] "Corpus_Christi_Bay" "Redfish_Bay"        "Redfish_Bay"       
+[1567] "Redfish_Bay"        "Aransas_Bay"        "Redfish_Bay"       
+[1570] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1573] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1576] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1579] "Corpus_Christi_Bay" "Aransas_Bay"        "Aransas_Bay"       
+[1582] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1585] "Aransas_Bay"        "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1588] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Redfish_Bay"       
+[1591] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1594] "Redfish_Bay"        "Redfish_Bay"        "Aransas_Bay"       
+[1597] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1600] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1603] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1606] "Corpus_Christi_Bay" "Aransas_Bay"        "Aransas_Bay"       
+[1609] "Aransas_Bay"        "Redfish_Bay"        "Corpus_Christi_Bay"
+[1612] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1615] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1618] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1621] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Redfish_Bay"       
+[1624] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1627] "Aransas_Bay"        "Aransas_Bay"        "Redfish_Bay"       
+[1630] "Redfish_Bay"        "Corpus_Christi_Bay" "Aransas_Bay"       
+[1633] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Aransas_Bay"       
+[1636] "Aransas_Bay"        "Redfish_Bay"        "Corpus_Christi_Bay"
+[1639] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1642] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1645] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1648] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1651] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1654] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1657] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1660] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1663] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Redfish_Bay"       
+[1666] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1669] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1672] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1675] "Aransas_Bay"        "Aransas_Bay"        "Redfish_Bay"       
+[1678] "Redfish_Bay"        "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1681] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1684] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1687] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1690] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1693] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1696] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1699] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1702] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1705] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1708] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1711] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1714] "Aransas_Bay"        "Aransas_Bay"        "Redfish_Bay"       
+[1717] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1720] "Redfish_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1723] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1726] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1729] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1732] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1735] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1738] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1741] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1744] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1747] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1750] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1753] "Redfish_Bay"        "Redfish_Bay"        "Aransas_Bay"       
+[1756] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1759] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1762] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1765] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1768] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1771] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1774] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Aransas_Bay"       
+[1777] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1780] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1783] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1786] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1789] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1792] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1795] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1798] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1801] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1804] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1807] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1810] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1813] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1816] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1819] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1822] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1825] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1828] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1831] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1834] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1837] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1840] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1843] "Corpus_Christi_Bay" "Aransas_Bay"        "Aransas_Bay"       
+[1846] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1849] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1852] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1855] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1858] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1861] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1864] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1867] "Aransas_Bay"        "Aransas_Bay"        "Redfish_Bay"       
+[1870] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1873] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1876] "Redfish_Bay"        "Redfish_Bay"        "Aransas_Bay"       
+[1879] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1882] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1885] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1888] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1891] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1894] "Aransas_Bay"        "Aransas_Bay"        "Redfish_Bay"       
+[1897] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1900] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1903] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1906] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1909] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1912] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1915] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1918] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1921] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1924] "Corpus_Christi_Bay" "Aransas_Bay"        "Aransas_Bay"       
+[1927] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1930] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1933] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1936] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1939] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1942] "Aransas_Bay"        "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1945] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1948] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1951] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1954] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1957] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Redfish_Bay"       
+[1960] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1963] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1966] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1969] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1972] "Redfish_Bay"        "Redfish_Bay"        "Corpus_Christi_Bay"
+[1975] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1978] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1981] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1984] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1987] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1990] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1993] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1996] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1999] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2002] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2005] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2008] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2011] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2014] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2017] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2020] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2023] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2026] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2029] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2032] "Aransas_Bay"        "Aransas_Bay"        "Redfish_Bay"       
+[2035] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[2038] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[2041] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[2044] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[2047] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[2050] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[2053] "Redfish_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2056] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2059] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2062] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2065] "Aransas_Bay"        "Aransas_Bay"        "Corpus_Christi_Bay"
+[2068] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2071] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Aransas_Bay"       
+[2074] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2077] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2080] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2083] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2086] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2089] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2092] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2095] "Aransas_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[2098] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[2101] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2104] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2107] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2110] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2113] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2116] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2119] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Redfish_Bay"       
+[2122] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[2125] "Redfish_Bay"        "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2128] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2131] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Aransas_Bay"       
+[2134] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2137] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2140] "Aransas_Bay"        "Aransas_Bay"        "Redfish_Bay"       
+[2143] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[2146] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[2149] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[2152] "Redfish_Bay"        "Redfish_Bay"        "Corpus_Christi_Bay"
+[2155] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2158] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2161] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2164] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2167] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2170] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2173] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2176] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2179] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2182] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2185] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Aransas_Bay"       
+[2188] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2191] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2194] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2197] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2200] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2203] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2206] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2209] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2212] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2215] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2218] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2221] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2224] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2227] "Corpus_Christi_Bay" "Redfish_Bay"        "Redfish_Bay"       
+[2230] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[2233] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[2236] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[2239] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2242] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2245] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2248] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2251] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2254] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[2257] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2260] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2263] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2266] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2269] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2272] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2275] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2278] "Corpus_Christi_Bay" "Aransas_Bay"        "Aransas_Bay"       
+[2281] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2284] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2287] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2290] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2293] "Aransas_Bay"        "Aransas_Bay"        "Corpus_Christi_Bay"
+[2296] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2299] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2302] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2305] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2308] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2311] "Corpus_Christi_Bay" "Redfish_Bay"        "Redfish_Bay"       
+[2314] "Redfish_Bay"        "Redfish_Bay"        "Aransas_Bay"       
+[2317] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2320] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[2323] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>catch<span class="sc">$</span>Site</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   [1] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+   [4] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+   [7] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+  [10] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+  [13] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+  [16] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+  [19] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+  [22] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+  [25] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+  [28] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+  [31] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+  [34] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+  [37] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+  [40] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+  [43] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+  [46] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+  [49] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+  [52] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+  [55] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+  [58] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+  [61] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+  [64] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+  [67] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+  [70] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+  [73] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+  [76] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+  [79] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+  [82] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+  [85] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+  [88] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+  [91] "Redfish_Bay"        "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+  [94] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+  [97] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [100] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [103] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [106] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [109] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [112] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [115] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [118] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [121] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [124] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [127] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [130] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [133] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [136] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [139] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Aransas_Bay"       
+ [142] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [145] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [148] "Aransas_Bay"        "Aransas_Bay"        "Redfish_Bay"       
+ [151] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [154] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [157] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [160] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [163] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [166] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [169] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [172] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [175] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [178] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [181] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [184] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [187] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [190] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [193] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [196] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [199] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [202] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [205] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [208] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [211] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [214] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [217] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [220] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [223] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [226] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [229] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [232] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [235] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [238] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [241] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [244] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [247] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [250] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Aransas_Bay"       
+ [253] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [256] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [259] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [262] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [265] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [268] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [271] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [274] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [277] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [280] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [283] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [286] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [289] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [292] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [295] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [298] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [301] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [304] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [307] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [310] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [313] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [316] "Aransas_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [319] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [322] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [325] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [328] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [331] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [334] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [337] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [340] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [343] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [346] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [349] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [352] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [355] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [358] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [361] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [364] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [367] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [370] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [373] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [376] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [379] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [382] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [385] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [388] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [391] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [394] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [397] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [400] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [403] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [406] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [409] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [412] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Aransas_Bay"       
+ [415] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [418] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [421] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [424] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [427] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [430] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [433] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [436] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [439] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [442] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [445] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [448] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [451] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [454] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [457] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [460] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [463] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [466] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [469] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [472] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [475] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [478] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [481] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [484] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [487] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [490] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [493] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [496] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [499] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [502] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [505] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [508] "Redfish_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [511] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [514] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [517] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [520] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [523] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [526] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [529] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [532] "Aransas_Bay"        "Aransas_Bay"        "Redfish_Bay"       
+ [535] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [538] "Redfish_Bay"        "Redfish_Bay"        "Corpus_Christi_Bay"
+ [541] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [544] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [547] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [550] "Aransas_Bay"        "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [553] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [556] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [559] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [562] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [565] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [568] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [571] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [574] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [577] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [580] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [583] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [586] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [589] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [592] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [595] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [598] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [601] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [604] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [607] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [610] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [613] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [616] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [619] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [622] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [625] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [628] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [631] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [634] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [637] "Aransas_Bay"        "Aransas_Bay"        "Redfish_Bay"       
+ [640] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [643] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [646] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [649] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [652] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [655] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [658] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [661] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [664] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [667] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [670] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [673] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [676] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [679] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [682] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [685] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [688] "Redfish_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [691] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [694] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [697] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [700] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [703] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [706] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [709] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [712] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [715] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [718] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [721] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [724] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [727] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [730] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [733] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [736] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [739] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [742] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [745] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [748] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [751] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [754] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [757] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [760] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [763] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [766] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [769] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [772] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [775] "Corpus_Christi_Bay" "Aransas_Bay"        "Aransas_Bay"       
+ [778] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [781] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [784] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [787] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [790] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [793] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [796] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [799] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [802] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [805] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [808] "Aransas_Bay"        "Aransas_Bay"        "Redfish_Bay"       
+ [811] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [814] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [817] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [820] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [823] "Redfish_Bay"        "Redfish_Bay"        "Corpus_Christi_Bay"
+ [826] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [829] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [832] "Corpus_Christi_Bay" "Redfish_Bay"        "Redfish_Bay"       
+ [835] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [838] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [841] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [844] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [847] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [850] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [853] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [856] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [859] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [862] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [865] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [868] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [871] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [874] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [877] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [880] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [883] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [886] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [889] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [892] "Corpus_Christi_Bay" "Aransas_Bay"        "Aransas_Bay"       
+ [895] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [898] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [901] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [904] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [907] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [910] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [913] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [916] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [919] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [922] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [925] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [928] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [931] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [934] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [937] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [940] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [943] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [946] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [949] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+ [952] "Aransas_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [955] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [958] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [961] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [964] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [967] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [970] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [973] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+ [976] "Redfish_Bay"        "Redfish_Bay"        "Corpus_Christi_Bay"
+ [979] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [982] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [985] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [988] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [991] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+ [994] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Aransas_Bay"       
+ [997] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1000] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1003] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1006] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1009] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1012] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1015] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1018] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1021] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1024] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1027] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1030] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1033] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1036] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1039] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1042] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1045] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1048] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1051] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1054] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1057] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1060] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1063] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1066] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1069] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1072] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1075] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1078] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1081] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1084] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1087] "Aransas_Bay"        "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1090] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1093] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Redfish_Bay"       
+[1096] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1099] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1102] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1105] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1108] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1111] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1114] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1117] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1120] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1123] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1126] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1129] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1132] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1135] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1138] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1141] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1144] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1147] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1150] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1153] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1156] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1159] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1162] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1165] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1168] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1171] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1174] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1177] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1180] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1183] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1186] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1189] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1192] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1195] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1198] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1201] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1204] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1207] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1210] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1213] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1216] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1219] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1222] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1225] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1228] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1231] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1234] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1237] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1240] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1243] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1246] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1249] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1252] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1255] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1258] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1261] "Redfish_Bay"        "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1264] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1267] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1270] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1273] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1276] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1279] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1282] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1285] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1288] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1291] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1294] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1297] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1300] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1303] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1306] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1309] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1312] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1315] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1318] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1321] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1324] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1327] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1330] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1333] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1336] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1339] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1342] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1345] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1348] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1351] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1354] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1357] "Aransas_Bay"        "Aransas_Bay"        "Corpus_Christi_Bay"
+[1360] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1363] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1366] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1369] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1372] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1375] "Corpus_Christi_Bay" "Redfish_Bay"        "Redfish_Bay"       
+[1378] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1381] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1384] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1387] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1390] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1393] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1396] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1399] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1402] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1405] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1408] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1411] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1414] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1417] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1420] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1423] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1426] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1429] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1432] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1435] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1438] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1441] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1444] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1447] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1450] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1453] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1456] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1459] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1462] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1465] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1468] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1471] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1474] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1477] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1480] "Redfish_Bay"        "Redfish_Bay"        "Aransas_Bay"       
+[1483] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1486] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1489] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1492] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1495] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1498] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1501] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1504] "Aransas_Bay"        "Aransas_Bay"        "Redfish_Bay"       
+[1507] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1510] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1513] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1516] "Redfish_Bay"        "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1519] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1522] "Corpus_Christi_Bay" "Aransas_Bay"        "Aransas_Bay"       
+[1525] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1528] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1531] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1534] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1537] "Redfish_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1540] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1543] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1546] "Aransas_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1549] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1552] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1555] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1558] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1561] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1564] "Corpus_Christi_Bay" "Redfish_Bay"        "Redfish_Bay"       
+[1567] "Redfish_Bay"        "Aransas_Bay"        "Redfish_Bay"       
+[1570] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1573] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1576] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1579] "Corpus_Christi_Bay" "Aransas_Bay"        "Aransas_Bay"       
+[1582] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1585] "Aransas_Bay"        "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1588] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Redfish_Bay"       
+[1591] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1594] "Redfish_Bay"        "Redfish_Bay"        "Aransas_Bay"       
+[1597] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1600] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1603] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1606] "Corpus_Christi_Bay" "Aransas_Bay"        "Aransas_Bay"       
+[1609] "Aransas_Bay"        "Redfish_Bay"        "Corpus_Christi_Bay"
+[1612] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1615] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1618] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1621] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Redfish_Bay"       
+[1624] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1627] "Aransas_Bay"        "Aransas_Bay"        "Redfish_Bay"       
+[1630] "Redfish_Bay"        "Corpus_Christi_Bay" "Aransas_Bay"       
+[1633] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Aransas_Bay"       
+[1636] "Aransas_Bay"        "Redfish_Bay"        "Corpus_Christi_Bay"
+[1639] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1642] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1645] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1648] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1651] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1654] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1657] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1660] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1663] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Redfish_Bay"       
+[1666] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1669] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1672] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1675] "Aransas_Bay"        "Aransas_Bay"        "Redfish_Bay"       
+[1678] "Redfish_Bay"        "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1681] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1684] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1687] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1690] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1693] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1696] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1699] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1702] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1705] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1708] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1711] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1714] "Aransas_Bay"        "Aransas_Bay"        "Redfish_Bay"       
+[1717] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1720] "Redfish_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1723] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1726] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1729] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1732] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1735] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1738] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1741] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1744] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1747] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1750] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1753] "Redfish_Bay"        "Redfish_Bay"        "Aransas_Bay"       
+[1756] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1759] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1762] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1765] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1768] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1771] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1774] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Aransas_Bay"       
+[1777] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1780] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1783] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1786] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1789] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1792] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1795] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1798] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1801] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1804] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1807] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1810] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1813] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1816] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1819] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1822] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1825] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1828] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1831] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1834] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1837] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1840] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1843] "Corpus_Christi_Bay" "Aransas_Bay"        "Aransas_Bay"       
+[1846] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1849] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1852] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1855] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1858] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1861] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1864] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1867] "Aransas_Bay"        "Aransas_Bay"        "Redfish_Bay"       
+[1870] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1873] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1876] "Redfish_Bay"        "Redfish_Bay"        "Aransas_Bay"       
+[1879] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1882] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1885] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1888] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1891] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1894] "Aransas_Bay"        "Aransas_Bay"        "Redfish_Bay"       
+[1897] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1900] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1903] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1906] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1909] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1912] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1915] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1918] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1921] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1924] "Corpus_Christi_Bay" "Aransas_Bay"        "Aransas_Bay"       
+[1927] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1930] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1933] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1936] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1939] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[1942] "Aransas_Bay"        "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1945] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1948] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1951] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1954] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1957] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Redfish_Bay"       
+[1960] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1963] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1966] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1969] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[1972] "Redfish_Bay"        "Redfish_Bay"        "Corpus_Christi_Bay"
+[1975] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1978] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1981] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1984] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1987] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1990] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1993] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1996] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[1999] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2002] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2005] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2008] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2011] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2014] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2017] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2020] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2023] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2026] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2029] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2032] "Aransas_Bay"        "Aransas_Bay"        "Redfish_Bay"       
+[2035] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[2038] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[2041] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[2044] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[2047] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[2050] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[2053] "Redfish_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2056] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2059] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2062] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2065] "Aransas_Bay"        "Aransas_Bay"        "Corpus_Christi_Bay"
+[2068] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2071] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Aransas_Bay"       
+[2074] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2077] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2080] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2083] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2086] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2089] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2092] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2095] "Aransas_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[2098] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[2101] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2104] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2107] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2110] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2113] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2116] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2119] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Redfish_Bay"       
+[2122] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[2125] "Redfish_Bay"        "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2128] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2131] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Aransas_Bay"       
+[2134] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2137] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2140] "Aransas_Bay"        "Aransas_Bay"        "Redfish_Bay"       
+[2143] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[2146] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[2149] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[2152] "Redfish_Bay"        "Redfish_Bay"        "Corpus_Christi_Bay"
+[2155] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2158] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2161] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2164] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2167] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2170] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2173] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2176] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2179] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2182] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2185] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Aransas_Bay"       
+[2188] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2191] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2194] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2197] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2200] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2203] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2206] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2209] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2212] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2215] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2218] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2221] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2224] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2227] "Corpus_Christi_Bay" "Redfish_Bay"        "Redfish_Bay"       
+[2230] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[2233] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[2236] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[2239] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2242] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2245] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2248] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2251] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2254] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[2257] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2260] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2263] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2266] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2269] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2272] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2275] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2278] "Corpus_Christi_Bay" "Aransas_Bay"        "Aransas_Bay"       
+[2281] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2284] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2287] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2290] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2293] "Aransas_Bay"        "Aransas_Bay"        "Corpus_Christi_Bay"
+[2296] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2299] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2302] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2305] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2308] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"
+[2311] "Corpus_Christi_Bay" "Redfish_Bay"        "Redfish_Bay"       
+[2314] "Redfish_Bay"        "Redfish_Bay"        "Aransas_Bay"       
+[2317] "Aransas_Bay"        "Aransas_Bay"        "Aransas_Bay"       
+[2320] "Redfish_Bay"        "Redfish_Bay"        "Redfish_Bay"       
+[2323] "Corpus_Christi_Bay" "Corpus_Christi_Bay" "Corpus_Christi_Bay"</code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<i class="fa-solid fa-clipboard-question" aria-label="clipboard-question"></i> Give it a whirl
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Create a vector of all the species in the data set called <code>species</code>.</p>
+</div>
+</div>
+<p>If you call the vector by typing its name (<code>species</code>) in the console you will notice that it repeats the species names.</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<i class="fa-solid fa-clipboard-question" aria-label="clipboard-question"></i> Give it a whirl
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Execute the following code chunk and describe what this function does:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">unique</span>(species)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+<p>Using indices might seem a little bit clunky, e.g.&nbsp;you have to know which column and row is which by position but it has its practical applications and is computationally very fast. For most of our data wrangling we will be using functions from the tidyverse packages <code>dplyr</code> and <code>tidyr</code> which work a little bit more intuitively.</p>
+</section>
+</section>
+<section id="write-data.frame-to-file" class="level2" data-number="6.4">
+<h2 data-number="6.4" class="anchored" data-anchor-id="write-data.frame-to-file"><span class="header-section-number">6.4</span> Write <code>data.frame</code> to file</h2>
+<p>Frequently, we will process raw data sets and then need to write intermediate or final results to file, for example to share them with collaborators. Here, the <code>readr</code> packages comes in handy.</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<i class="fa-solid fa-clipboard-question" aria-label="clipboard-question"></i> Give it a whirl
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Create a subset of our data set consisting of the first 100 rows and containing information on the species, sex and fork length. Then use the help page for the function <code>write_delim()</code> to figure out how to write out a tab-delimited file into your <code>data</code> folder.</p>
+</div>
+</div>
+
+
+</section>
+
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./05_data-management.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Data management using spreadsheets</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./07_data-transformation-i.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Data Transformation: Organizing rows &amp; Columns</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+</body></html>

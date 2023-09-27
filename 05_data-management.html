@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Data Science for a Changing Planet - 5&nbsp; Data management using spreadsheets</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./06_data-frames.html" rel="next">
+<link href="./B_shark-wrangling.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/quarto-contrib/fontawesome6-0.1.0/all.css" rel="stylesheet">
+<link href="site_libs/quarto-contrib/fontawesome6-0.1.0/latex-fontsize.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar floating slimcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./B_shark-wrangling.html">Data/Shark wrangling</a></li><li class="breadcrumb-item"><a href="./05_data-management.html"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Data management using spreadsheets</span></a></li></ol></nav>
+      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+      </a>
+      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Data Science for a Changing Planet</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Overview</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./A_hello-world.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Hello world</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01_intro-data-science.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">What even is Data Science?</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_install-R.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Getting set up with R and Rstudio</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03_Rbasics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">R: Functions, Objects, Vectors - oh my!</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04_Rproj.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Project management and Rmarkdown Basics</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./B_shark-wrangling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Data/Shark wrangling</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05_data-management.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Data management using spreadsheets</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06_data-frames.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Intro to dataframes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07_data-transformation-i.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Data Transformation: Organizing rows &amp; Columns</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08_data-transformation-ii.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Data Transformation:</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./09_tidy-data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Tidy data</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10_relational-data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Relational data</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./C_bioinformatics-eDNA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bioinformatics and Assessment of Biological Communities using eDNA</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11_bioinformatics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Bioinformatics</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./12_community-diversity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Characterizing community diversity</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./D_clim-change.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Climate Change: Drivers &amp; Impacts</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./13_greenhouse-gases.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Climate change: Drivers</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./14_impacts.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Climate change: Impacts</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./15_misinformation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Climate change: Misinformation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./z_appendix.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./z_references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+    <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul class="collapse">
+  <li><a href="#wait-spreadsheets" id="toc-wait-spreadsheets" class="nav-link active" data-scroll-target="#wait-spreadsheets"><span class="header-section-number">5.1</span> Wait… spreadsheets?</a></li>
+  <li><a href="#best-practices-for-formatting-data-in-spreadsheets" id="toc-best-practices-for-formatting-data-in-spreadsheets" class="nav-link" data-scroll-target="#best-practices-for-formatting-data-in-spreadsheets"><span class="header-section-number">5.2</span> Best practices for formatting data in spreadsheets</a></li>
+  <li><a href="#common-spreadsheet-formatting-issues" id="toc-common-spreadsheet-formatting-issues" class="nav-link" data-scroll-target="#common-spreadsheet-formatting-issues"><span class="header-section-number">5.3</span> Common spreadsheet formatting issues</a></li>
+  <li><a href="#dates-are-data-but-like-the-worst-kind" id="toc-dates-are-data-but-like-the-worst-kind" class="nav-link" data-scroll-target="#dates-are-data-but-like-the-worst-kind"><span class="header-section-number">5.4</span> Dates are data (but like, the worst kind)</a></li>
+  <li><a href="#quality-assurance-and-control" id="toc-quality-assurance-and-control" class="nav-link" data-scroll-target="#quality-assurance-and-control"><span class="header-section-number">5.5</span> Quality assurance and control</a></li>
+  <li><a href="#exporting-data" id="toc-exporting-data" class="nav-link" data-scroll-target="#exporting-data"><span class="header-section-number">5.6</span> Exporting data</a></li>
+  <li><a href="#acknowledgments" id="toc-acknowledgments" class="nav-link" data-scroll-target="#acknowledgments"><span class="header-section-number">5.7</span> Acknowledgments</a></li>
+  </ul>
+</nav>
+</nav>
+<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+    </div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Data management using spreadsheets</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<p><a href="https://drive.google.com/drive/folders/1Sh4mtvdii1k_vU4-mfvgIGwJsZvo8MOt?usp=sharing">Go ahead and download the research compendium for this module using this link</a>, make sure the directory is unzipped and move it to your <code>bi328</code> directory that holds all of this semesters work.</p>
+<p><strong>Learning Objectives</strong></p>
+<p>After completing this lab you should be able to</p>
+<ul>
+<li>implement good data entry practices to organize data in spreadsheets to create data sets for straightforward analysis using computational tools such as <code>R</code>.</li>
+<li>arrange variables and observations in a spreadsheet in a way conducive to be both human and machine readable for further processing.</li>
+<li>identify, avoid, and address common formatting mistakes.</li>
+<li>apply fundamental approaches to dealing with dates<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> in spreadsheets.</li>
+<li>perform basic quality control and data manipulation in spreadsheets to minimize incorrect data entry identify errors.</li>
+<li>effectively export data from spreadsheet programs for use in computational tools such as <code>R</code>.</li>
+</ul>
+<div class="no-row-height column-margin column-container"><li id="fn1"><p><sup>1</sup>&nbsp;we will find that dates are the worst in terms of causing chaos… are they numbers? strings? categorical or continuous data?</p></li></div><section id="wait-spreadsheets" class="level2 page-columns page-full" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="wait-spreadsheets"><span class="header-section-number">5.1</span> Wait… spreadsheets?</h2>
+<div class="page-columns page-full"><p>The foundation of any research project is good data organization. This not only includes your actual data points (observations) but also things like keeping track of specimen and other samples along with all the meta-data<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>. Additionally, you should keep good records of how the data was produced (your methods). Thinking through ahead of time what measurements are important, i.e.&nbsp;what data you will record and how you will store your data is really important to make sure you are keeping track of the entire process. Good data management and clean data sets will make sharing and analyzing data a lot more straightforward.</p><div class="no-row-height column-margin column-container"><li id="fn2"><p><sup>2</sup>&nbsp;Metadata is data about your data. It helps describe, categorize, organize, and provide context to the main content or primary data it is associated with. It’s commonly used to provide additional information that helps users, systems, or processes understand and interpret the main data.</p></li></div></div>
+<p>While we are going to use R to wrangle, manipulate, analyze, and visualize data in <code>R</code> for a more efficient and reproducible approach compared to what can be using spreadsheets, spreadsheets are the better tool for data entry, data management/organization, and simple quality control (QC) and quality assurance (QA). Thinking ahead to how you want to organize and format your data in spreadsheets will prevent a lot of extra work and headaches down the line, especially when we plan ahead as to how we should organize it to make it more efficient to use with command-line computational tools such as <code>R</code>.</p>
+<p>So, before we dive deep into manipulating data with R, we’ll take a small step back and think through a few fundamental rules for managing data in spreadsheets before learning how to do these and more advanced data wrangling and manipulation using <code>R</code>.</p>
+<div class="page-columns page-full"><p>While you can do some statistics and plotting using spreadsheet programs we will not be learning how to do this in this class. Data analysis in spreadsheets requires a lot of manual work and generally any time you want to change one parameter or if you have to update your spreadsheet with new entries or you need to apply the same analysis to another data set you end up having to redo everything by hand. The more things you do by hand, the more likely you are to make a mistake. Even if you do apply some sophisticated coding in spreadsheets and/or use it for analysis or plotting<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> it is very difficult to track the exact steps or document them in a way that makes it fully reproducible for another person.</p><div class="no-row-height column-margin column-container"><li id="fn3"><p><sup>3</sup>&nbsp;It can be helpful to know the fundamentals for simple plots in spreadsheets for quick and dirty plotting to get a quick look at your data to get an idea of what it looks like and spot potential mistakes during data entry without having to export data and fire up <code>R</code> or a another command-line program.</p></li></div></div>
+</section>
+<section id="best-practices-for-formatting-data-in-spreadsheets" class="level2 page-columns page-full" data-number="5.2">
+<h2 data-number="5.2" class="anchored" data-anchor-id="best-practices-for-formatting-data-in-spreadsheets"><span class="header-section-number">5.2</span> Best practices for formatting data in spreadsheets</h2>
+<section id="format-your-data-set-for-the-tool-you-will-use-to-analyze-it-with" class="level3 page-columns page-full" data-number="5.2.1">
+<h3 data-number="5.2.1" class="anchored" data-anchor-id="format-your-data-set-for-the-tool-you-will-use-to-analyze-it-with"><span class="header-section-number">5.2.1</span> Format your data set for the tool you will use to analyze it with</h3>
+<p>Our brains don’t work the same way as computers. Your spreadsheet is not a lab notebook and while a layout where there are notes in the margin, context of the experiment, or a specific layout of data might be something that you can interpret, it will more difficult for another person to forllow your through process and understand your records/notes. Another person might have the opportunity to ask follow up questions and get the clarifications they need, but a computer cannot.</p>
+<div class="page-columns page-full"><p>Occasionally, you might use a spreadsheet instead of a lab notebook where it is a way of keeping track of an experiment and various people interacting with samples, completing different steps etc. However, if you are using a spreadsheet for data entry and management, then you want to ensure that you have set up your spreadsheet in a way where a computer is going to be able to correctly interpret it as intended. This means that we need to think through how we want to set up spreadsheets. There are generally a few different ways you can set things up and some of them will limit how easy it is for you and/or a future collaborator to work with it down the line<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>.</p><div class="no-row-height column-margin column-container"><li id="fn4"><p><sup>4</sup>&nbsp;the optimum software/interface for data input and layout/formatting may differ depending on your intended analysis, so keep in mind <em>how</em> you want to be able to analyze your data and whether that will require specific formats. In general, try to pick a format that will give you the advantage of being able to easily convert it between different formats - which is something we will learn to do with <code>R</code> specifically in the <code>tidyverse</code> which centers on a specific concept of what makes data tidy.</p></li></div></div>
+</section>
+<section id="never-touch-your-raw-data" class="level3" data-number="5.2.2">
+<h3 data-number="5.2.2" class="anchored" data-anchor-id="never-touch-your-raw-data"><span class="header-section-number">5.2.2</span> Never touch your raw data</h3>
+<p>Raw data is the original, unaltered data that is collected or generated before any manipulation, transformation, or analysis takes place. It’s the most fundamental form of data, directly obtained from observations, measurements, or data sources. Raw data is often in its most unstructured and basic state, and it serves as the foundation for subsequent data processing and analysis.</p>
+<p>In the biological and environmental sciences typical sources include direct observations made in experiments, field studies, or natural phenomena or measurments from sensors or other instruments measuring physical and chemical parameters such as temperature, GPS coordinate, pH etc.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Be mindful
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Never touch your raw data. Always keep a copy of your raw data that you never modify directly</strong>.</p>
+</div>
+</div>
+<p>For any kind of data related work it is important that you preserve the original, unaltered version of your data when conducting data analysis. Avoid making changes directly to the original data files or data set. Instead, You should work with copies of the data or use a structured workflow that ensures the integrity and reproducibility of your analysis.</p>
+<p>Keeping your raw data as a separate file that is never altered is important for</p>
+<ul>
+<li>Data Integrity: Modifying the raw data directly could lead to unintended changes or loss of information. By keeping the raw data untouched, you ensure that you have a reliable source of truth to refer back to if needed.</li>
+<li>Reproducibility: If you or others need to replicate your analysis in the future, having access to the exact original data is crucial. Changes made to the raw data could make it difficult or impossible to reproduce your results accurately.</li>
+<li>Error Prevention: Working with copies of the raw data minimizes the risk of accidental changes or mistakes that could affect your analysis. If errors occur, you can always go back to the untouched raw data.</li>
+<li>Data Auditing: In some cases, you might need to show the authenticity and accuracy of your data. Keeping the original data untouched allows you to demonstrate the reliability of your work.</li>
+<li>Multiple Analyses: If you’re working on different analyses, projects, or collaborations using the same data, maintaining the integrity of the raw data enables consistency across these efforts.</li>
+</ul>
+<p>Best practices of maintaining the integrity of your raw data include * making copies: Always work with copies of the original data files or datasets. This ensures that any changes you make are isolated from the raw data. * implementing a structured workflow: Develop a structured workflow that includes data cleaning, transformation, and analysis steps. Document each step thoroughly to ensure transparency and repeatability. * using version vontrol: Use version control systems like Git to track changes to your code and analysis scripts. This allows you to see how your analysis evolves over time. * creating backups: Regularly back up your data, including both the raw data and any processed versions, to prevent data loss. * creating documentation: Maintain clear and detailed documentation about the steps you’ve taken, the rationale behind your decisions, and any changes you’ve made to the data.</p>
+</section>
+<section id="keep-track-of-your-formatting-steps" class="level3 page-columns page-full" data-number="5.2.3">
+<h3 data-number="5.2.3" class="anchored" data-anchor-id="keep-track-of-your-formatting-steps"><span class="header-section-number">5.2.3</span> Keep track of your formatting steps</h3>
+<p>By working with copies and following a structured workflow, you can ensure the accuracy, reproducibility, and integrity of your data analysis work. While you shouldn’t modify the raw data directly, it’s also important to apply necessary data preprocessing steps (like cleaning and transforming) as part of your analysis process. This means that you should do two things</p>
+<ol type="1">
+<li>Any time you need to process or analyze your data make a copy instead of operating directly in your raw data<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a> and then create a new file with your cleaned or analyzed data.</li>
+<li>Keep track of the exact steps you took to clean or analyze your data<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a>; this is just as important as keeping a detailed record of the steps you took in an experiment. Good practice would be to keep a plain text file or similar in the same folder as your data set where you record any steps you take.</li>
+</ol>
+<div class="no-row-height column-margin column-container"><li id="fn5"><p><sup>5</sup>&nbsp;In our next lesson you are going to see that this is a key advantage of command line programs like <code>R</code> where you can read a raw data set into the program and then apply specific data wrangling, manipulation and analysis steps without altering the raw data.</p></li><li id="fn6"><p><sup>6</sup>&nbsp;The second advantage of command-line programs like <code>R</code> is that because you are using a series of commands to wrangle and analyze your data your are automatically creating a very detailed, reproducible record of your your workflow</p></li></div></section>
+<section id="put-variables-in-columns-and-observations-in-rows" class="level3 page-columns page-full" data-number="5.2.4">
+<h3 data-number="5.2.4" class="anchored" data-anchor-id="put-variables-in-columns-and-observations-in-rows"><span class="header-section-number">5.2.4</span> Put variables in columns and observations in rows</h3>
+<p>Observations and variables are two fundamental concepts that describe different aspects of data.</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<i class="fa-solid fa-clipboard-question" aria-label="clipboard-question"></i> Consider this
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Compare and contrast what an observation is compared to a variable.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>An observation is a single data point or unit within a data set, while a variable is a characteristic that is being measured or observed for each of those data points.</p>
+<p>Together, observations and variables make up the structure of a data set, where each observation has values for the various variables being measured.</p>
+</div>
+</div>
+</div>
+<p>Here is the key rule for structuring data in spreadsheet:</p>
+<div class="page-columns page-full"><p><strong>Every variable gets its own column, every observation gets its own rule, do not combine multiple pieces of information in one cell</strong><a href="#fn7" class="footnote-ref" id="fnref7" role="doc-noteref"><sup>7</sup></a>.</p><div class="no-row-height column-margin column-container"><li id="fn7"><p><sup>7</sup>&nbsp;This is what we will refer to as <code>tidy data</code>. We will explore this concept more in depth down the line and will play “Is it tidy?” regularly this semester.</p></li></div></div>
+</section>
+<section id="export-data-as-text-based-formats" class="level3 page-columns page-full" data-number="5.2.5">
+<h3 data-number="5.2.5" class="anchored" data-anchor-id="export-data-as-text-based-formats"><span class="header-section-number">5.2.5</span> Export data as text-based formats</h3>
+<p>While it is a lot easier to enter and look at data in a spreadsheet you should always export your raw and cleaned data set as a text-based format such as CSV, TSV, JSON, XML, etc.).</p>
+<div class="page-columns page-full"><p>This offers several advantages compared to proprietary binary formats<a href="#fn8" class="footnote-ref" id="fnref8" role="doc-noteref"><sup>8</sup></a>:</p><div class="no-row-height column-margin column-container"><li id="fn8"><p><sup>8</sup>&nbsp;an example would be Excel’s <code>.xlsx</code></p></li></div></div>
+<ul>
+<li><strong>Interoperability</strong>: Text-based formats are widely supported by various software and programming languages. This means that data can be easily shared and integrated into different applications and systems, regardless of the software being used. Especially if program have proprietary formats having a format that is platform independent is really important.</li>
+<li><strong>Simplicity</strong>: Text-based formats have a simple, human-readable structure. This makes it easier to understand the data’s content, and it allows manual inspection and editing using basic text editors.</li>
+<li><strong>Version Control</strong>: Text-based formats work well with version control systems (e.g., Git). Since changes can be easily tracked in plain text, it’s easier to collaborate, review, and manage changes made to the data. &amp; Data Integrity: Text-based formats are less prone to corruption and data loss. Proprietary binary formats can sometimes become corrupted, making data recovery difficult.</li>
+<li><strong>Platform Independence</strong>: Text-based formats are platform-independent. They can be used on different operating systems without compatibility issues</li>
+<li><strong>Reduced File Size</strong>: Text-based formats generally have smaller file sizes compared to their binary counterparts. This can be advantageous for sharing and storage, especially when dealing with large datasets.</li>
+<li><strong>Automation and Scripting</strong>: Text-based formats are well-suited for automation and scripting tasks. Many programming languages have libraries and tools to read and write data from these formats easily.</li>
+<li><strong>Data Analysis</strong>: Text-based formats can be directly used in data analysis workflows. Data scientists and analysts often use tools like Python, R, and SQL to work with text-based data formats.</li>
+<li><strong>Data Accessibility</strong>: When sharing data with others, especially outside your organization, text-based formats offer a universal way to provide data that can be imported into various tools without compatibility issues.</li>
+</ul>
+</section>
+</section>
+<section id="common-spreadsheet-formatting-issues" class="level2" data-number="5.3">
+<h2 data-number="5.3" class="anchored" data-anchor-id="common-spreadsheet-formatting-issues"><span class="header-section-number">5.3</span> Common spreadsheet formatting issues</h2>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<i class="fa-solid fa-clipboard-question" aria-label="clipboard-question"></i> Consider this
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Briefly describe common formatting mistakes formatting data in spreadsheets, explain why it might be tempting to format data in this way and why it might cause downstream issues for data analysis.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<i class="fa-solid fa-person-chalkboard" aria-label="person-chalkboard"></i> Pointers
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Here are the key points you will want to discuss:</p>
+<ul>
+<li>multiple tables in one tab</li>
+<li>data spread across multiple tabs</li>
+<li>not filling in zeros</li>
+<li>using problematic null values for missing data</li>
+<li>using formatting to convey information</li>
+<li>using formatting to make the data sheet look pretty</li>
+<li>placing comments or units in cells</li>
+<li>entering more than one piece of information per cell</li>
+<li>using problematic field/column names</li>
+<li>using special characters in data</li>
+<li>including metadata in the data table</li>
+<li>date formatting</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section id="dates-are-data-but-like-the-worst-kind" class="level2" data-number="5.4">
+<h2 data-number="5.4" class="anchored" data-anchor-id="dates-are-data-but-like-the-worst-kind"><span class="header-section-number">5.4</span> Dates are data (but like, the worst kind)</h2>
+<p>Probably the most intuitive way to store dates in a spreadsheet would be to create a column called <code>date</code> and then just store your dates in there.</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<i class="fa-solid fa-clipboard-question" aria-label="clipboard-question"></i> Consider this
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Quick. Off the top of your head come up with 10 ways that you could format a date.</p>
+</div>
+</div>
+<p>So that’s the first problem - what should a date even look like? Problem two is that while to you the human this would be the most natural way to do this, the spreadsheet might be displaying it in a way that makes sense to you but is actually storing it in a very different format. Additionally, different spreadsheet programs (Microsoft Excel, Google Sheets, LibreOffice, OpenOffice) might be storing and handling dates slightly different from each other. In this case the date functions valid for one might be only somewhat-ish compatible with each other. Additionally, spreadsheet programs generally are trying to automatically recognize dates so e.g.&nbsp;gene/protein names like MAR1, OCT4 would be interpreted to dates and getting the original identifier back might be tricky.</p>
+<p>Additionally spreadsheets sometimes try to be especially helpful by autocompleting information.</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<i class="fa-solid fa-clipboard-question" aria-label="clipboard-question"></i> Give it a whirl
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Open the <code>exercise-dates</code> Google Sheets document in the <code>scratch</code> folder of the <a href="https://drive.google.com/drive/folders/1Sh4mtvdii1k_vU4-mfvgIGwJsZvo8MOt?usp=sharing">01_SharkNurseries</a> folder. Label cell <code>A1</code> as <code>location</code> and cell <code>B1</code> as <code>date_sample-1</code>. In cell <code>A2-16</code> type in <code>A</code>, <code>B</code>, … . Then in cell B2 type a date as just month/day. Hit enter, then click back on the cell and look at the value bar at the top. Describe what you observed and how this “helpful” behavior could lead to data entry problems.</p>
+</div>
+</div>
+<p>You can switch between different data formats by customizing the format of the cell.</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<i class="fa-solid fa-clipboard-question" aria-label="clipboard-question"></i> Give it a whirl
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In your Google Sheets document type a few dates in cells <code>B3 - B6</code>. Next, highlight column A. and click on the <code>123</code> button in the tool bar. Select <code>Custom Date and Time</code> and describe what type of formatting options you have. Pick one, and see how it changes how the content of your cells is displayed.</p>
+</div>
+</div>
+<p>For some of the more elaborate formats if you look at the value bar you will notice that even though the content of your cell has changed in terms of how it is formatted, that value might not necessarily match the cell content. How does the spreadsheet program so easily convert between all the different formats?</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<i class="fa-solid fa-clipboard-question" aria-label="clipboard-question"></i> Give it a whirl
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Let’s assume that you revisited every site 15 days after the initial visit. In your Google Sheets document type <code>date_sample2</code> in cell <code>C1</code>. Now in cell <code>C2</code> type <code>B2 + 15</code>. Describe what happens.</p>
+</div>
+</div>
+<p>Wait? Since when can you just add an integer and a date? Aren’t those completely different data formats?</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<i class="fa-solid fa-clipboard-question" aria-label="clipboard-question"></i> Give it a whirl
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Highlight column B. Now Click on the <code>123</code> button in the toolbar and select <code>Automatic</code>. Describe what you see. Speculate what this means about how spreadsheet programs actually store dates and what implications this could have if you export spreadsheets as text files.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-11-contents" aria-controls="callout-11" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-11" class="callout-11-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Google Sheets is actually storing dates as integers from a default day of December 31, 1899. This can be useful, spreadsheet programs were initially developed for and most heavily used for accounting, so the option of being able to in a straightfoward way add days, months, or years to a given date is quite practical.</p>
+<p>However, if you export as a text file you can run into the issue that you text file now has a column with an integer where you expected a date.</p>
+<p>As a side note it also becomes problematic if you are using dates before December 31, 1899 because it cannot parse them correctly.</p>
+</div>
+</div>
+</div>
+<p>It is a lot safer to store dates in spreadsheets not as <code>date</code> but rather in three columns as <code>year</code>, <code>month</code>, <code>day</code>. Another option is to use Julian Day or day of the year. Or you can store as a single string as <code>YYYYMMDD</code> you can do the same for time stamps as <code>YYYYMMDDhhmmss</code>. This has advantages in terms of sorting by assending and descending order and you do not have to worry about converting to text.</p>
+<p>If you were to read this format into <code>R</code> it would initially think that it is an integer, however there are functions that we can use to tell <code>R</code> that it is actually a date and what format it is, and then we would be able to apply functions to extract year, month etc into other programs.</p>
+<p>In sum, <strong>treat dates as multiple pieces of data to make them easier to handle downstream</strong>.</p>
+</section>
+<section id="quality-assurance-and-control" class="level2 page-columns page-full" data-number="5.5">
+<h2 data-number="5.5" class="anchored" data-anchor-id="quality-assurance-and-control"><span class="header-section-number">5.5</span> Quality assurance and control</h2>
+<p>You will frequently hear people say something along the lines of “oh we still have to QC the data” or “we need to complete QA/QC before we can analyze the data. QA stands for quality assurance and QC stands for quality control and both processes are critical to ensure that data being used moving forward is accurate, reliable and valid.</p>
+<p>Quality assurance focuses on preventing errors and ensuring that the proceses used to generate and enter the data are effective and efficient and minimize error. It involves establishing guidelines, standards, and best practices to be followed during the processes. The goal is to identify and address potential issues before they can occur or at least as early as possible in the process.</p>
+<p>By contrast, quality control focuses on identifying errors that may have occured during the process of generating and entering data by performing checks and tests at various stages of the process to verify that the final output meets the predefined quality standards.</p>
+<p>Ensuring that we have accurate and consistent data collection methods, checking for and removing or correcting data entry errors, and validating data against predefined criteria is a critical step in (data) science. It is important that you keep a good record of the steps you took, rules you apply to discern “good” vs “bad” errors, and which data was removed to ensure transparency and repeatability.</p>
+<p>One important component of quality assurance is stopping from bad data being entered in the first place by creating a list of valid values which will then prohibit false values from being entered. For example, we might be working with different types of gear to catch sharks at each location, longlines, gillnets, and hook-and-line. It would be easy to accidentally mistype one of these gear types or forget whether we are entering everything lowercase or using capitalization.</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<i class="fa-solid fa-clipboard-question" aria-label="clipboard-question"></i> Give it a whirl
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In your Google Sheet in column D type <code>gear</code>. Then place your cursor in cell D2 and navigate to <code>Data</code> &gt; <code>Data Validation</code> which will bring up a dialog on the right sight of your screen. Click on <code>Add rule</code>.</p>
+<p>In the <code>Apply to range</code> box it will currently say <code>Sheet1!D2</code>, you can extend this to include all cells from <code>D2</code> to <code>D6</code> by modifying this to <code>Sheet1!D2:D6</code> (or by marking the area in the spreadsheet). Click on the <code>Criteria</code> Dropdown menu to see how many different types of options you have to set rules in terms of what is allowed to be entered into the cells to which you are applying this rule.</p>
+<p>We are going to use a <code>Dropdown</code>. By default you will have two fields. Fill those out as <code>longline</code> and <code>gillnet</code>. Then click on <code>add another item</code> and add <code>hook-and-line</code>.</p>
+<p>Check out the advance options which allows you to change whether you just get a warning or the input is rejected if your entry is invalid, you can also play with the display style to see how that affects the formatting and ease of use. Then click <code>Done</code>.</p>
+<p>We have a short list of options so you you can easily see all three and select the correct one. For longer lists it is more helpful that you can start typing in you data and then select it.</p>
+</div>
+</div>
+<p>You can see how this option is helpful for categorical data where typos are an issue. But you can also restrict dates to certain time periods or numbers to certain values.</p>
+<p>Using these types of rules help minimize errors, however it is almost inevitable that something will sneak in eventually which is where quality control comes in.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Be mindful
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Remember, before you implement any quality control measure you want to make sure that you make a copy of your data and save the original data as your raw, unaltered data set. You will want to make sure that the file name reflects that it is your raw data.</p>
+<p>Create a separate file that you will then clean, make sure that your filename includes some sort of versioning and/or a date so you have a good record of when you processed a data set. Then you want to make sure that your data are all values and not formulas which refer to specific cells. Once you start moving cells around this can screw with your data.</p>
+<p>You will also want to create a text-file (a typical filename would be <code>README</code>) that keeps track of all your files and manipulations so that future you or a collaborator can easily understand and replicate any steps that you take.</p>
+</div>
+</div>
+<div class="page-columns page-full"><p>The goal of QC is to find erroneous data. This means that it is generally going to stick out from the rest of the values in a specific column<a href="#fn9" class="footnote-ref" id="fnref9" role="doc-noteref"><sup>9</sup></a>.</p><div class="no-row-height column-margin column-container"><li id="fn9"><p><sup>9</sup>&nbsp;Errors are not the same as outliers. Sometimes you know that e.g.&nbsp;certain values cannot be true, for example if all your sample locations where in the northern hemisphere then you cannot have latitudes from the southern hemisphere.</p></li></div></div>
+<p>We can generally make the assumption that the vast majority of your data is correct. This means that if we sort the values in a column if there are a few errors they will stick out and in many cases they will sort at the very top or very bottom. For example, if your column is numeric anything that is a character will pop out or if you have null values or empty cells they will generally sort to the bottom of a column.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Be mindful
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Any time you are going to sort data, make sure that you are sorting the <strong>entire dataset</strong> not just a single column or you will corrupt your data set and everything will end up scrambled.</p>
+<p>Generally, if you don’t have any empty columns or too much missing data if you place the cursor in a cell with a value you can use the shortcut <code>Ctrl</code>/<code>Cmd</code> + <code>A</code> to select all.</p>
+<p><strong>Always double check that you have expanded your sort to the entire data set</strong></p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<i class="fa-solid fa-clipboard-question" aria-label="clipboard-question"></i> Give it a whirl
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In the <code>scratch</code> folder, open up the <code>catchdata_messy</code> Google Sheet. Then sort each column and see which errors you can spot.</p>
+<p>Make the entire data set is highlighted. Then go select <code>Data</code> &gt; <code>Sort range</code> &gt; <code>Advanced sorting options</code>. Make sure you check the <code>Data has header row</code> option. Then use the <code>sort by</code> drop down menu to select the column you want to sort. Once you are ready, cleock <code>sort</code>.</p>
+<p>Then inspect your column to determine if there are unexpected values and describe your observations. Discuss what you will do with you findings - consider whether it is better (more ethical/responsible) to remove them or correct them.</p>
+</div>
+</div>
+<p>Similarly, we can use conditional formatting which allows you to apply specific rules for automatically color coding to a column based on specific rules. This makes it easier for unusual entries or entries outside the possible boundaries to stand out.</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<i class="fa-solid fa-clipboard-question" aria-label="clipboard-question"></i> Give it a whirl
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In the <code>catchdata_messy</code> Google Sheet, highlight the <code>STL</code> column. The select <code>Format</code> &gt; <code>Conditional formatting</code> from the toolbar. This will pull up a dialog on the right hand of your window.</p>
+<p>Similar to the <code>Data Validation</code> dialog, you can select the range you want to apply this rule to either by typing it in or selecting it directly in the spreadsheet.</p>
+<p>Click on the <code>Format rules</code> dropdown menus and look through the available options. Let’s say that we know that the sharks cannot be smaller than 50cm or larger than 2m. Set up rules for conditional highlighting that will allow you to quickly pull out invalid entries.</p>
+<p>Click <code>Done</code> once you are all set and evaluate your results.</p>
+</div>
+</div>
+<p>Especially for smaller data sets being able to quickly scan for errors can be really helpful, however, down the line we will also learn how to use similar principles to identify errors using <code>R</code>.</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<i class="fa-solid fa-clipboard-question" aria-label="clipboard-question"></i> Consider this
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Argue the pros and cons of doing QA/QC directly in the spreadsheet compared to using a command-line program like <code>R</code>.</p>
+</div>
+</div>
+</section>
+<section id="exporting-data" class="level2 page-columns page-full" data-number="5.6">
+<h2 data-number="5.6" class="anchored" data-anchor-id="exporting-data"><span class="header-section-number">5.6</span> Exporting data</h2>
+<p>Generally, want to make sure that we are storing our data in a universally accessible, open, and static format rather than e.g.&nbsp;the default Excel file format (<code>*.xls</code> or <code>*.xlsx</code>).</p>
+<ul>
+<li>Excel files have a proprietary format and it is possible that in the future technology will change and you will no longer be able to access your files.</li>
+<li>other program may not be able to read Excel formatted files.</li>
+<li>different version of Excel may handle data differently which can lead to inconsistencies.</li>
+<li>frequently journals or grant agencies require you to deposit your data in a data repository that only accepts certain formats which may not include Excel.</li>
+</ul>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<i class="fa-solid fa-clipboard-question" aria-label="clipboard-question"></i> Consider this
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Discuss whether you think Google Sheets has the same problems or if it is an acceptable format to avoid these issues.</p>
+</div>
+</div>
+<div class="page-columns page-full"><p>Text-based formats such as comma-delimited (<code>*.csv</code>) or tab-delimited (<code>*.txt</code> or <code>*.txv</code>) files overcome these issues. In CSV files, columnes are separated by commas and in tab-delimited files by tabs<a href="#fn10" class="footnote-ref" id="fnref10" role="doc-noteref"><sup>10</sup></a>. The advantage of text files is that they can be opened in any plain text editors<a href="#fn11" class="footnote-ref" id="fnref11" role="doc-noteref"><sup>11</sup></a> but you can also import them into spreadsheet programs or command-line programs like <code>R</code>.</p><div class="no-row-height column-margin column-container"><li id="fn10"><p><sup>10</sup>&nbsp;This will look like whitespace if you look at it in a text editor, but tabs, but using whitespace can cause issues when command-line files parse them, tabs are less ambiguous</p></li><li id="fn11"><p><sup>11</sup>&nbsp;Your operating system will have a built in plain text editors such as notepad. However, you are regularly operating with textfiles it can be helpful to have a more powerful program like Notepad++ or Atom.</p></li></div></div>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<i class="fa-solid fa-clipboard-question" aria-label="clipboard-question"></i> Give it a whirl
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Open the Excel spreadsheet <code>longline_catchdata.xlsx</code> in the <code>data</code> folder of the project directory you downloaded.</p>
+<p>Select <code>File</code> &gt; <code>Save as</code> from the ribbon, then select <code>Comma Separated Values</code> (<code>*.csv</code>) from the list. Double check the file location and name then click <code>Save</code>.</p>
+<p>Now, repeat the same process to export as a tab-delimited file. You will have multiple options to export as text file, make sure that it says <code>tab-delimited</code>.</p>
+<p>Open both files in a text editor and compare them. If you double click on a <code>*.csv</code> file your computer will typically open it in excel, you may need to right click and then select <code>open with</code> to open in a text editor.</p>
+</div>
+</div>
+<p>You will find that I habitually use tab-delimited files because in Germany we use a <code>,</code> instead of a <code>.</code> for our decimals which means that data values can include commas and therefore exporting as <code>*.csv</code> files can cause a bit of chaos. However, as you pick a data set for your course project you will more likely end up with <code>*.csv</code> files.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Google Sheets now make it a lot easier to export and download copies of spreadsheets in different formats including <code>*.csv</code> by selecting <code>File</code> &gt; <code>Download</code> from the main toolbar and the choosing <code>comma-delimited</code> or <code>tab-delimited</code> from the drop down menu.</p>
+</div>
+</div>
+</section>
+<section id="acknowledgments" class="level2" data-number="5.7">
+<h2 data-number="5.7" class="anchored" data-anchor-id="acknowledgments"><span class="header-section-number">5.7</span> Acknowledgments</h2>
+<p>This chapter is adapted from data carpentries “Data Organization in Spreadsheets for Ecologists lesson.</p>
+
+
+</section>
+
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./B_shark-wrangling.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Data/Shark wrangling</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./06_data-frames.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Intro to dataframes</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+</body></html>
