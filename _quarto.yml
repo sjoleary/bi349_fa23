@@ -35,6 +35,10 @@ book:
         - 13_greenhouse-gases.qmd
         - 14_impacts.qmd
         - 15_misinformation.qmd
+        
+    - part: E_natural-disaster.qmd
+        - 16_exploratory-analysis.qmd
+        - 17_visualizations.qmd
 
     - part: z_appendix.qmd
       chapters:
