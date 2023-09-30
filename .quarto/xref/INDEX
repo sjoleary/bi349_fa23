@@ -64,5 +64,20 @@
   },
   "15_misinformation.qmd": {
     "15_misinformation.html": "13e6665b"
+  },
+  "E_natural-disasters.qmd": {
+    "E_natural-disasters.html": "09c41102"
+  },
+  "16_exploratory-analysis-i.qmd": {
+    "16_exploratory-analysis-i.html": "d4333cda"
+  },
+  "17_exploratory-analysis-ii.qmd": {
+    "17_exploratory-analysis-ii.html": "c7704087"
+  },
+  "18_visualizations.qmd": {
+    "18_visualizations.html": "e42170b1"
+  },
+  "19_figure-types.qmd": {
+    "19_figure-types.html": "0139505c"
   }
 }

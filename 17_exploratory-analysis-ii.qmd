@@ -1,0 +1,145 @@
+
+# Exploratory Analysis II
+
+```{r}
+#| label: setup
+#| include: false
+
+# custom functions ----
+
+library(ggplot2)
+
+theme_standard <- theme_classic() +
+  theme(
+    axis.text = element_text(size = 11, color = "black"),
+    axis.title = element_text(size = 16, color = "black"),
+    axis.title.y = element_text(vjust = 1.5, color = "black"),
+    axis.line = element_line(color = "black"),
+    
+    legend.position = "bottom",
+    
+    panel.background = element_rect(fill = "white", color = NA), 
+    panel.border = element_blank(), 
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(), 
+    strip.background = element_rect(fill = "grey95", color = "black"), 
+    strip.text.x = element_text(size = 16, color = "black"),
+    strip.text.y = element_text(size = 16, color = "black")) 
+
+theme_facet <- theme_classic() +
+  theme(
+    axis.text = element_text(size = 11, color = "black"),
+    axis.title = element_text(size = 16, color = "black"),
+    axis.title.y = element_text(vjust = 1.5, color = "black"),
+    axis.line = element_line(color = "black"),
+    
+    legend.position = "bottom",
+    
+    panel.background = element_rect(fill = "white", color = NA), 
+    panel.border = element_rect(fill = NA, color = "black"), 
+    panel.grid.major = element_line(color = "grey85"), 
+    panel.grid.minor = element_blank(), 
+    strip.background = element_rect(fill = "grey95", color = "black"), 
+    strip.text.x = element_text(size = 16, color = "black"),
+    strip.text.y = element_text(size = 16, color = "black")) 
+
+
+
+# set options
+knitr::opts_chunk$set(
+  tidy = FALSE, 
+  message = FALSE,
+	warning = FALSE)
+
+options(htmltools.dir.version = FALSE)
+
+```
+
+
+**Learning Objectives**
+
+After completing this tutorial you should be able to
+
+* outline and apply a strategy for data exploration using graphs
+
+
+[Download the directory for this project here](https://drive.google.com/drive/folders/1VNfSO6AA7eom-MKIxulW1D5Q-tbtZw2S?usp=sharing), make sure the directory is unzipped and move it to your `bi328` directory. You can open the `Rproj` for this module either by double clicking on it which will launch `Rstudio` or by opening `Rstudio` and then using `File > Open Project` or by clicking on the `Rproject` icon in the top right of your program window and selecting `Open Project`. 
+
+There should be a file named `17_exploratory-analysis-ii.qmd` in that project directory. Use that file to work through this tutorial - you will hand in your rendered ("knitted") `quarto` file as your homework assignment. So, first thing in the `YAML` header, change the author to your name. You will use this `quarto` document to record your answers. Remember to use comments to annotate your code; at minimum you should have one comment per code set^[You should do this whether you are adding code yourself or using code from our manual, even if it isn't commented in the manual... especially when the code is already included for you, add comments to describe how the function works/what it does as we introduce it during the participatory coding session so you can refer back to it.] you may of course add as many comments as you need to be able to recall what you did. Similarly, take notes in the document as we discuss discussion/reflection questions but make sure that you go back and clean them up for "public consumption".
+
+Make sure to load all of our libraries to get started
+
+```{r}
+
+# load libraries
+
+# reporting
+library(knitr)
+
+# visualization
+library(ggplot2)
+library(ggthemes)
+library(patchwork)
+
+# data wrangling
+library(dplyr)
+library(tidyr)
+library(readr)
+library(skimr)
+library(janitor)
+library(magrittr)
+
+# turn off scientific notation
+options(scipen=999)
+
+```
+
+
+## Now you!
+
+Formulate two specific questions this data set can answer, consider that you have options like looking at specific geographic subsets, or different categories of natural disasters, you can also consider whether your would expect different types of natural disasters to show similar or different patterns.
+
+Use headers, plain text, code chunks etc. as appropriate to write a mini report for each question - this should include stating your question as concisely as possible, exploratory figures, a final explanatory figure, description & discussion of your results. Comment your code to generate your figures **line by line** with descriptive comments.
+
+For each question, generate 3 - 4 exploratory figures that can help answer your question, these can include different visualizations of the same variables or different (combinations of) variables. For each question, chose the figure that summarizes your results best and refine your visualization so that it best summarizes your results, this includes a figure title, labeled axis, color choice, how data is encoded etc.
+
+::: {.callout-tip}
+
+## Protip
+
+*It's possible that you have some additional ideas on how you would like to refine your figure but you're not sure how you can achieve that using your current ggplot skill set. If that is the case, do not get hung up on cosmetics, rather make a note and we can refine figures based on all of our feedback in class.*
+
+:::
+
+Write a figure legend that would accompany your figure in a report or paper, write a 3 - 5 sentence description of each figure (i.e. this should communicate the results with sufficient detail that somebody who *has not* seen the figure still fully understand them) and briefly discuss your results in 3-5 sentences in the context of the question you were asking (i.e. what are your conclusions, are there limitation to your data, alternative explanations, ...).
+
+For each initial question, jot down 2-3 ideas of where you would take your exploratory analysis in the next step.
+
+### Question 1:
+
+
+
+### Questions 2:
+
+
+
+## Get feedback
+
+One important aspect of an exploratory analysis that we haven't addressed yet is that is important to refine your analysis by getting feedback from other people to see if they notice things that you missed, have an idea of what additional relationship you might explore or how to better transform your data for a better metric. Our goal is clear communication; you have spent more time thinking about this question and the visualization so some things might be obvious to you that others might not catch right away, similar a set of colors might look good to you, but somebody else might struggle to tell things apart. The figure might be too busy etc. Sometimes it can also be helpful to have other people help you refine your question.
+
+For part two of this assignment
+
+1.Chose one question, your final figure and accompanying legend, description, and discussion and share it in our `#hwassignments` channel on `slack`. Make sure your figure is posted by Monday (10/9).
+2. Take a look your classmates' posts on slack, identify what you like about the visualization along with some **constructive** points for improvement. You should post your feedback by Tuesday afternoon. You can use the "reply" feature in slack to reply directly to their post (10/10).
+3. Read through the constructive criticism of your own figures of things and make some notes on what you want to improve. This could also include some things that you may have wanted to improve by weren't sure how to achieve (10/11). 
+
+
+## Think ahead
+
+Your final project can be summed up as "find a data set - do something with it". 
+
+Chances of finding things are always a lot higher when you have at least a rough idea of what you are looking for. In preparation for formulating a mini-proposal for your final project, identify a broad area of interest for you and brainstorm 2-3 ideas of more specific questions you're interested in. 
+
+Share your initial thoughts and brainstorming in the `#data-project` channel on `slack`. This is also part of your initial topic submission assignment. You only have to do it once.
+
+Don't worry, this is not final, just a starting point. As we take a look at databases and data repositories you might find something in a different area you are interested in exploring.

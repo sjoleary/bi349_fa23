@@ -36,9 +36,12 @@ book:
         - 14_impacts.qmd
         - 15_misinformation.qmd
         
-    - part: E_natural-disaster.qmd
-        - 16_exploratory-analysis.qmd
-        - 17_visualizations.qmd
+    - part: E_natural-disasters.qmd
+      chapters:
+        - 16_exploratory-analysis-i.qmd
+        - 17_exploratory-analysis-ii.qmd
+        - 18_visualizations.qmd
+        - 19_figure-types.qmd
 
     - part: z_appendix.qmd
       chapters:

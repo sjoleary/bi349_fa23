@@ -1,2 +1,125 @@
 # (Un)Natural Disasters {.unnumbered}
 
+For each of our modules we will have a project-folder with an `Rproject`, `*.qmd`-files, and sub-directories for data, scripts, and results as described in our `Rproject` Tutorial. You should have a directory on your Desktop or Documents folder on your laptop (name it something like `bi349`) as a home directory for all of our project folders this semester. 
+
+[Download the directory for this project here](https://drive.google.com/drive/folders/1VNfSO6AA7eom-MKIxulW1D5Q-tbtZw2S?usp=sharing), make sure the directory is unzipped and move it to your `bi328` directory. You can open the `Rproj` for this module either by double clicking on it which will launch `Rstudio` or by opening `Rstudio` and then using `File > Open Project` or by clicking on the `Rproject` icon in the top right of your program window and selecting `Open Project`. 
+
+Once you have opened a project you should see the project name in the top right corner^[Pro tip: If you run into issues where a quarto document won't render or file paths aren't working (especially if things were working previously) one of your first steps should be to double check that the correct `Rproj` is loaded.].
+
+## Catastrophic events are sudden events causing significant damage
+
+A catastrophic event is a sudden and widespread event that causes significant damage, destruction, and often leads to severe consequences for human life, property, and the environment. These events are typically characterized by their scale, impact, and the difficulty in mitigating their effects. 
+
+Catastrophic events can occur naturally or as a result from human activities, and they often overwhelm the ability of individuals, communities, or even entire regions to cope with or respond to them adequately. As a result, preparedness, early warning systems, and mitigation strategies are essential to minimize their impact and aid affected populations. Due to their scale disasters require coordinated response and recovery efforts from governments, emergency services, and humanitarian organizations. 
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+One way to categories catastrophic events is according to their cause. Think about what events fall in the broad category of catastrophic events and identify major categories that you could place them into.
+
+:::
+
+
+::: {.callout-tip collapse=true}
+
+## Solution
+
+Here is one suggestion. Read through this categorization and consider whether you think this is a helpful classification or whether you would group events differently or perhaps you might want to add certain types of events or you might not consider some of these as catastrophic event at all.
+
+1. Natural Disasters, e.g. earthquakes, hurricanes/major storms, tsunamis, volcanic eruptions
+2. Climate-related catastrophes/extreme weather events, e.g. heatwaves, prolonged droughts, wildfires
+3. Man-made catastrophes, e.g. nuclear accidents, industrial accidents, terrorist attacks
+4. Biological catastrophes, epidemics, pandemics
+5. Cosmic catastrophes: asteroid impacts^[if you don't think this one is important... just ask the dinosaurs.]
+    
+You could consider climate-related catastrophes a subset of natural disasters, however in our context of thinking through global change making it its own category could be helpful. We generally contrast natural vs man-made disasters, however with climate-related events we have a category where human activities though not directly causing these events certainly have had an indirect impact in terms of their prevalence by effecting climate change. We could also consider storms in the same category as climate-related events. In short, when creating these types of framework the categories might not be entirely exclusive and depending on the question at hand it might be helpful to set the criteria in slightly different ways.
+
+:::
+
+## Man-made disasters are primarily caused by human activities
+
+Man-made disasters are primarily caused by human activities rather than natural processes including human error, negligence, technological failures along with intentional acts. Like all catastrophic events, they have a significant and wide-ranging impact on societies, environments, and economies.
+
+They encompass a wide range of situations where human actions or decisions lead to significant harm, damage, and disruption to communities and environments. Parsing their causes emphasizes the importance of proper safety measures, responsible management of technology and resources, and underline the efforts that should be put toward prevention and mitigation of their negative impacts of human activities on both society and the environment.
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Brainstorm a list of man-made (unnatural) disasters and then create a framework of categories to classify them.
+
+:::
+
+
+::: {.callout-tip collapse=true}
+
+## Solution
+
+* Industrial accidents: chemical spills, industrial explosions, mine accidents
+* Nuclear incidents
+* Infrastructure failures: building collapses, dam failures
+* Environmental pollution/degradation: air/water pollution, deforestation/habitat degradation
+* Terrorism/acts of violence: bombings, mass shootings
+* Technological disasters: cyber-security breaches, spacecraft failures
+
+:::
+
+
+## Natural hazards include both suddent and more gradual or recurrent events
+
+We can use the term natural hazard to encompass both sudden catastrophic events (natural disasters) and more gradual or recurrent events (extreme weather events) that pose risks to human communities and ecosystems. While extreme weather events can contribute to or be part of natural disasters (e.g. severe storms can cause flooding), not all extreme weather events necessarily lead to or are considered natural disasters. The classification often depends on the severity of the impacts and the response required to mitigate and manage the situation. It is a broader term that covers a spectrum of potentially harmful natural occurrences.
+
+An extreme weather event refers to a specific instance of weather that deviates significantly from the average or expected conditions for a given region and time period. These events are characterized by their intensity, duration, or unusual nature that deviate significantly from the expected conditions. Extreme weather events can include heatwaves, severe storms (such as thunderstorms, tornadoes, or hailstorms), heavy rainfall leading to flooding, blizzards, and extreme cold snaps. While extreme weather events can be destructive and disruptive, they are typically considered as part of the broader spectrum of weather variability and are not always classified as natural disasters unless they result in significant harm. There is some irony in the fact that after spending decades emphasizing the difference between weather and climate, more recently we have seen an increasing number of scientists speak to the fact that the change in climate is indeed causing a change in the weather, specifically extreme weather events. 
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Your assigned readings for this module include resources on the recently emerging field of extreme weather attribution. In this module we will explore a data set that lists all the observed disasters that are larger than a specific threshold. We have repeatedly discussed differences in descriptive, inferential/predictive, and mechanistic/causal analyses. 
+
+Compare and contrast our exploratory analysis with extreme weather attribution in terms of the questions being asked and the type of analysis being done. Argue which you think is giving the best answer^[This will also require deciding what the "best answer" would be].
+
+:::
+
+A natural disaster refers to a catastrophic event that occurs as a result of natural processes of the Earth. These events often cause significant damage to human life, property, and the environment. Natural disasters can encompass a wide range of events, including geological, meteorological, hydrological, and climatological events. Examples of natural disasters include earthquakes, hurricanes, tsunamis, volcanic eruptions, floods, wildfires, and landslides. These events can have widespread and severe impacts on communities and ecosystems.
+
+Natural disasters encompass a wide range of catastrophic events that result from natural processes on Earth. Natural disaster can originate from various sources and are not exclusively climate-driven. While some natural disasters are influenced by climate factors, others are primarily geological or hydrological in nature. While extreme weather events can contribute to or be part of natural disasters, not all extreme weather events necessarily lead to or are considered natural disasters. The classification often depends on the severity of the impacts and the response required to mitigate and manage the situation. The distinction between climate-driven and non-climate-driven events may not always be clear-cut, as certain events can be influenced by a combination of factors. 
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Brainstorm a list of natural disasters and then create a framework of categories to classify them.
+
+:::
+
+
+::: {.callout-tip collapse=true}
+
+## Solution
+
+Here is a typical way we might group natural disasters based on their cause.
+
+* Geological disasters: earthquakes, volcanic eruptions, tsunamis, landslides
+* Meteorological disasters: (climate and weather-related): hurricans, tornados, severe storms, heatwaves, cold snaps, droughts
+* Hydrological disasters: floods, flash floods, mudslides
+* Biological disasters: epidemics, pandemics
+
+:::
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Think through the range of natural disasters and consider which natural disasters you would expect to see exacerbated by climate change and whether you think that humans do contribute to some of these "natural" disasters and whether that impact is felt more in some of these categories compared to others.
+
+:::
+
+
+## Words matter
+
+The term natural disaster implies they are the opposite of unnatural or man-made disasters and that humans have nothing to do with them and that they are just naturally occurring. However human actions have for example exacerbated climate-driven disasters. As a result, some people advocate for using the more general category catastrophic event as an alternative term that does not carry the implication of events being solely natural or unrelated to human influence and emphasizes the severity and impact of the event rather than its origin. As discussed "catastrophic events" encompasses a wide range of situations, including natural disasters, human-induced disasters, and events where natural processes and human actions interact to create significant harm and disruption. Using the term "catastrophic event" allows for a broader and more inclusive perspective that recognizes the complex interplay between natural processes and human activities in shaping disasters. It also avoids the misconception that humans are entirely disconnected from the causes and consequences of these events.
+

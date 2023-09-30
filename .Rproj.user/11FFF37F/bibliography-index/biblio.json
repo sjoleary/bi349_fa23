@@ -1,0 +1,503 @@
+{
+    "sources": [
+        {
+            "DOI": "10.1071/MF18081",
+            "ISSN": "1448-6059, 1448-6059",
+            "URL": "https://www.publish.csiro.au/mf/MF18081",
+            "accessed": {
+                "date-parts": [
+                    [
+                        2023,
+                        8,
+                        30
+                    ]
+                ]
+            },
+            "author": [
+                {
+                    "family": "Heupel",
+                    "given": "Michelle R."
+                },
+                {
+                    "family": "Kanno",
+                    "given": "Shiori"
+                },
+                {
+                    "family": "Martins",
+                    "given": "Ana P. B."
+                },
+                {
+                    "family": "Simpfendorfer",
+                    "given": "Colin A."
+                },
+                {
+                    "family": "Heupel",
+                    "given": "Michelle R."
+                },
+                {
+                    "family": "Kanno",
+                    "given": "Shiori"
+                },
+                {
+                    "family": "Martins",
+                    "given": "Ana P. B."
+                },
+                {
+                    "family": "Simpfendorfer",
+                    "given": "Colin A."
+                }
+            ],
+            "container-title": "Marine and Freshwater Research",
+            "container-title-short": "Mar. Freshwater Res.",
+            "id": "heupelAdvancesUnderstandingRoles2018",
+            "issue": "7",
+            "issued": {
+                "date-parts": [
+                    [
+                        2018,
+                        9,
+                        18
+                    ]
+                ]
+            },
+            "language": "en-US",
+            "page": "897-907",
+            "publisher": "CSIRO PUBLISHING",
+            "title": "Advances in understanding the roles and benefits of nursery areas for elasmobranch populations",
+            "type": "article-journal",
+            "volume": "70"
+        },
+        {
+            "DOI": "10.3354/meps337287",
+            "ISSN": "0171-8630, 1616-1599",
+            "URL": "https://www.int-res.com/abstracts/meps/v337/p287-297/",
+            "accessed": {
+                "date-parts": [
+                    [
+                        2023,
+                        8,
+                        30
+                    ]
+                ]
+            },
+            "author": [
+                {
+                    "family": "Heupel",
+                    "given": "Michelle R."
+                },
+                {
+                    "family": "Carlson",
+                    "given": "John K."
+                },
+                {
+                    "family": "Simpfendorfer",
+                    "given": "Colin A."
+                }
+            ],
+            "container-title": "Marine Ecology Progress Series",
+            "id": "heupelSharkNurseryAreas2007",
+            "issued": {
+                "date-parts": [
+                    [
+                        2007,
+                        5,
+                        14
+                    ]
+                ]
+            },
+            "keyword": "Definition,Habitat,Nursery area,Shark",
+            "language": "en-US",
+            "page": "287-297",
+            "title": "Shark nursery areas: Concepts, definition, characterization and assumptions",
+            "title-short": "Shark nursery areas",
+            "type": "article-journal",
+            "volume": "337"
+        },
+        {
+            "DOI": "10.1016/j.ecss.2018.02.023",
+            "ISSN": "0272-7714",
+            "URL": "https://www.sciencedirect.com/science/article/pii/S0272771417307564",
+            "accessed": {
+                "date-parts": [
+                    [
+                        2023,
+                        8,
+                        30
+                    ]
+                ]
+            },
+            "author": [
+                {
+                    "family": "Plumlee",
+                    "given": "Jeffrey D."
+                },
+                {
+                    "family": "Dance",
+                    "given": "Kaylan M."
+                },
+                {
+                    "family": "Matich",
+                    "given": "Philip"
+                },
+                {
+                    "family": "Mohan",
+                    "given": "John A."
+                },
+                {
+                    "family": "Richards",
+                    "given": "Travis M."
+                },
+                {
+                    "family": "TinHan",
+                    "given": "Thomas C."
+                },
+                {
+                    "family": "Fisher",
+                    "given": "Mark R."
+                },
+                {
+                    "family": "Wells",
+                    "given": "R. J. David"
+                }
+            ],
+            "container-title": "Estuarine, Coastal and Shelf Science",
+            "container-title-short": "Estuarine, Coastal and Shelf Science",
+            "id": "plumleeCommunityStructureElasmobranchs2018a",
+            "issued": {
+                "date-parts": [
+                    [
+                        2018,
+                        5,
+                        1
+                    ]
+                ]
+            },
+            "keyword": "Community structure,Diversity,Elasmobranch,Estuary,Gulf of Mexico,Salinity",
+            "page": "103-113",
+            "title": "Community structure of elasmobranchs in estuaries along the northwest Gulf of Mexico",
+            "type": "article-journal",
+            "volume": "204"
+        },
+        {
+            "DOI": "10.1007/s12237-020-00797-y",
+            "ISSN": "1559-2731",
+            "URL": "https://doi.org/10.1007/s12237-020-00797-y",
+            "accessed": {
+                "date-parts": [
+                    [
+                        2023,
+                        8,
+                        30
+                    ]
+                ]
+            },
+            "author": [
+                {
+                    "family": "Swift",
+                    "given": "Dominic G."
+                },
+                {
+                    "family": "Portnoy",
+                    "given": "David S."
+                }
+            ],
+            "container-title": "Estuaries and Coasts",
+            "container-title-short": "Estuaries and Coasts",
+            "id": "swiftIdentificationDelineationEssential2021",
+            "issue": "3",
+            "issued": {
+                "date-parts": [
+                    [
+                        2021,
+                        5,
+                        1
+                    ]
+                ]
+            },
+            "keyword": "Batoids,Gulf of Mexico,Longline survey,Nursery habitat,Sharks",
+            "language": "en-US",
+            "page": "788-800",
+            "title": "Identification and Delineation of Essential Habitat for Elasmobranchs in Estuaries on the Texas Coast",
+            "type": "article-journal",
+            "volume": "44"
+        },
+        {
+            "URL": "https://aquadocs.org/handle/1834/26223",
+            "accessed": {
+                "date-parts": [
+                    [
+                        2023,
+                        9,
+                        6
+                    ]
+                ]
+            },
+            "author": [
+                {
+                    "family": "Carlson",
+                    "given": "John K."
+                },
+                {
+                    "family": "Baremore",
+                    "given": "Ivy"
+                }
+            ],
+            "container-title": "Fishery Bulletin",
+            "id": "carlsonGrowthDynamicsSpinner2005",
+            "issue": "2",
+            "issued": {
+                "date-parts": [
+                    [
+                        2005
+                    ]
+                ]
+            },
+            "title": "Growth dynamics of the spinner shark (Carcharhinus brevipinna) off the United States southeast and Gulf of Mexico coasts: A comparison of methods",
+            "title-short": "Growth dynamics of the spinner shark (Carcharhinus brevipinna) off the United States southeast and Gulf of Mexico coasts",
+            "type": "article-journal",
+            "volume": "103"
+        },
+        {
+            "URL": "https://onlinelibrary.wiley.com/doi/full/10.1111/j.0022-1112.2005.00743.x",
+            "accessed": {
+                "date-parts": [
+                    [
+                        2023,
+                        9,
+                        6
+                    ]
+                ]
+            },
+            "author": [
+                {
+                    "family": "Neer",
+                    "given": "J. A."
+                },
+                {
+                    "family": "Thompson",
+                    "given": "B. A."
+                },
+                {
+                    "family": "Carlson",
+                    "given": "John K."
+                }
+            ],
+            "container-title": "Journal of Fish Biology",
+            "id": "neerAgeGrowthCarcharhinus2005",
+            "issue": "2",
+            "issued": {
+                "date-parts": [
+                    [
+                        2005
+                    ]
+                ]
+            },
+            "page": "370-383",
+            "title": "Age and growth of Carcharhinus leucas in the northern Gulf of Mexico: Incorporating variability in size at birth - Neer - 2005 - Journal of Fish Biology - Wiley Online Library",
+            "title-short": "Age and growth of Carcharhinus leucas in the northern Gulf of Mexico",
+            "type": "article-journal",
+            "volume": "67"
+        },
+        {
+            "DOI": "10.1038/nmeth.3869",
+            "ISSN": "1548-7105",
+            "URL": "https://www.nature.com/articles/nmeth.3869",
+            "accessed": {
+                "date-parts": [
+                    [
+                        2022,
+                        7,
+                        4
+                    ]
+                ]
+            },
+            "author": [
+                {
+                    "family": "Callahan",
+                    "given": "Benjamin J."
+                },
+                {
+                    "family": "McMurdie",
+                    "given": "Paul J."
+                },
+                {
+                    "family": "Rosen",
+                    "given": "Michael J."
+                },
+                {
+                    "family": "Han",
+                    "given": "Andrew W."
+                },
+                {
+                    "family": "Johnson",
+                    "given": "Amy Jo A."
+                },
+                {
+                    "family": "Holmes",
+                    "given": "Susan P."
+                }
+            ],
+            "container-title": "Nature Methods",
+            "container-title-short": "Nat Methods",
+            "id": "callahanDADA2HighresolutionSample2016",
+            "issue": "7, 7",
+            "issued": {
+                "date-parts": [
+                    [
+                        2016,
+                        7
+                    ]
+                ]
+            },
+            "keyword": "Metagenomics,Software,Statistical methods",
+            "language": "en-US",
+            "page": "581-583",
+            "publisher": "Nature Publishing Group",
+            "title": "DADA2: High-resolution sample inference from Illumina amplicon data",
+            "title-short": "DADA2",
+            "type": "article-journal",
+            "volume": "13"
+        },
+        {
+            "DOI": "10.1007/s00248-020-01540-7",
+            "ISSN": "0095-3628, 1432-184X",
+            "URL": "https://link.springer.com/10.1007/s00248-020-01540-7",
+            "accessed": {
+                "date-parts": [
+                    [
+                        2023,
+                        9,
+                        14
+                    ]
+                ]
+            },
+            "author": [
+                {
+                    "family": "Carteron",
+                    "given": "Alexis"
+                },
+                {
+                    "family": "Beigas",
+                    "given": "Marie"
+                },
+                {
+                    "family": "Joly",
+                    "given": "Simon"
+                },
+                {
+                    "family": "Turner",
+                    "given": "Benjamin L."
+                },
+                {
+                    "family": "Lalibert’e",
+                    "given": "Etienne"
+                }
+            ],
+            "container-title": "Microbial Ecology",
+            "container-title-short": "Microb Ecol",
+            "id": "carteronTemperateForestsDominated2021",
+            "issue": "2",
+            "issued": {
+                "date-parts": [
+                    [
+                        2021,
+                        8
+                    ]
+                ]
+            },
+            "language": "en-US",
+            "page": "377-390",
+            "title": "Temperate Forests Dominated by Arbuscular or Ectomycorrhizal Fungi Are Characterized by Strong Shifts from Saprotrophic to Mycorrhizal Fungi with Increasing Soil Depth",
+            "type": "article-journal",
+            "volume": "82"
+        },
+        {
+            "DOI": "10.1186/1471-2105-13-283",
+            "ISSN": "1471-2105",
+            "URL": "https://doi.org/10.1186/1471-2105-13-283",
+            "accessed": {
+                "date-parts": [
+                    [
+                        2022,
+                        7,
+                        4
+                    ]
+                ]
+            },
+            "author": [
+                {
+                    "family": "Rosen",
+                    "given": "Michael J."
+                },
+                {
+                    "family": "Callahan",
+                    "given": "Benjamin J."
+                },
+                {
+                    "family": "Fisher",
+                    "given": "Daniel S."
+                },
+                {
+                    "family": "Holmes",
+                    "given": "Susan P."
+                }
+            ],
+            "container-title": "BMC Bioinformatics",
+            "container-title-short": "BMC Bioinformatics",
+            "id": "rosenDenoisingPCRamplifiedMetagenome2012",
+            "issue": "1",
+            "issued": {
+                "date-parts": [
+                    [
+                        2012,
+                        10,
+                        31
+                    ]
+                ]
+            },
+            "keyword": "Error Model,Error Probability,Sample Genotype,Sanger Sequence,Substitution Error",
+            "page": "283",
+            "title": "Denoising PCR-amplified metagenome data",
+            "type": "article-journal",
+            "volume": "13"
+        },
+        {
+            "DOI": "10.1111/j.2006.0030-1299.14714.x",
+            "ISSN": "1600-0706",
+            "URL": "https://onlinelibrary.wiley.com/doi/abs/10.1111/j.2006.0030-1299.14714.x",
+            "accessed": {
+                "date-parts": [
+                    [
+                        2022,
+                        7,
+                        18
+                    ]
+                ]
+            },
+            "author": [
+                {
+                    "family": "Jost",
+                    "given": "Lou"
+                }
+            ],
+            "container-title": "Oikos",
+            "id": "jostEntropyDiversity2006",
+            "issue": "2",
+            "issued": {
+                "date-parts": [
+                    [
+                        2006
+                    ]
+                ]
+            },
+            "language": "en-US",
+            "page": "363-375",
+            "title": "Entropy and diversity",
+            "type": "article-journal",
+            "volume": "113"
+        }
+    ],
+    "project_biblios": [
+        "references.bib"
+    ]
+}
