@@ -1,0 +1,280 @@
+
+# Scientific misconduct and the reproducibility crisis
+
+```{r}
+#| label: setup
+#| include: false
+
+# custom functions ----
+
+library(ggplot2)
+
+theme_standard <- theme_classic() +
+  theme(
+    axis.text = element_text(size = 11, color = "black"),
+    axis.title = element_text(size = 16, color = "black"),
+    axis.title.y = element_text(vjust = 1.5, color = "black"),
+    axis.line = element_line(color = "black"),
+
+    legend.position = "bottom",
+
+    panel.background = element_rect(fill = "white", color = NA),
+    panel.border = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    strip.background = element_rect(fill = "grey95", color = "black"),
+    strip.text.x = element_text(size = 16, color = "black"),
+    strip.text.y = element_text(size = 16, color = "black"))
+
+theme_facet <- theme_classic() +
+  theme(
+    axis.text = element_text(size = 11, color = "black"),
+    axis.title = element_text(size = 16, color = "black"),
+    axis.title.y = element_text(vjust = 1.5, color = "black"),
+    axis.line = element_line(color = "black"),
+
+    legend.position = "bottom",
+
+    panel.background = element_rect(fill = "white", color = NA),
+    panel.border = element_rect(fill = NA, color = "black"),
+    panel.grid.major = element_line(color = "grey85"),
+    panel.grid.minor = element_blank(),
+    strip.background = element_rect(fill = "grey95", color = "black"),
+    strip.text.x = element_text(size = 16, color = "black"),
+    strip.text.y = element_text(size = 16, color = "black"))
+
+
+
+# set options
+knitr::opts_chunk$set(
+  tidy = FALSE,
+  message = FALSE,
+	warning = FALSE)
+
+options(htmltools.dir.version = FALSE)
+
+```
+
+
+**Learning Objectives**
+
+After completing this tutorial you should be able to
+
+* Define what scientific misconduct is and describe common unethical practices that may or may not fall into that strict definition.
+* Define what the ‘reproducibility crisis’ is, common practices that are contributing, and understand how some fields/methodologies are more susceptible.
+* Distinguish between different definitions for reproducibility and replicability, and explain how they contribute to the confidence in scientific results being “correct” by the scientific community and public.
+
+
+[Download the directory for this project here](https://drive.google.com/drive/folders/1Wl3pTfPoFMzVsT7Gd-c9RCKU1F4M1HqP?usp=sharing), make sure the directory is unzipped and move it to your `bi328` directory. You can open the `Rproj` for this module either by double clicking on it which will launch `Rstudio` or by opening `Rstudio` and then using `File > Open Project` or by clicking on the `Rproject` icon in the top right of your program window and selecting `Open Project`.
+
+There should be a file named `20_reproducibility-crisis.qmd` in that project directory. Use that file to work through this tutorial - you will hand in your rendered ("knitted") `quarto` file as your homework assignment. So, first thing in the `YAML` header, change the author to your name. You will use this `quarto` document to record your answers. Take notes in the document as we discuss discussion/reflection questions but make sure that you go back and clean them up for "public consumption".
+
+
+## Frabrication, falsification, and plagiarism (oh my!)
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+The National Science Foundation defines **scientific misconduct** in the categories of **fabrication**, **falsification**, and **plagiarism**. Give a brief definition of each term.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Take the set of descriptions that describe hypothetical^[Hypothetical because not referring to a specific case study but these are very realistic scenarios of daily decision-making during research.] scenarios of decision making during data generation and analysis. Classify each as either scientific misconduct according to NSF's definition or not.
+
+Identify scenarios that you are not sure of which category they fall into and be ready to discuss with the class.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Snap a picture, move it to your `images` folder and then insert it here].
+
+:::
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Take your scenarios and rank them along a continuum of ethical to unethical. 
+
+Consider these aspects to establish your ranking:
+
+* are some unethical practices worse than others?
+* which scenarios do you think are more common than others?
+* do you think some are easy to get away with?
+* how easy do you think it is to detect if something like this has taken place?
+* whose responsibility is it to ensure unethical conduct does not take place during the research process?
+
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+After discussion with the class identify at least five major categories of misconduct and unethical behavior and give an example for each. Briefly discuss why for some categories identifying misconduct and unethical conduct is more clear cut while for others it can be difficult to draw a definitive line.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+## P-hacking and data dredging
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Imagine you are a social scientist interested in how political parties impact the US economy. 
+
+First, develop a hypothesis of whether Democrats or Republicans being in office positively or negatively impacts the US economy. 
+
+Now, use real data going back to 1948 to investigate. To publish your data you would need a statistically significant result. Fortunately you can [hack your way to scientific glory using fivethirtyeight's interactive tool](https://projects.fivethirtyeight.com/p-hacking/). Describe how you were able to confirm your hypothesis by manipulating which group of politicians to include, how you measured economic performance and other options.
+
+Finally, formulate a second opposing theory and see if you can generate a statistically significant result for that^[Pro Tip: Find a p-hacking buddy and test alternate hypotheses and then swap your results!].
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+Congratulations, you just became a successful p-hacker. The practices of **p-hacking** and **data dredging** have become increasing common in the era of big data.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Briefly describe what the practices of **p-hacking** and **data-dredging** entail.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+
+Briefly describe what the **reproducibility crisis** is and argue which fields of science you would expect to be more/less heavily impacted and how the increasing availability of large data sets and deployment of complex methods of analysis (including machine learning) have contributed.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+## You keep using that word, but ...
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+**Replicability** and **reproducibility** of studies both generally refer to the practice of validating the results obtained by duplicating them. However, exact definitions of the terms  vary among fields of research. Briefly, argue how you would rank different levels of confidence in the results of a study based on whether it was been repeated with the same results using (combinations of) the same or different teams, the same or different experimental set-ups, and/or the same or different data set.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+The National Science Foundation (NSF) defines "replicability" as "the ability of a researcher to duplicate the results of a prior study if the same procedures are followed but new data are collected". 
+
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+[@goodmanWhatDoesResearch2016] propose a framework that defines three categories based on the goals as related to transparency & compete reporting of methods, producing new evidence and drawing the same conclusion. Briefly compare and contrast the categories of **methods reproducibility**, **results reproducibility**, and **inferential reproducibility**.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Briefly discuss how (lack of) reproducibility can undermine confidence in the scientific process from the general public and/or allow special interest groups to manipulate information to intentionally sow distrust.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+

@@ -79,5 +79,26 @@
   },
   "19_figure-types.qmd": {
     "19_figure-types.html": "0139505c"
+  },
+  "F_reproducible-research.qmd": {
+    "F_reproducible-research.html": "c35b1328"
+  },
+  "20_reproducibility-crisis.qmd": {
+    "20_reproducibility-crisis.html": "8ce1f8af"
+  },
+  "21_reproducibility-research.qmd": {
+    "21_reproducibility-research.html": "67ad605e"
+  },
+  "22_research-compendium.qmd": {
+    "22_research-compendium.html": "44a14479"
+  },
+  "G_phenology.qmd": {
+    "G_phenology.html": "b0cf5f46"
+  },
+  "23_phenology.qmd": {
+    "23_phenology.html": "a582b4d9"
+  },
+  "24_phenology-modeling.qmd": {
+    "24_phenology-modeling.html": "5dad1d1c"
   }
 }

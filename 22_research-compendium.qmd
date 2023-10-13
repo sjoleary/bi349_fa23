@@ -1,0 +1,132 @@
+
+# Research Compendium
+
+```{r}
+#| label: setup
+#| include: false
+
+# custom functions ----
+
+library(ggplot2)
+
+theme_standard <- theme_classic() +
+  theme(
+    axis.text = element_text(size = 11, color = "black"),
+    axis.title = element_text(size = 16, color = "black"),
+    axis.title.y = element_text(vjust = 1.5, color = "black"),
+    axis.line = element_line(color = "black"),
+
+    legend.position = "bottom",
+
+    panel.background = element_rect(fill = "white", color = NA),
+    panel.border = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    strip.background = element_rect(fill = "grey95", color = "black"),
+    strip.text.x = element_text(size = 16, color = "black"),
+    strip.text.y = element_text(size = 16, color = "black"))
+
+theme_facet <- theme_classic() +
+  theme(
+    axis.text = element_text(size = 11, color = "black"),
+    axis.title = element_text(size = 16, color = "black"),
+    axis.title.y = element_text(vjust = 1.5, color = "black"),
+    axis.line = element_line(color = "black"),
+
+    legend.position = "bottom",
+
+    panel.background = element_rect(fill = "white", color = NA),
+    panel.border = element_rect(fill = NA, color = "black"),
+    panel.grid.major = element_line(color = "grey85"),
+    panel.grid.minor = element_blank(),
+    strip.background = element_rect(fill = "grey95", color = "black"),
+    strip.text.x = element_text(size = 16, color = "black"),
+    strip.text.y = element_text(size = 16, color = "black"))
+
+
+
+# set options
+knitr::opts_chunk$set(
+  tidy = FALSE,
+  message = FALSE,
+	warning = FALSE)
+
+options(htmltools.dir.version = FALSE)
+
+```
+
+
+**Learning Objectives**
+
+After completing this tutorial you should be able to
+
+* Describe the benefits of a workflow that is organized, reproducible, and shareable
+* Identify essential components of a reproducible research compendium
+  + all raw data
+  + metadata describing data/sources
+  + code to extract, transform/load data, generate visualizations, and run analysis/fit models
+
+[Download the directory for this project here](https://drive.google.com/drive/folders/1Wl3pTfPoFMzVsT7Gd-c9RCKU1F4M1HqP?usp=sharing), make sure the directory is unzipped and move it to your `bi328` directory. You can open the `Rproj` for this module either by double clicking on it which will launch `Rstudio` or by opening `Rstudio` and then using `File > Open Project` or by clicking on the `Rproject` icon in the top right of your program window and selecting `Open Project`.
+
+There should be a file named `22_research-compendium.qmd` in that project directory. Use that file to work through this tutorial - you will hand in your rendered ("knitted") `quarto` file as your homework assignment. So, first thing in the `YAML` header, change the author to your name. You will use this `quarto` document to record your answers. Remember to use comments to annotate your code; at minimum you should have one comment per code set^[You should do this whether you are adding code yourself or using code from our manual, even if it isn't commented in the manual... especially when the code is already included for you, add comments to describe how the function works/what it does as we introduce it during the participatory coding session so you can refer back to it.] you may of course add as many comments as you need to be able to recall what you did. Similarly, take notes in the document as we discuss discussion/reflection questions but make sure that you go back and clean them up for "public consumption".
+
+
+## An organized, reproducible and shareable workflow
+
+In Chapter 4 of our labmanual you were introduced to Project management and Rmarkdown Basics. We said that the goal of open science and reproducible research is to make scientific methods, data, and results more transparent, available and reproducible. In that section, you were introduced to `Rprojects` and `quarto` documents and the structure of our Project Folders for this semester with the reasoning that this structure would allow you to establish a reproducible workflow that is organized, reproducible, and shareable.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Briefly discuss the advantages of designing a workflow that fulfills the three-fold goal of being organized, reproducible, and shareable.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+## Research Compendium
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Briefly define what a research compendium is including central components/principles to be effective, then assess whether our typical structure of a project folder fulfills these criteria^[A good place to to start would be to look at what subdirectories we typically include, whether that is consistent or if some folders only show up occassionaly and to think through what the function of each folder is and how they contribute to the core principles that comprise a good research compendium].
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+For your data science project you will be asked to submit your entire research compendium along with the rendered quarto report. Go ahead and create a research compendium in your `bi3249` directory right now if you haven't already and initialize the subdirectories, `Rproject` and `quarto` documents you will need.  Use bullet points to list the contents and hierarchy of your research compendium. Then give a brief description of your sete up - write it as if you were sharing your research compendium with a collaborator that needs to know what function each component has and what you underlying design is.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+

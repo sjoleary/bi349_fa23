@@ -1,5 +1,5 @@
 
-# Making good figures
+# Know your plots
 
 ```{r}
 #| label: setup
@@ -60,12 +60,14 @@ options(htmltools.dir.version = FALSE)
 
 After completing this tutorial you should be able to
 
-* 
+* define what a data visualization is.
+* determine the type of data being visualized.
+* apply the appropriate mapping and geometry depending on the data type.
 
 
-[Download the directory for this project here](), make sure the directory is unzipped and move it to your `bi328` directory. You can open the `Rproj` for this module either by double clicking on it which will launch `Rstudio` or by opening `Rstudio` and then using `File > Open Project` or by clicking on the `Rproject` icon in the top right of your program window and selecting `Open Project`. 
+[Download the directory for this project here](https://drive.google.com/drive/folders/1VNfSO6AA7eom-MKIxulW1D5Q-tbtZw2S?usp=sharing), make sure the directory is unzipped and move it to your `bi328` directory. You can open the `Rproj` for this module either by double clicking on it which will launch `Rstudio` or by opening `Rstudio` and then using `File > Open Project` or by clicking on the `Rproject` icon in the top right of your program window and selecting `Open Project`. 
 
-There should be a file named `18_figure-types.qmd` in that project directory. Use that file to work through this tutorial - you will hand in your rendered ("knitted") `quarto` file as your homework assignment. So, first thing in the `YAML` header, change the author to your name. You will use this `quarto` document to record your answers. Remember to use comments to annotate your code; at minimum you should have one comment per code set^[You should do this whether you are adding code yourself or using code from our manual, even if it isn't commented in the manual... especially when the code is already included for you, add comments to describe how the function works/what it does as we introduce it during the participatory coding session so you can refer back to it.] you may of course add as many comments as you need to be able to recall what you did. Similarly, take notes in the document as we discuss discussion/reflection questions but make sure that you go back and clean them up for "public consumption".
+Use the quarto document `19_figure-types.qmd` to work through this tutorial - you will hand in your rendered ("knitted") `bquarto` file as your homework assignment. So, first thing in the `YAML` header, change the author to your name. You will use this `quarto` document to record your answers. Remember to use comments to annotate your code; at minimum you should have one comment per code set^[You should do this whether you are adding code yourself or using code from our manual, even if it isn't commented in the manual... especially when the code is already included for you, add comments to describe how the function works/what it does as we introduce it during the participatory coding session so you can refer back to it.] you may of course add as many comments as you need to be able to recall what you did. Similarly, take notes in the document as we discuss discussion/reflection questions but make sure that you go back and clean them up for "public consumption".
 
 Before you get started, let's make sure to read in all the packages we will need.
 
@@ -95,4 +97,646 @@ options(scipen=999)
 ```
 
 
-## 
+## Data visualizations
+
+Data visualizations refer to any type of visual display of data intended to help us better understand the underlying data. Therefore, a visualization should have a specific point that supports the overal narrative you are trying to communicate to your audience.
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Given this definition, argue whether or not you think a table should be considered a data visualization.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+We have already looked at one way of classifying figures based on their purpose. We distinguished between **exploratory plots** that help us better understand and discover hidden patterns in the data and **explanatory figures** which are designed to clearly communicate insights with others. In both cases, we are using the figure to reveal patterns in the data.
+
+The grammar of graphics defines the minimum components of a figure as 
+
+1. A data set
+2. Variables to be encoded (mappings/aesthetics)
+3. The plot type (geometry)
+
+To make effective plots, we need to be able to make sure that we can recognize the type of variables we are trying to encode, i.e. we want to visualize. The reason why we call this "encoding" is that we are taking the raw data and summarizing it visually - this means that we have to create a consistent system where specific visual components represent raw or summarized data. This means that we have to look at our variables and determine if they are categorical or continuous, if they have specific groupings we want to highlight. Similarly, we need to determine if we are trying to visualize a relationship between multiple variables or rather relationships among multiple variables. Next to choosing what to display on an x- or y-axis^[assuming we are visualizing within a Cartesian system, otherwise we would need to think about how to map variables onto the coordinates comprising that system.] and visual aspects like colors, shapes, or linetypes we need to make sure that the plot type (geometry) is appropriate for the type of data we are looking at and whether we are summarizing a relationship or a distribution.
+
+Let's take a closer look at some standard plot types (geometries) specifically from the perspective of what type of data they display.
+
+
+## Matching Mappings and Geometries to Variable Type
+
+Let's take another look at our natural disaster data set and the variables it encompasses.
+
+```{r}
+
+disaster <- read_delim("data/nat-disasters_emdat-query-2021-10-05.txt", delim = "\t", skip = 6) %>%
+  clean_names()
+
+colnames(disaster)
+
+```
+
+
+
+**Line plots display quantitative trends over time**
+
+Let's take a closer look at the occurrence of Meteorological disasters and determine how many occurred in each year.
+
+```{r}
+
+# count number of meteorological disasters per year
+metereol <- disaster %>%
+  filter(disaster_subgroup == "Meteorological") %>%
+  count(year)
+
+# preview data
+head(metereol)
+
+```
+
+Our data set now has two columns, year and number of occurences. This is what is frequently referred to as a time series, i.e. a data set that tracks a sample over time.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Visualize this data using a line graph. Be sure to include a descriptive title and informative legend. Then describe how the data is encoded^[Think about what your 1-2 intro sentences to this figure would be if you were explaining it to somebody else, i.e. how would you orient them in terms of how to interpret the figure], and *why* a line plot is the appropriate geometry for this type of data set^[A good way to do this is to highlight what the advantages are of visualizing the data in this way]. Try out a few different bin sizes and then briefly explain why you chose this specific bin size.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+::: {.callout-tip icon=false collapse=true}
+
+## {{< fa person-chalkboard >}}    Pointers
+
+Here is what your visualization could look like
+
+```{r}
+#| code-fold: true
+
+ggplot(metereol, aes(x = year, y = n)) +
+  geom_line(binwidth = 5, color = "black", fill = "orange") +
+  labs(title = "Yearly occurences of metereological-caused natural disasters",
+       subtitle = "Number of natural disasters recorded as metereological by the International Disaster \nDatabase per year for 1900 - 2021",
+       x = "number of events", y = "number of years") +
+  theme_standard
+
+```
+
+A line graph, also known as a line chart or line plot, is a type of graph that displays data points as a series of individual markers or points connected by straight lines. It is commonly used to illustrate how one variable changes over timeTime is generally displayed on the x-axis and the magnitude of the continuous variable is encoded as the position on the y-axis. 
+
+Here is how the data is encoded:
+ 
+* Each data point represents a specific value or observation related to the variable being studied. These points are often marked with symbols, such as circles, squares, or triangles, to make them easily distinguishable.
+* The data points are connected by straight lines. These lines create a continuous path that visually represents the change or trend in the data between the observed points.
+* The x-axis typically represents the independent variable, which is usually time in the case of time-series data. 
+* The y-axis represents the dependent variable, showing the values or measurements corresponding to each data point.
+
+Line graphs are particularly useful for the following purposes:
+
+* Showing Trends Over Time: Line graphs are commonly used to display time-series data, making it easy to see how a variable changes over time.
+* Comparing Multiple Data Series: Multiple lines on the same graph can be used to compare how different variables or categories change over the same time period.
+* Visualizing Continuous Data: Line graphs are suitable for visualizing continuous data with a clear sequence of values.
+* Identifying Patterns and Anomalies: Line graphs make it easy to identify patterns, trends, and anomalies in the data, which can be important for data analysis.
+* Interpolating Data Between Points: Line graphs allow for the estimation of values between data points, which can be useful for making predictions or understanding trends between observed data.
+
+Showing a line implies continuity and it can be difficult to determine the resolution of individual data points. You can make your plot more honest and transparent by adding additional points to show how frequent the measurements really are.
+
+```{r}
+#| code-fold: true
+
+ggplot(metereol, aes(x = year, y = n)) +
+  geom_point() +
+  geom_line(binwidth = 5, color = "black", fill = "orange") +
+  labs(title = "Yearly occurences of metereological-caused natural disasters",
+       subtitle = "Number of natural disasters recorded as metereological by the International Disaster \nDatabase per year for 1900 - 2021",
+       x = "number of events", y = "number of years") +
+  theme_standard
+
+
+```
+
+An alternative would be to not connect the individual data points with a line but rather use a trendline that doesn't have the same implication that each time point was measured and the information about the resolution is preserved.
+
+```{r}
+#| code-fold: true
+
+ggplot(metereol, aes(x = year, y = n)) +
+  geom_smooth() +
+  geom_point() +
+  labs(title = "Yearly occurences of metereological-caused natural disasters",
+       subtitle = "Number of natural disasters recorded as metereological by the International Disaster \nDatabase per year for 1900 - 2021.",
+       x = "number of events", y = "number of years") +
+  theme_standard
+
+```
+
+:::
+
+**Histograms and density plots convey information about a single quantitative variable**
+
+Let's say that we were less interested in the temporal trend but only in the variable `n` itself. We now have a a single quantitative variable (counts). The best way to visualize this type of data is using a histogram.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Visualize this data using a histogram. Be sure to include a descriptive title and informative legend. Then describe how the data is encoded^[Think about what your 1-2 intro sentences would be if you were explaining it to somebody else], and *why* a histogram is the appropriate geometry for this type of data set^[A good way to do this is to highlight what the advantages are of visualizing the data in this way]. Try out a few different bin sizes and then briefly explain why you chose this specific bin size.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+::: {.callout-tip icon=false collapse=true}
+
+## {{< fa person-chalkboard >}}    Pointers
+
+Here is what your visualization could look like
+
+```{r}
+#| code-fold: true
+
+ggplot(metereol, aes(x = n)) +
+  geom_histogram(binwidth = 5, color = "black", fill = "orange") +
+  labs(title = "Distribution of yealy occurences of metereological-caused natural disasters",
+       subtitle = "Number of natural disasters recorded as metereological by the International Disaster \nDatabase per year for 1900 - 2021",
+       x = "number of events", y = "number of years") +
+  theme_standard
+
+```
+
+A histogram is a graphical representation of the distribution of a data set. It's a way to visualize the frequency or count of data within specific intervals or bins. Histograms are particularly useful for showing the shape of the data's distribution, the central tendency, spread, and any significant patterns or outliers.
+
+This is how your data is encoded:
+
+* The range of data is divided into a set of intervals or bins. These bins are typically of equal width and are used to group data points. The width of the bins can vary based on the data and the context. Each bin represents a specific range of values.
+* For each bin, you count how many data points fall within that range. This count represents the frequency of data points in that interval.
+* The vertical axis of the histogram represents the frequency or count of data points in each bin. It's often labeled with "Frequency" or "Count."
+* The horizontal axis represents the data range, with each bin or interval marked along it. The values are typically continuous, but they can also be discrete categories, depending on the type of data being analyzed.
+* For each bin, you draw a bar or rectangle. The height of the bar corresponds to the frequency or count of data points in that bin. The bars are drawn adjacent to each other, creating a continuous visual representation.
+
+Histograms are useful fo the following reasons:
+
+* They provide a clear visual representation of how data is distributed. You can see whether the data is symmetric, skewed, unimodal, bimodal, or has other characteristics.
+* You can observe the central tendency (mean, median, mode) and the spread (variance, standard deviation) of the data.
+* Outliers, which are data points that fall significantly outside the main distribution, can often be identified in a histogram.
+* Histograms can reveal patterns or clusters within the data, which can be essential for data analysis and decision-making.
+
+:::
+
+An alternative would be a density plot.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Visualize this data using a density plot. Be sure to include a descriptive title and informative legend. Then describe how the data is encoded and argue why this is an appropriate geometry to visualize this data type. Argue when your think a density plot or a histogram is the better geometry to visualize this data type.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+::: {.callout-tip icon=false collapse=true}
+
+## {{< fa person-chalkboard >}}    Pointers
+
+Here is what your visualization could look like:
+
+```{r}
+#| code-fold: true
+
+ggplot(metereol, aes(x = n)) +
+  geom_density(binwidth = 1, color = "black", fill = "orange", alpha = 0.5) +
+  labs(title = "Yearly occurence of metereological-caused natural disasters",
+       subtitle = "Smoothed distribution of number of natural disasters classified as metereological by the \nInternational Disaster Database per year 1900 - 2021",
+       x = "number of events", y = "number of years") +
+  theme_standard
+
+```
+
+A density plot is a graphical representation of the distribution of a continuous data set.  It provides a smooth and continuous estimate of the probability density function of the data. Unlike a histogram, which divides the data into discrete bins and represents frequencies within those bins, a density plot creates a continuous curve that approximates the underlying distribution of the data.. They effectively highlight the distribution of a variable and help identify extreme values compared to those commonly occurring. Compared to histograms they are less sensitive to the number of bins chosen. However, by contrast you cannot easily determine the actual counts for a bin.
+
+
+**Boxplots summarize a continuous, quantitative variable broken down by categorical variables**
+
+Let's take a look at the distribution of the number of disasters occurring for each natural disaster type. We could create individual histograms, e.g. by using `facet_wrap()` or `facet_grid()`, alternatively boxplots allow us to compare across categories.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Visualize the distribution of number of natural disasters in each major category using a box plot. Be sure to include a descriptive title and informative legend. Then describe how the data is encoded and argue why this is an appropriate geometry to visualize this data type.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+::: {.callout-tip icon=false collapse=true}
+
+## {{< fa person-chalkboard >}}    Pointers
+
+Here is what your figure could look like
+
+```{r}
+#| code-fold: true
+
+disaster %>%
+  group_by(disaster_subgroup) %>%
+  count(year) %>%
+ggplot(aes(x = disaster_subgroup, y = n, color = disaster_subgroup)) +
+  geom_boxplot() +
+  labs(title = "Distribution of number of disasters per category.",
+       subtitle = "Number of disasters in each category recorded in the International Disaster Database every year.",
+       x = "natural disaster type", y = "number of records") +
+  theme_standard
+
+```
+
+A box plot, also known as a box-and-whisker plot, is a graphical representation of the distribution of a dataset. It displays key summary statistics that help you understand the central tendency, spread, and the presence of outliers within the data. Box plots are particularly useful for comparing and visualizing the distribution of multiple datasets.
+
+They can be a bit difficult to interpret, so here is a quick break down of all the components:
+
+1. Box: The box in the plot represents the interquartile range (IQR) of the data. The IQR is the middle 50% of the data, containing the values between the 25th percentile (Q1) and the 75th percentile (Q3). The top and bottom edges of the box represent Q3 and Q1, respectively, while the width of the box signifies the IQR.
+2. Line Inside the Box (Median): A line or bar inside the box represents the median (50th percentile) of the data. The median is the middle value when the data is ordered.
+3. Whiskers: The whiskers are lines extending from the box. They reach out to the minimum and maximum values within a defined range, typically defined as "1.5 times the IQR" from the quartiles. Values outside this range are considered outliers and are plotted individually as points or dots.
+4. Outliers, which fall beyond the whiskers' reach, are displayed as individual data points or dots.
+
+Box plots are useful for several purposes:
+
+* Visualizing Data Spread: They provide a visual representation of the range of data values and the spread of the middle 50% of the data.
+* Identifying Central Tendency: The median line within the box indicates the central tendency of the data.
+* Detecting Outliers: Box plots readily identify potential outliers as points outside the whiskers, making them useful for outlier detection.
+* Comparing Distributions: Box plots are excellent for comparing the distributions of multiple datasets, helping you understand the differences and similarities between them.
+* Summarizing Data: Box plots offer a concise summary of essential statistics, making it easy to grasp the overall distribution at a glance.
+
+Adding individual data points to a box plot can be a helpful technique to provide a more detailed view of the dataset and enhance the information conveyed by the plot. Box plots provide a summary of the central tendency, spread, and presence of outliers, while data points offer a granular view of the individual observations and also give you an idea of how large the data set is on which the data set was built. Data points can provide additional context or insight into the dataset, such as the presence of clusters, gaps, or patterns that might not be apparent from the box plot alone. In some cases, the density of data points at specific values is important information. Adding individual data points shows the concentration of data at particular values, which may not be evident from the box plot alone. By overlaying data points, you can visually validate that the box plot accurately represents the dataset. It allows you to see if there are any unusual patterns or if the data points are distributed as expected.
+
+```{r}
+#| code-fold: true
+
+disaster %>%
+  group_by(disaster_subgroup) %>%
+  count(year) %>%
+ggplot(aes(x = disaster_subgroup, y = n, color = disaster_subgroup)) +
+  geom_boxplot() +
+  geom_point() +
+  labs(title = "Distribution of number of disasters per category.",
+       subtitle = "Number of disasters in each category recorded in the International Disaster Database every year.",
+       x = "natural disaster type", y = "number of records") +
+  theme_standard
+
+```
+
+Using `geom_points()` isn't super helpful, instead we want to use `geom_jitter` which is going to offset our points. Adding jittered data points to a box plot is a common technique to address the issue of overplotting, particularly when dealing with categorical or discrete data. Overplotting occurs when multiple data points share the same or very similar x-values, making it challenging to visualize the full extent of the data distribution accurately. Jittering helps spread these points out slightly to reveal the underlying data more clearly
+
+```{r}
+#| code-fold: true
+
+disaster %>%
+  group_by(disaster_subgroup) %>%
+  count(year) %>%
+ggplot(aes(x = disaster_subgroup, y = n, color = disaster_subgroup)) +
+  geom_boxplot() +
+  geom_jitter() +
+  labs(title = "Distribution of number of disasters per category.",
+       subtitle = "Number of disasters in each category recorded in the International Disaster Database every year.",
+       x = "natural disaster type", y = "number of records") +
+  theme_standard
+
+```
+
+Similar to using a density plot instead of a histogram, you can use a violin plot instead of a boxplot. A violin plot is a data visualization that combines aspects of a box plot and a kernel density plot to display the distribution and summary statistics of a dataset. It is particularly useful for visualizing the distribution of data across different categories or groups.
+
+Here's how a violin plot is constructed:
+
+* Violin Shape: The main component of a violin plot is a series of symmetrical or mirrored violin-shaped curves, one for each category or group being compared. These shapes represent the probability density of the data at different values along the x-axis. The width of the violin at any given point corresponds to the density of data points at that value.
+* Violin Width: The width of the violins varies to show the density of data at different values. Wider sections indicate higher density, while narrower sections indicate lower density.
+
+```{r}
+#| code-fold: true
+
+disaster %>%
+  group_by(disaster_subgroup) %>%
+  count(year) %>%
+ggplot(aes(x = disaster_subgroup, y = n, color = disaster_subgroup)) +
+  geom_violin() +
+  labs(title = "Distribution of number of disasters per category.",
+       subtitle = "Number of disasters in each category recorded in the International Disaster Database every year.",
+       x = "natural disaster type", y = "number of records") +
+  theme_standard
+
+```
+
+:::
+
+**Scatter plots visualize the relationship between two quantitative variables**
+
+Our data set includes both natural disasters classified as meteorological and as climatological. We have discussed differences between climate and weather by describing weather as a snapshot compared to climate as a statistical portrait. But we also know that they are inherently linked. Let's take a look how many events occur every year for both of those categories.
+
+```{r}
+#| code-fold: true
+
+# count number of metereologial/climatological disasters per year
+counts <- disaster %>%
+  filter(disaster_subgroup %in% c("Meteorological", "Climatological")) %>%
+  group_by(disaster_subgroup) %>%
+  count(year)
+
+# preview data
+head(counts)
+
+```
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Visualize this data using a scatter plot - keep in mind that you will need to reformat the data to plot the counts for the different categories on the x and y axis, respectively. Be sure to include a descriptive title and informative legend. Then describe how the data is encoded and argue why this is an appropriate geometry to visualize this data type.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+::: {.callout-tip icon=false collapse=true}
+
+## {{< fa person-chalkboard >}}    Pointers
+
+Here is what your visualization could look like:
+
+```{r}
+#| code-fold: true
+
+counts %>%
+  mutate(n = replace_na(n, 0)) %>%
+  pivot_wider(names_from = "disaster_subgroup", values_from = "n") %>%
+  ggplot(aes(x = Climatological, y = Meteorological)) +
+  geom_smooth(method = "lm", color = "darkblue") +
+  geom_point(shape = 21, color = "black", fill = "darkorange", size = 3) +
+  labs(title = "Comparison of yearly occurence of climatological and metereological disasters.",
+       subtitle = "Number of natural disasters classified as metereological by the International Disaster \nDatabase per year 1900 - 2021. Blue line indicates linear regression with grey area \nvisualizing the 95% confidence interval.",
+       x = "number of meteorological disasters", y = "number of climatological disasters") +
+  theme_standard
+
+```
+
+A scatter plot is a graphical data visualization tool used to display individual data points in a two-dimensional coordinate system. It is particularly useful for showing the relationship or correlation between two continuous variables. 
+
+This is how the data is encoded:
+
+* Each data point represents an individual observation or data value. These points are typically displayed as dots, circles, or other symbols and are placed at specific coordinates on the plot. Each data point has an x-coordinate (horizontal) and a y-coordinate (vertical).
+* The horizontal axis represents one of the continuous variables being studied, often referred to as the independent variable. This variable is typically placed on the x-axis.
+* The vertical axis represents the other continuous variable, referred to as the dependent variable. This variable is typically placed on the y-axis.
+* Data points are plotted on the scatter plot based on their respective x and y values. The position of each point on the plot is determined by these coordinates.
+
+Generally, the independent variable is plotted on the x-axis and the dependent variable on the y-axis. In our example, it is not necessarily clear which is the dependent or independent variable as we are not necessarily hypothesizing that on type of disaster causes the other. In this case, we are expecting years with more meteorological disasters to also have more climatological disasters as they have similar causes. Additionally, the individual data points can be used to fit a regression, i.e. determine the mathematical relationship between the variables. 
+
+Scatter plots a powerful way to visually inspect the relationship between two continuous variables and can help you make inferences about the data, and perform a correlation analysis.
+
+* Scatter plots are excellent for examining the relationship between two variables. They can help you determine whether there's a positive, negative, or no correlation between the variables.
+* Scatter plots can reveal patterns, clusters, or trends in the data, making it easier to identify structure within the dataset.
+* Outliers, which are data points that fall far away from the main cluster of points, can be readily identified on a scatter plot.
+* Scatter plots are useful for comparing the distributions of two or more data sets and for assessing how they relate to each other.
+* scatter plots can be extended to represent more than two variables by using color, size, or shape to encode additional information.
+
+:::
+
+
+**Barplots count the values within a single categorical variable**
+
+Let's take a look at how common different disaster types were in the 2010s.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Subset our `disaster` dataframe to contain only observations from 2010 to 2020. Visualize this data using a barplot to compare the prevalence of different disaster types in this decade. Be sure to include a descriptive title and informative legend. Then describe how the data is encoded and argue why this is an appropriate geometry to visualize this data type.
+
+Remember that we have created barplots with the `stat` argument set to `identity` or to `count`. Depending on how you wrangle the data both are options in this case.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+::: {.callout-tip icon=false collapse=true}
+
+## {{< fa person-chalkboard >}}    Pointers
+
+Here is what your figure could look like
+
+```{r}
+#| code-fold: true
+
+disaster %>%
+  filter(year >= 2010 & year <= 2020) %>%
+  ggplot(aes(x = disaster_subgroup)) +
+  geom_bar(stat = "count", color = "black", fill = "darkorange") +
+  labs(title = "Prevalence of natural disaster types.",
+       subtitle = "Prevalence measured as the number of times a disaster of a given type was recorded in the \nInternational Disaster Database in the 2010s.",
+       x = "natural disaster type", y = "number of occurenes") +
+  theme_standard
+
+```
+
+A bar plot, also known as a bar chart or bar graph, is a common type of data visualization that represents data using rectangular bars or columns. Bar plots are used to display and compare data in a categorical or discrete manner, typically showing the relationship between different categories or groups and the corresponding values. 
+
+THis is how the data is encoded:
+
+* In a vertical bar plot, the bars are drawn vertically, with their heights representing the values of the categories or groups. In a horizontal bar plot, the bars are drawn horizontally, and their lengths indicate the values.
+* Along the x-axis (for vertical bar plots) or y-axis (for horizontal bar plots), labels or categories are displayed to indicate what each bar represents. These labels can be names, descriptions, or any categorical information.
+* The height (or length in the case of horizontal bar plots) of each bar represents the value associated with the corresponding category or group.
+* The plot usually includes a title that describes the content of the graph. The axes are labeled with appropriate units or descriptions to indicate what each represents.
+* Different categories or groups are often represented with different colors or patterns to make the bars visually distinguishable.
+
+Bar plots are useful for a range of purposes: 
+
+* Bar plots are excellent for comparing the values of different categories or groups. They allow viewers to assess the relative size or magnitude of each category in relation to the others.
+* Bar plots are commonly used to display the frequency or count of data within discrete categories. For example, you might use a bar plot to show the number of items sold in different months or the number of votes for political candidates.
+* You can use bar plots to display ranked data, such as the popularity of products, cities, or other entities, from most to least popular.
+* Bar plots can be used to highlight disparities or differences between groups. For example, you might use them to compare the performance of different departments in a company.
+
+:::
+
+**Grouped bar plots display counts of values broken down across categorical variables**
+
+So far, we have had a global view in terms of exploring trends in natural disasters. Let's take a look at the 2010s comparing the number of natural disasters occuring on each continent.
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Subset our `disaster` dataframe to contain only observations from 2010 to 2020. Visualize this data using a barplot to compare the prevalence of different disaster types in this decade for each continent. Be sure to include a descriptive title and informative legend. Then describe how the data is encoded and argue why this is an appropriate geometry to visualize this data type.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+::: {.callout-tip icon=false collapse=true}
+
+## {{< fa person-chalkboard >}}    Pointers
+
+Here is what your figure could look like
+
+```{r}
+#| code-fold: true
+
+disaster %>%
+  filter(year >= 2010 & year <= 2020) %>%
+  ggplot(aes(x = continent, fill = disaster_subgroup)) +
+  geom_bar(stat = "count", position = "dodge", color = "black") +
+  labs(title = "Prevalence of natural disaster types.",
+       subtitle = "Prevalence measured as the number of times a disaster of a given type was recorded in the \nInternational Disaster Database in the 2010s.",
+       x = "natural disaster type", y = "number of occurenes") +
+  theme_standard
+
+```
+
+A grouped bar plot, also known as a grouped bar chart or clustered bar chart, is a type of data visualization that extends the standard bar plot by grouping bars into clusters to facilitate comparisons between multiple categories or subgroups. It's particularly useful when you want to display and compare data for multiple categories across multiple subcategories. 
+
+Grouped bar plots are used for various purposes:
+
+* Grouped bar plots allow you to compare the values of different categories across multiple subcategories or groups. This is especially useful when you want to understand how each subcategory contributes to the overall category.
+* When you have multi-dimensional data, a grouped bar plot makes it easier to display and compare data for each combination of categories and subcategories.
+* You can use grouped bar plots to highlight differences and trends between subcategories within the same category.
+
+
+:::
+
+An alternative to the grouped barchart is the stacked barchart.
+
+```{r}
+#| code-fold: true
+
+disaster %>%
+  filter(year >= 2010 & year <= 2020) %>%
+  ggplot(aes(x = continent, fill = disaster_subgroup)) +
+  geom_bar(stat = "count", position = "stack", color = "black") +
+  labs(title = "Prevalence of natural disaster types.",
+       subtitle = "Prevalence measured as the number of times a disaster of a given type was recorded in the \nInternational Disaster Database in the 2010s.",
+       x = "natural disaster type", y = "number of occurenes") +
+  theme_standard
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Compare and contrast the grouped and stacked version of the same data and argue which one you think is a more appropriate visualization.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+**Stacked bar plots show counts/proportions of values broken down across categorical variables**
+
+Let's find a situation in which a stacked bar chart is helpful. In the previous plot, our question was more focused on the number of each disaster type occurring on each continent. Alternatively, our focus could be on understanding whether there are certain geographic regions that contribute more or less to the total number of events by disaster type.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Subset our `disaster` dataframe to contain only observations from 2010 to 2020. Visualize this data using a stacked barplot to compare the proportion of different disaster types in this decade occuring on each continent. Be sure to include a descriptive title and informative legend. Then describe how the data is encoded and argue why this is an appropriate geometry to visualize this data type.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+::: {.callout-tip icon=false collapse=true}
+
+## {{< fa person-chalkboard >}}    Pointers
+
+Here is what your figure could look like:
+
+```{r}
+#| code-fold: true
+
+disaster %>%
+  filter(year >= 2010 & year <= 2020) %>%
+  ggplot(aes(x = disaster_subgroup, fill = continent)) +
+  geom_bar(stat = "count", position = "fill", color = "black") +
+  labs(title = "Geographic patterns of natural disaster types.",
+       subtitle = "Proportion of disaster of a given type occuring on each continent as recorded in the \nInternational Disaster Database for the 2010s.",
+       x = "natural disaster type", y = "proportion of occurenes") +
+  theme_standard
+
+```
+
+A stacked bar plot, also known as a stacked bar chart, is a type of data visualization that builds upon the traditional bar plot by stacking multiple data series on top of each other within each category. This format allows you to see how individual data components contribute to the total value for each category. This visualization makes the most sense to use when you are comparing relative contributions/abundance. Each category on the x-axis is broken into sections that show the percentage or proportion by a subcategory. This means that stacked bar plots effectively illustrate part-to-whole relationships, allowing viewers to see how individual components contribute to the total value for each category and for exploring data composition, especially when you want to assess how categories are composed of various subcategories.
+
+:::
+
