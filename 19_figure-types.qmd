@@ -347,6 +347,7 @@ ggplot(metereol, aes(x = n)) +
 
 A density plot is a graphical representation of the distribution of a continuous data set.  It provides a smooth and continuous estimate of the probability density function of the data. Unlike a histogram, which divides the data into discrete bins and represents frequencies within those bins, a density plot creates a continuous curve that approximates the underlying distribution of the data.. They effectively highlight the distribution of a variable and help identify extreme values compared to those commonly occurring. Compared to histograms they are less sensitive to the number of bins chosen. However, by contrast you cannot easily determine the actual counts for a bin.
 
+:::
 
 **Boxplots summarize a continuous, quantitative variable broken down by categorical variables**
 
