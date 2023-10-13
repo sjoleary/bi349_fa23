@@ -200,24 +200,24 @@ ggplot(metereol, aes(x = year, y = n)) +
 
 ```
 
-A line graph, also known as a line chart or line plot, is a type of graph that displays data points as a series of individual markers or points connected by straight lines. It is commonly used to illustrate how one variable changes over timeTime is generally displayed on the x-axis and the magnitude of the continuous variable is encoded as the position on the y-axis. 
+A line graph (line chart or line plot) displays data points as a series of individual markers or points connected by straight lines; frequently the individual points are not plotted. It is most appropriately used to illustrate how one variable changes over time. Time is generally displayed on the x-axis and the magnitude of the continuous variable is encoded as the position on the y-axis. 
 
 Here is how the data is encoded:
- 
-* Each data point represents a specific value or observation related to the variable being studied. These points are often marked with symbols, such as circles, squares, or triangles, to make them easily distinguishable.
-* The data points are connected by straight lines. These lines create a continuous path that visually represents the change or trend in the data between the observed points.
-* The x-axis typically represents the independent variable, which is usually time in the case of time-series data. 
+
+* The x-axis typically represents the independent variable; for a time series data set this will be time.
 * The y-axis represents the dependent variable, showing the values or measurements corresponding to each data point.
+* Data points on the x/y axis are connected by straight lines creating a continuous path that visually represents the change or trend in the data between the observed points. 
+* Each data point represents a specific observation (values) generally depicted by symbols, such as circles, squares, or triangles, to make them easily distinguishable. For high resolution data sets, data points are frequently not shown.
+
 
 Line graphs are particularly useful for the following purposes:
 
-* Showing Trends Over Time: Line graphs are commonly used to display time-series data, making it easy to see how a variable changes over time.
-* Comparing Multiple Data Series: Multiple lines on the same graph can be used to compare how different variables or categories change over the same time period.
-* Visualizing Continuous Data: Line graphs are suitable for visualizing continuous data with a clear sequence of values.
-* Identifying Patterns and Anomalies: Line graphs make it easy to identify patterns, trends, and anomalies in the data, which can be important for data analysis.
-* Interpolating Data Between Points: Line graphs allow for the estimation of values between data points, which can be useful for making predictions or understanding trends between observed data.
+* Visualizing continuous data with a clear sequence of values, specifically showing trends over time.
+* Comparing multiple data (time) series using multiple lines on the same graph can be used to compare how different variables or categories change over the same time period.
+* Identifying patterns and anomalies
+* Interpolating data Between points allow for the estimation of values between data points, which can be useful for making predictions or understanding trends between observed data - this should be done only when appropriate relationships have been shown.
 
-Showing a line implies continuity and it can be difficult to determine the resolution of individual data points. You can make your plot more honest and transparent by adding additional points to show how frequent the measurements really are.
+Showing a line implies continuity and it can be difficult to determine the resolution of individual data points. You should make your plot more honest and transparent by adding additional points to show how frequent the measurements really are.
 
 ```{r}
 #| code-fold: true
@@ -230,10 +230,9 @@ ggplot(metereol, aes(x = year, y = n)) +
        x = "number of events", y = "number of years") +
   theme_standard
 
-
 ```
 
-An alternative would be to not connect the individual data points with a line but rather use a trendline that doesn't have the same implication that each time point was measured and the information about the resolution is preserved.
+An alternative would be to not connect the individual data points with a line but rather use a trend line that doesn't have the same implication that each time point was measured and the information about the resolution is preserved.
 
 ```{r}
 #| code-fold: true
@@ -249,6 +248,7 @@ ggplot(metereol, aes(x = year, y = n)) +
 ```
 
 :::
+
 
 **Histograms and density plots convey information about a single quantitative variable**
 
@@ -289,22 +289,19 @@ ggplot(metereol, aes(x = n)) +
 
 ```
 
-A histogram is a graphical representation of the distribution of a data set. It's a way to visualize the frequency or count of data within specific intervals or bins. Histograms are particularly useful for showing the shape of the data's distribution, the central tendency, spread, and any significant patterns or outliers.
+A histogram is a graphical representation of the distribution of a data set. It's a way to visualize the frequency or count of data within specific intervals or bins. Histograms are particularly useful for showing the shape of the data distribution, the central tendency, spread, and any significant patterns or outliers.
 
 This is how your data is encoded:
 
-* The range of data is divided into a set of intervals or bins. These bins are typically of equal width and are used to group data points. The width of the bins can vary based on the data and the context. Each bin represents a specific range of values.
-* For each bin, you count how many data points fall within that range. This count represents the frequency of data points in that interval.
-* The vertical axis of the histogram represents the frequency or count of data points in each bin. It's often labeled with "Frequency" or "Count."
-* The horizontal axis represents the data range, with each bin or interval marked along it. The values are typically continuous, but they can also be discrete categories, depending on the type of data being analyzed.
-* For each bin, you draw a bar or rectangle. The height of the bar corresponds to the frequency or count of data points in that bin. The bars are drawn adjacent to each other, creating a continuous visual representation.
+* The range of data is divided into a set of intervals or bins. These bins should be of equal width that represents a specific range of values. The width of the bins can vary based on the data and the context.
+* The y-axis of the histogram represents the frequency or count of data points in each bin, i.e. the height of each bar represents the number of observations in that bin.
+* The x-axis represents the data range, with each bin or interval marked along it.
 
 Histograms are useful fo the following reasons:
 
 * They provide a clear visual representation of how data is distributed. You can see whether the data is symmetric, skewed, unimodal, bimodal, or has other characteristics.
 * You can observe the central tendency (mean, median, mode) and the spread (variance, standard deviation) of the data.
-* Outliers, which are data points that fall significantly outside the main distribution, can often be identified in a histogram.
-* Histograms can reveal patterns or clusters within the data, which can be essential for data analysis and decision-making.
+* Outliers, which are data points that fall significantly outside the main distribution, are easily identified
 
 :::
 
@@ -345,7 +342,7 @@ ggplot(metereol, aes(x = n)) +
 
 ```
 
-A density plot is a graphical representation of the distribution of a continuous data set.  It provides a smooth and continuous estimate of the probability density function of the data. Unlike a histogram, which divides the data into discrete bins and represents frequencies within those bins, a density plot creates a continuous curve that approximates the underlying distribution of the data.. They effectively highlight the distribution of a variable and help identify extreme values compared to those commonly occurring. Compared to histograms they are less sensitive to the number of bins chosen. However, by contrast you cannot easily determine the actual counts for a bin.
+A density plot is a graphical representation of the distribution of a continuous data set. It provides a smooth and continuous estimate of the probability density function of the data. Unlike a histogram, which divides the data into discrete bins and represents frequencies within those bins, a density plot creates a continuous curve that approximates the underlying distribution of the data. Density plots effectively highlight the distribution of a variable and help identify extreme values compared to those commonly occurring. Compared to histograms they are less sensitive to the number of bins chosen. However, you cannot easily determine the actual counts for a bin.
 
 :::
 
@@ -391,24 +388,24 @@ ggplot(aes(x = disaster_subgroup, y = n, color = disaster_subgroup)) +
 
 ```
 
-A box plot, also known as a box-and-whisker plot, is a graphical representation of the distribution of a dataset. It displays key summary statistics that help you understand the central tendency, spread, and the presence of outliers within the data. Box plots are particularly useful for comparing and visualizing the distribution of multiple datasets.
+A box plot or box-and-whisker plot, is a graphical representation of the distribution of a data set. It displays key summary statistics that help you understand the central tendency, spread, and the presence of outliers within the data. Box plots are particularly useful for comparing and visualizing the distribution of multiple data sets.
 
-They can be a bit difficult to interpret, so here is a quick break down of all the components:
+Here is how you data is encoded
 
-1. Box: The box in the plot represents the interquartile range (IQR) of the data. The IQR is the middle 50% of the data, containing the values between the 25th percentile (Q1) and the 75th percentile (Q3). The top and bottom edges of the box represent Q3 and Q1, respectively, while the width of the box signifies the IQR.
-2. Line Inside the Box (Median): A line or bar inside the box represents the median (50th percentile) of the data. The median is the middle value when the data is ordered.
-3. Whiskers: The whiskers are lines extending from the box. They reach out to the minimum and maximum values within a defined range, typically defined as "1.5 times the IQR" from the quartiles. Values outside this range are considered outliers and are plotted individually as points or dots.
-4. Outliers, which fall beyond the whiskers' reach, are displayed as individual data points or dots.
+* The box in the plot represents the interquartile range (IQR) of the data. The IQR is the middle 50% of the data, containing the values between the 25th percentile (Q1) and the 75th percentile (Q3). The top and bottom edges of the box represent Q3 and Q1, respectively, while the width of the box signifies the IQR.
+* the line or bar inside the box represents the median (50th percentile) of the data. The median is the middle value when the data is ordered.
+* he whiskers are the lines extending from the box. They reach out to the minimum and maximum values within a defined range, typically defined as "1.5 times the IQR" from the quartiles. 
+* Values outside the whiskiers range are considered outliers and are plotted individually as points or dots.
+
 
 Box plots are useful for several purposes:
 
-* Visualizing Data Spread: They provide a visual representation of the range of data values and the spread of the middle 50% of the data.
-* Identifying Central Tendency: The median line within the box indicates the central tendency of the data.
-* Detecting Outliers: Box plots readily identify potential outliers as points outside the whiskers, making them useful for outlier detection.
-* Comparing Distributions: Box plots are excellent for comparing the distributions of multiple datasets, helping you understand the differences and similarities between them.
-* Summarizing Data: Box plots offer a concise summary of essential statistics, making it easy to grasp the overall distribution at a glance.
+* visual representation of the range of data values and the spread of the middle 50% of the data.
+* Identifying the central tendency indicated by the line in the box
+* Detecting outliers.
+* Comparing distributions of multiple datasets
 
-Adding individual data points to a box plot can be a helpful technique to provide a more detailed view of the dataset and enhance the information conveyed by the plot. Box plots provide a summary of the central tendency, spread, and presence of outliers, while data points offer a granular view of the individual observations and also give you an idea of how large the data set is on which the data set was built. Data points can provide additional context or insight into the dataset, such as the presence of clusters, gaps, or patterns that might not be apparent from the box plot alone. In some cases, the density of data points at specific values is important information. Adding individual data points shows the concentration of data at particular values, which may not be evident from the box plot alone. By overlaying data points, you can visually validate that the box plot accurately represents the dataset. It allows you to see if there are any unusual patterns or if the data points are distributed as expected.
+Adding individual data points to a box plot can be a helpful technique to provide a more detailed view of the dataset and enhance the information conveyed by the plot. Box plots provide a summary of the central tendency, spread, and presence of outliers, while the individual data points offer a granular view of the individual observations and also give you an idea of how large the data set is on which the data set was built. Data points can provide additional context or insight into the dataset, such as the presence of clusters, gaps, or patterns that might not be apparent from the box plot alone. In some cases, the density of data points at specific values is important information. Adding individual data points shows the concentration of data at particular values, which may not be evident from the box plot alone. By overlaying data points, you can visually validate that the box plot accurately represents the dataset. It allows you to see if there are any unusual patterns or if the data points are distributed as expected.
 
 ```{r}
 #| code-fold: true
@@ -426,7 +423,7 @@ ggplot(aes(x = disaster_subgroup, y = n, color = disaster_subgroup)) +
 
 ```
 
-Using `geom_points()` isn't super helpful, instead we want to use `geom_jitter` which is going to offset our points. Adding jittered data points to a box plot is a common technique to address the issue of overplotting, particularly when dealing with categorical or discrete data. Overplotting occurs when multiple data points share the same or very similar x-values, making it challenging to visualize the full extent of the data distribution accurately. Jittering helps spread these points out slightly to reveal the underlying data more clearly
+Using `geom_points()` isn't super helpful, instead we want to use `geom_jitter` which is going to offset our points. Adding jittered data points to a box plot is a common technique to address the issue of overplotting, particularly when dealing with categorical or discrete data. Overplotting occurs when multiple data points share the same or very similar x-values, making it challenging to visualize the full extent of the data distribution accurately. Jittering helps spread these points out slightly to reveal the underlying data more clearly.
 
 ```{r}
 #| code-fold: true
@@ -444,12 +441,12 @@ ggplot(aes(x = disaster_subgroup, y = n, color = disaster_subgroup)) +
 
 ```
 
-Similar to using a density plot instead of a histogram, you can use a violin plot instead of a boxplot. A violin plot is a data visualization that combines aspects of a box plot and a kernel density plot to display the distribution and summary statistics of a dataset. It is particularly useful for visualizing the distribution of data across different categories or groups.
+Similar to using a density plot instead of a histogram, you can use a violin plot instead of a box plot. A violin plot is a data visualization that combines aspects of a box plot and a kernel density plot to display the distribution and summary statistics of a data set. It is particularly useful for visualizing the distribution of data across different categories or groups.
 
-Here's how a violin plot is constructed:
+Here is how you data is encoded:
 
-* Violin Shape: The main component of a violin plot is a series of symmetrical or mirrored violin-shaped curves, one for each category or group being compared. These shapes represent the probability density of the data at different values along the x-axis. The width of the violin at any given point corresponds to the density of data points at that value.
-* Violin Width: The width of the violins varies to show the density of data at different values. Wider sections indicate higher density, while narrower sections indicate lower density.
+* The main component of a violin plot is a series of symmetrical or mirrored violin-shaped curves, one for each category or group being compared. These shapes represent the probability density of the data at different values along the x-axis. The width of the violin at any given point corresponds to the density of data points at that value.
+* The width of the violins varies to show the density of data at different values. Wider sections indicate higher density, while narrower sections indicate lower density.
 
 ```{r}
 #| code-fold: true
@@ -526,23 +523,23 @@ counts %>%
 
 ```
 
-A scatter plot is a graphical data visualization tool used to display individual data points in a two-dimensional coordinate system. It is particularly useful for showing the relationship or correlation between two continuous variables. 
+A scatter plot is a graphical data visualization tool used to display individual data points in a two-dimensional coordinate system (Cartesian coordinates). It is particularly useful for showing the relationship or correlation between two continuous variables. 
 
 This is how the data is encoded:
 
 * Each data point represents an individual observation or data value. These points are typically displayed as dots, circles, or other symbols and are placed at specific coordinates on the plot. Each data point has an x-coordinate (horizontal) and a y-coordinate (vertical).
-* The horizontal axis represents one of the continuous variables being studied, often referred to as the independent variable. This variable is typically placed on the x-axis.
-* The vertical axis represents the other continuous variable, referred to as the dependent variable. This variable is typically placed on the y-axis.
+* The x-axis represents one of the continuous variables being studied, often referred to as the independent variable.
+* The y-axis represents the other continuous variable, referred to as the dependent variable.
 * Data points are plotted on the scatter plot based on their respective x and y values. The position of each point on the plot is determined by these coordinates.
 
-Generally, the independent variable is plotted on the x-axis and the dependent variable on the y-axis. In our example, it is not necessarily clear which is the dependent or independent variable as we are not necessarily hypothesizing that on type of disaster causes the other. In this case, we are expecting years with more meteorological disasters to also have more climatological disasters as they have similar causes. Additionally, the individual data points can be used to fit a regression, i.e. determine the mathematical relationship between the variables. 
+In our example, it is not necessarily clear which is the dependent or independent variable as we are not necessarily hypothesizing that on type of disaster causes the other. In this case, we are expecting years with more meteorological disasters to also have more climatological disasters as they have similar causes. Additionally, the individual data points can be used to fit a regression, i.e. determine the mathematical relationship between the variables. 
 
-Scatter plots a powerful way to visually inspect the relationship between two continuous variables and can help you make inferences about the data, and perform a correlation analysis.
+Scatter plots are helpful fo the following reasons.
 
-* Scatter plots are excellent for examining the relationship between two variables. They can help you determine whether there's a positive, negative, or no correlation between the variables.
-* Scatter plots can reveal patterns, clusters, or trends in the data, making it easier to identify structure within the dataset.
-* Outliers, which are data points that fall far away from the main cluster of points, can be readily identified on a scatter plot.
-* Scatter plots are useful for comparing the distributions of two or more data sets and for assessing how they relate to each other.
+* examining the relationship between two variables to determine whether there's a positive, negative, or no correlation between the variables.
+* revealing patterns, clusters, or trends in the data, making it easier to identify structure within the data set.
+* Outlier detection
+* comparing the distributions of two or more data sets and for assessing how they relate to each other.
 * scatter plots can be extended to represent more than two variables by using color, size, or shape to encode additional information.
 
 :::
@@ -593,20 +590,19 @@ disaster %>%
 
 A bar plot, also known as a bar chart or bar graph, is a common type of data visualization that represents data using rectangular bars or columns. Bar plots are used to display and compare data in a categorical or discrete manner, typically showing the relationship between different categories or groups and the corresponding values. 
 
-THis is how the data is encoded:
+This is how the data is encoded:
 
 * In a vertical bar plot, the bars are drawn vertically, with their heights representing the values of the categories or groups. In a horizontal bar plot, the bars are drawn horizontally, and their lengths indicate the values.
 * Along the x-axis (for vertical bar plots) or y-axis (for horizontal bar plots), labels or categories are displayed to indicate what each bar represents. These labels can be names, descriptions, or any categorical information.
 * The height (or length in the case of horizontal bar plots) of each bar represents the value associated with the corresponding category or group.
-* The plot usually includes a title that describes the content of the graph. The axes are labeled with appropriate units or descriptions to indicate what each represents.
 * Different categories or groups are often represented with different colors or patterns to make the bars visually distinguishable.
 
 Bar plots are useful for a range of purposes: 
 
-* Bar plots are excellent for comparing the values of different categories or groups. They allow viewers to assess the relative size or magnitude of each category in relation to the others.
-* Bar plots are commonly used to display the frequency or count of data within discrete categories. For example, you might use a bar plot to show the number of items sold in different months or the number of votes for political candidates.
-* You can use bar plots to display ranked data, such as the popularity of products, cities, or other entities, from most to least popular.
-* Bar plots can be used to highlight disparities or differences between groups. For example, you might use them to compare the performance of different departments in a company.
+* comparing the values of different categories or groups by assessing the relative size or magnitude of each category in relation to the others.
+* displaying the frequency or count of data within discrete categories
+* displaying ranked data
+* highlighting disparities or differences between groups.
 
 :::
 
@@ -656,14 +652,14 @@ A grouped bar plot, also known as a grouped bar chart or clustered bar chart, is
 
 Grouped bar plots are used for various purposes:
 
-* Grouped bar plots allow you to compare the values of different categories across multiple subcategories or groups. This is especially useful when you want to understand how each subcategory contributes to the overall category.
+* comparing the values of different categories across multiple subcategories or groups. This is especially useful when you want to understand how each subcategory contributes to the overall category.
 * When you have multi-dimensional data, a grouped bar plot makes it easier to display and compare data for each combination of categories and subcategories.
 * You can use grouped bar plots to highlight differences and trends between subcategories within the same category.
 
 
 :::
 
-An alternative to the grouped barchart is the stacked barchart.
+An alternative to the grouped bar chart is the stacked bar chart.
 
 ```{r}
 #| code-fold: true
