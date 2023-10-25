@@ -1,0 +1,50 @@
+# Air Pollution | Predictive Modeling {.unnumbered}
+
+For each of our modules we will have a project-folder with an `Rproject`, `*.qmd`-files, and sub-directories for data, scripts, and results as described in our `Rproject` Tutorial. You should have a directory on your Desktop or Documents folder on your laptop (name it something like `bi349`) as a home directory for all of our project folders this semester. 
+
+[Download the directory for this project here](https://drive.google.com/drive/folders/11OimvFz3_OBQo9JxKBcDgtA_9N8z-bvF?usp=share_link), make sure the directory is unzipped and move it to your `bi328` directory. You can open the `Rproj` for this module either by double clicking on it which will launch `Rstudio` or by opening `Rstudio` and then using `File > Open Project` or by clicking on the `Rproject` icon in the top right of your program window and selecting `Open Project`. 
+
+Once you have opened a project you should see the project name in the top right corner^[Pro tip: If you run into issues where a quarto document won't render or file paths aren't working (especially if things were working previously) one of your first steps should be to double check that the correct `Rproj` is loaded.].
+
+## Air pollution
+
+Air pollution results from different sources including gaseous, particulate, dust, and biological pollutants. Generally, we classify them by their size as coarse or particulate matter. For this module, we are going to focus on PM2.5 which is fine particulate mater with a diameter < < 2.5 µm and is closely associated with health risks.
+
+Currently, air pollution levels are simultaneously improving and getting worse. Since the Clean Air Act of 1963, and the 1970 amendment to authorize the EPA to regulate air pollutants and additional legislation tightening vehicle factory, and power plant emissions, we have see a steady increase in air quality. However, in recent decades we have seen an increase in wildfires which locally create dangerous air quality conditions during certain times of the year. As with many environmental issues the impacts are felt disproportionately by already vulnerable groups such as people with chronic disease, the elderly, and people of lower socioeconomic groups who cannot afford installing air filters or other protective measure and frequently live in areas that are more exposed and/or have jobs that more frequently require them to be outside.
+
+Typically, air pollution monitoring is performed using gravimetric monitors operated by the US Environmental Protection Agency (EPA). However, the overwhelming majority of monitors is concentrated in cities (>90%) and as a result for rural areas only limited data is available. In this module we are going to use a data set combining EPA data on PM2.5 with a set of predictor variables compiled by NASA, the US Census, and the National Center for Health and Statistics that describe population and road density and other metrics of urbanization to determine if that is sufficient to predict air pollution levels in areas where monitors are not available.
+
+## Predictive Modeling
+
+We are going to take a closer look at predictive modeling in four chapters, first we will look at a data set that we can potentially use as predictors to model air pollution data for areas where monitor are few and far between, then we will learn how to create a linear regression model and a random forest model, and finally we will use the models to predict air pollution levels for areas with unknown levels due to a lack of existing models and compare the spatial patterns we observe.
+
+We will walk through predicting air pollution levels using two different model. In each case, we will need to take the minimal required steps. For the random forest model, we will perform some additional optional steps to optimize performance.
+
+1. **Split** Data
+    + ****_always_**** split data into **training data set** and **testing data set** using `rsample:initial_split()`, `rsample::training()`, and `rsample::testing()`.
+    + if performing **cross-validation**, split the training data set into **cross validation sets** using `rsample:vfold_cv()`.
+2. Create **recipe**
+    + if performing preprocessing, specify **preprocessing steps** using `recipe::step_*()`.
+    + view preprocessed data using `recipe::prep(retain = TRUE)` and `recipe::bake()`.
+    + **_always_** create **recipe and assign variable roles** using `recipe::recipe()` and `recipe::update_role()`.
+3. Specify **model**, **engine** and **mode**
+    + **_always_** specify the **model** using `parsnip` model to specify model type (in our case using `parsnip::linear_reg()` or `parsnip::rand_forest()`).
+    + **_always_** specify **engine** using `parsnip::set_engine()`.
+    + **_always_** specify **mode** using `parsnip::set_mode()`.
+    + if you are tuning, specify **hyperparameters** to tune using `tune::tune()` within the model function.
+4. Create a **workflow**
+    + **_always_** create a **workflow** using `workflows::workflow()`
+    + **_always_** add a recipe using `workflows::add_recipe()`
+    + **_always_** add a model using `workflows::add_model()`
+5. **Train** model by **fitting** your workflow
+    + if you are not using cross validation **fit workflow** using `parsnip::fit()`.
+    + if you are using cross validation fit your workflow using `parsnip::fit_resamples()`.
+6. Get **predictions** using `parsnip::predict()`.
+7. Compare **performance metrics**
+    + if not tuning/using cross validation use `yardstick::rmse()` to get metrics for continuous outcomes, `yardstick::accuracy()` for categorical outcomes, or `yardstick::metrics()` for either continuous or categorical outcomes.
+    + if performing cross validation or tuning use `tune::fit_resamples()` or `tune::tune_grid()` to get performance metrics and compare/identify best model parameters using `tune::collect_metrics()` or `tune::show_best()`.
+  
+
+## Acknowledgments
+
+These activities are based on the [Air pollution open case study]((https://github.com//opencasestudies/ocs-bp-air-pollution).^[Wright, Carrie and Meng, Qier and Jager, Leah and Taub, Margaret and Hicks, Stephanie. (2020). Predicting Annual Air Pollution (Version v1.0.0).]

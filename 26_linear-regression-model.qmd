@@ -1,0 +1,625 @@
+
+# Predict air pollution levels using linear regression model
+
+```{r}
+#| label: setup
+#| include: false
+
+# custom functions ----
+
+library(ggplot2)
+
+theme_standard <- theme_classic() +
+  theme(
+    axis.text = element_text(size = 11, color = "black"),
+    axis.title = element_text(size = 16, color = "black"),
+    axis.title.y = element_text(vjust = 1.5, color = "black"),
+    axis.line = element_line(color = "black"),
+    
+    legend.position = "bottom",
+    
+    panel.background = element_rect(fill = "white", color = NA), 
+    panel.border = element_blank(), 
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(), 
+    strip.background = element_rect(fill = "grey95", color = "black"), 
+    strip.text.x = element_text(size = 16, color = "black"),
+    strip.text.y = element_text(size = 16, color = "black")) 
+
+theme_facet <- theme_classic() +
+  theme(
+    axis.text = element_text(size = 11, color = "black"),
+    axis.title = element_text(size = 16, color = "black"),
+    axis.title.y = element_text(vjust = 1.5, color = "black"),
+    axis.line = element_line(color = "black"),
+    
+    legend.position = "bottom",
+    
+    panel.background = element_rect(fill = "white", color = NA), 
+    panel.border = element_rect(fill = NA, color = "black"), 
+    panel.grid.major = element_line(color = "grey85"), 
+    panel.grid.minor = element_blank(), 
+    strip.background = element_rect(fill = "grey95", color = "black"), 
+    strip.text.x = element_text(size = 16, color = "black"),
+    strip.text.y = element_text(size = 16, color = "black")) 
+
+
+
+# set options
+knitr::opts_chunk$set(
+  tidy = FALSE, 
+  message = FALSE,
+	warning = FALSE)
+
+options(htmltools.dir.version = FALSE)
+
+theme_set(theme_standard)
+
+```
+
+
+**Learning Objectives**
+
+After completing this tutorial you should be able to
+
+* outline and implement the minimum required steps to train a model using the `tidymodels` framework.
+* understand the need for training and test data sets and implement `tidymodels` packages to split data set into training and testing sets
+* understand the utility of cross-validation and implement it in the `tidymodels` framework.
+
+
+[Download the directory for this project here](https://drive.google.com/drive/folders/11OimvFz3_OBQo9JxKBcDgtA_9N8z-bvF?usp=share_link), make sure the directory is unzipped and move it to your `bi328` directory. You can open the `Rproj` for this module either by double clicking on it which will launch `Rstudio` or by opening `Rstudio` and then using `File > Open Project` or by clicking on the `Rproject` icon in the top right of your program window and selecting `Open Project`. 
+
+There should be a file named `26_linear-regression-models.qmd` in that project directory. Use that file to work through this tutorial - you will hand in your rendered ("knitted") `quarto` file as your homework assignment. So, first thing in the `YAML` header, change the author to your name. You will use this `quarto` document to record your answers. Remember to use comments to annotate your code; at minimum you should have one comment per code set^[You should do this whether you are adding code yourself or using code from our manual, even if it isn't commented in the manual... especially when the code is already included for you, add comments to describe how the function works/what it does as we introduce it during the participatory coding session so you can refer back to it.] you may of course add as many comments as you need to be able to recall what you did. Similarly, take notes in the document as we discuss discussion/reflection questions but make sure that you go back and clean them up for "public consumption".
+
+Before you get started, let's make sure to read in all the packages we will need^[Check that all of these packages are installed before you load them!].
+
+```{r}
+
+# load libraries ----
+
+# reporting
+library(knitr)
+
+# visualization
+library(ggplot2)
+library(ggthemes)
+library(patchwork)
+
+# data wrangling
+library(dplyr)
+library(tidyr)
+library(readr)
+library(skimr)
+library(janitor)
+library(magrittr)
+library(lubridate)
+
+# modeling
+library(tidymodels)
+library(vip)
+
+# set other options ----
+
+# scientific notation
+options(scipen=999)
+
+# turn off messages and warnings
+knitr::opts_chunk$set(
+  tidy = FALSE, 
+  message = FALSE,
+	warning = FALSE)
+
+# set the ggplot theme for the document
+theme_set(theme_bw())
+
+# set random seed
+set.seed(42)
+
+```
+
+
+## Building a machine learning model
+
+We already have a data set with features and outcome variables that we've thoroughly explored. Let's go ahead and read that data set in and make the transformations we concluded are needed so we are ready to starting training a model.
+
+```{r}
+
+# read & wrangle data set
+pm <- read_delim("data/air_pollution.csv", delim = ",") %>%
+  clean_names() %>%
+  mutate(across(c(id, fips, zcta), as.factor)) %>%
+  mutate(city = case_when(city == "Not in a city" ~ "Not in a city",
+                          city != "Not in a city" ~ "In a city"))
+
+```
+
+
+We are going to use the `tidymodels` ecosystem which consists of a series of packages to assist in various steps of the model building process. These packages were designed using a standard syntax and the goal of having a standardize workflow and syntax across different types of machine learning algorithms. This also means that it is straightforward to modify pre-processing, algorithm choice, and hyper-parameter tuning for optimization.
+
+These are the individual steps that we will go through to train our model^[You are already familiar with some of these steps for some simple linear regressions that we have run (Steps 3, 5, 6, 7). Use this list to keep track of where we are in the process.
+].
+
+1. Split data into testing and training sets.
+2. Create recipe + assign variable roles
+3. Specify model, engine, and mode
+4. Create workflow, add recipe & model
+5. Fit workflow
+6. Get predictions
+7. Use predictions to get performance metrics.
+
+## Split the data
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+We have previously discussed the problem with underfitting and overfitting. Briefly describe these two terms and explain how they can become a problem when building models.
+
+![Comparison of underfit (left), optimal (middle), or overfit (right) model.](images/overfitting.png)
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+A good solution to this issue is to split our data set into a training and testing data set. The **training data set** will be used to build and tune our model. Then we can determine how well our model describe the relationship between outcome and predictor values.
+
+Once we have created our **testing data set** we will set that aside until we have completed optimizing our model with the training set to minimize the bias in evaluating the performance of our model.
+
+We will use `rsample::initial_split()` to randomly subset our data into a training (2/3 of observations) and test (1/3 of observations), data set.
+
+```{r}
+
+# split sample
+pm_split <- rsample::initial_split(data = pm, prop = 2/3)
+
+# check proportions of split
+pm_split
+
+```
+
+Next, we will extract the testing and training data to create to separate `data.frames()`
+
+```{r}
+
+# training data set
+train_pm <- training(pm_split)
+
+# test data set
+test_pm <- testing(pm_split)
+
+```
+
+
+## Prepare for pre-proceesing
+
+Now that we have split the data we need to process the training and testing data, we need to make sure they are compatible and optimized for building the model. This process is called **feature engineering** and involves assigning variables to specific roles, removing redundant variables if they are present, and scaling data as needed.
+
+
+### Step 1: Specify variable roles with `recipe()`
+
+In the `tidymodels` framework we can do this by first creating a "recipe" describing all the individual processing steps we want to take - this is especially helpful if we have multiple data sets we are going to work with and/or if we are going to be re-running the processing multiple time.
+
+First, we will create a recipe that specifies the roles of individual variables, i.e. which are the outcome and which the predictor variables^[Keep in mind that the recipe just describes the steps to take, it does **not** actually execute them].
+
+For our data set we want to specify that `value` (the PM2.5 concentration measure by air pollution monitors) is our outcome variable, and that our features (predictor variables) are all the other variables with the exception of the monitor ID (`id`). We don't want to include this as a predictor variable as it is unique to each monitor so it will only add noise - however, down the line we will still want to have this information so we want to keep it in the data set.
+
+```{r}
+
+# build recipe
+simple_rec <-recipe(train_pm) %>%
+    update_role(everything(), new_role = "predictor")%>%  # specify predictor variables
+    update_role(value, new_role = "outcome")%>%           # specify outcome variable
+    update_role(id, new_role = "id variable")             # specify id as id variable
+
+simple_rec
+
+```
+
+Let's take closer look at our recipe
+
+```{r}
+#| label: tbl-recipe
+#| tbl-cap: "Roles assigned to each feature in the data set."
+
+summary(simple_rec) %>%
+  kable()
+
+```
+
+Success! All of our variables now have specific roles as either the outcome variable, features, and the id column.
+
+
+### Step 2: Specify pre-processing steps
+
+Our next step is to use the `recipe::step*()` functions to specify any necessary pre-processing steps, this could include a variety of steps needed to transform our data, for example filling in missing values (imputation), converting continuous variables in to discrete variables (binning them), encoding and creating dummy variables, data type conversions, or normalization.
+
+Because we are in the extended `tidyverse` we can use various functions to help select of variables to apply steps to:
+
+1. Use `tidyselect` methods such as `contains()`, `matches()`, `starts_with()`, `ends_with()`, `everything()`, `num_range()`.
+2. Use the data type of a column, e.g. `all_nominal()`, `all_numeric()`, `has_type()`
+3. Use the role assigned to variable (see above) `all_predictors()`, `all_outcomes()`, `has_role()`
+4. We can just use the name of the variable.
+
+Let's look at a couple of specific examples for what we need to pay attention to during preprocessing.
+
+A typical pre-processing step is what is called `one-hot encoding` which describes a way that categorical variables are converted to dummy variables (numbers) so that they can be used with certain algorithms that only take certain data types as input. Because we don't want the algorithm to interpret this variables as continuous numerical variables, we make it explicit that they are binary (0s and 1s, no order).
+
+```{r}
+
+simple_rec %>%
+  step_dummy(state, country, city, zcta, one_hot = TRUE)
+
+```
+
+The `fips` column contains a numeric code for state and county so it is redundant - we should also assign it as an id
+
+```{r}
+
+simple_rec %>%
+  update_role("fips", new_role = "county id")
+
+```
+
+We know from our exploratory analysis that we have a series of variables that are redundant and/or highly correlated with each other; we will want to remove these, this can be done using `step_corr()`. However we want to keep some variables (`CMAQ`, `aod`) so we will explicitly exclude them from being removed.
+
+```{r}
+
+simple_rec %>%
+  step_corr(all_predictors(), - CMAQ, - aod)
+
+```
+
+Variables with near zero variance will not be informative and will likely only include additional noise, so we would also want to remove those.
+
+```{r}
+
+simple_rec %>%
+  step_nzv(all_predictors(), - CMAQ, - aod)
+
+```
+
+The benefit of the recipes package is that we can create one single recipe that summarizes all the steps that we want to take before starting to build are model.
+
+```{r}
+
+# create final recipe
+simple_rec <- recipe(train_pm) %>%
+    update_role(everything(), new_role = "predictor") %>%
+    update_role(value, new_role = "outcome") %>%
+    update_role(id, new_role = "id variable") %>%
+    update_role("fips", new_role = "county id") %>%
+    step_dummy(state, county, city, zcta, one_hot = TRUE) %>%
+    step_corr(all_numeric()) %>%
+    step_nzv(all_numeric())
+  
+simple_rec
+
+```
+
+
+## Run pre-processing
+
+So far we only have a recipe^[Think of this as a plan on how we want to pre-process our data]. Our next step will be to complete the pre-processing and see how it affects our data set.
+
+
+### Step 1: Update the recipe with training data using `prep()`
+
+The function `prep()` will update the recipe object based on the training data by estimating parameters for pre-processing and updating the variable roles. 
+
+```{r}
+
+# update recipe with training data, retain training data set
+prepped_rec <- prep(simple_rec, verbose = TRUE, 
+                    retain = TRUE)
+
+names(prepped_rec)
+
+```
+
+`prepped_rec` is a list; the various elements contain a lot of useful information about our training set.
+
+* `steps`: contains the pre-processing steps that were run
+* `var_info` contains the original variable information
+* `term_info` is the updated variable after pre-processing
+* `levels` are the new levels, the original levels are in `orig_lvls`
+* `tr_info` contains info about the training data set size and completeness
+
+
+### Step 2: Extract the pre-processing training data set using `bake()`
+
+We retained our pre-processed training data set using `retain = TRUE` so we can take a look at our training data using `recipes::bake()`.
+
+```{r}
+
+# extract training data set
+baked_train <- bake(prepped_rec, new_data = NULL)
+
+# overview
+glimpse(baked_train)
+
+```
+
+Compare this to our original data set
+
+```{r}
+
+glimpse(pm)
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Compare the two outputs and see what has changes. Pay specific attention to the number of variables, data types and how many predictor variables do we have?
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-tip icon=false collapse=true}
+
+## {{< fa person-chalkboard >}}    Pointers
+
+We have 36 variables instead of 50 - two are now ID variables, one is the outcome variable leaving us with 33 predictor variables.
+We no longer have categorical variables (e.g. state), and state_California is the only state identifier that does not have nonzero variance
+
+:::
+
+
+### Step 3: Extract the pre-processed testing data using `bake()`.
+
+We've extracted the training data set but we should also apply the recipe we designed to our test data set to check for any issues (e.g. introduction of NA values).
+
+```{r}
+
+# extract test data set
+baked_test_pm <- bake(prepped_rec, new_data = test_pm)
+
+# compare effect
+glimpse(baked_test_pm)
+
+```
+
+
+## Specify the model
+
+Quick reminder of where we are at in the process - here are the steps we've taken so far:
+
+* acquire data set with outcome variable and set of predictor variables
+* split data set into training and testing sets using `rsample` package
+* assign variable types, specify and prep pre-processing and extract our pre-processed data sets using `recipes` packages.
+
+Now it's to time actually specify our model. The `tidymodels` package to do this is called `parsnip`.
+
+There are four things we need to specify about our model
+
+1. The **model type**, e.g. a linear regression as we have done previously, here we will use a random forest approach.
+2. The **engine** (underlying function/package) to implement the selected model type, e.g. previously we have used `lm` as our engine to perform a linear regression.
+3. The **mode** of learning, so far we've never explicitly specified this, typically this would be a classification or regression.
+4. Additional **arguments** specific to the specified model or package.
+
+
+### Step 1: Specify the model type
+
+Let's start by specifying the model type as a linear regression
+
+```{r}
+
+lm_PM <- linear_reg() # specify model type
+
+```
+
+
+### Step 2: Specify the engine
+
+We want to use the ordinary least squares method to fit our linear regression. There are multiple implementations in various packages so we need to tell `parsnip` exactly which function/package to implement.
+
+```{r}
+
+lm_PM <- linear_reg() %>% # specify model type
+  set_engine("lm")        # set engine
+
+```
+
+
+### Step 3: Specify mode of learning
+
+Some packages can do both classifications and prediction, so we should explicitly specify the mode, in this case we want to perform a regression.
+
+```{r}
+
+lm_PM <- linear_reg() %>% # specify model type
+  set_engine("lm") %>%    # set engine
+  set_mode("regression")  # set mode
+
+```
+
+
+## Define workflow & Fit the model
+
+Now we're ready to actually fit the model. 
+
+We are going to use the package `workflows` to keep track of the pre-processing steps and model specification. Down the line this will help us during the optimization process because we will be able automate steps, and it will be straightforward to add post-processing operations.
+
+Let's create our workflow which will incorporate our recipe for pre-processing and the model we just specified^[We did use `prep()` to take a look at our data set during pre-processing, but it actually is not a necessary step].
+
+```{r}
+
+PM_wflow <-workflows::workflow() %>%
+           workflows::add_recipe(simple_rec) %>%
+           workflows::add_model(lm_PM)
+
+```
+
+We can call up the workflow to get an overview of our model fitting process including our pre-processing steps and model specifications.:
+
+```{r}
+
+PM_wflow
+
+```
+
+After all of that, we are now ready to "prepare the recipe", i.e. we will estimate the parameters to fit the model to our full training data set using `parsnip::fit()`.
+
+```{r}
+
+PM_wflow_fit <- fit(PM_wflow, data = train_pm)
+
+```
+
+
+## Assessing the model
+
+Let's take a look at our fitted model^[Because we used a workflow, we will first have to extract the fitted model from the workflow and then we can use `broom::tidy()` to look at the summary table you are already familiar with].
+
+```{r}
+#| label: tbl-fit-summary
+#| tbl-cap: "Overview of effect of individual predictor variables on the model."
+
+wflowoutput <- PM_wflow_fit %>% 
+  pull_workflow_fit() %>% 
+  broom::tidy()
+
+wflowoutput %>%
+  kable()
+
+```
+
+With models that have this many predictor values it can be helpful to understand which are the most important (i.e. have the strongest predictive value).
+
+The function `vip::vip()` creates a barplot comparing the variable importance scores for each predictor variable ordered from most important.
+
+```{r}
+#| label: fig-variables-impact
+#| fig-cap: "Top 10 variables with strongest impact on the model."
+
+# pull top 10 most important variables
+PM_wflow_fit %>% 
+  pull_workflow_fit() %>% 
+  vip(num_features = 10)
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Determine the most important predictor variables for this model. Discuss why you think these features have such a large impact on the predictions. Discuss whether you think there are direct causative links or they are good predictors for other reasons.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+## Evaluate model performance
+
+Now that we have a fitted model we need to determine how well our model actually performs. The way to do this is to compare the similarity of predicted estimates and observed values of the outcome variable^[Recall, that a machine learning optimization problem tires to minimize the distance between the predicted outcome $\hat{Y} = f(X)$ and actual outcome $Y$ using the predictor variables $X$ as input for our function $f$ that we want to estimate.].
+
+We can use the function `broom::augment()` to pull the observed and fitted values from our workflow.
+
+```{r}
+
+fit_PM <- PM_wflow_fit %>%
+  pull_workflow_fit()
+
+fit_PM <- augment(fit_PM$fit, data = baked_train) %>%
+  select(value, .fitted:.std.resid)
+
+fit_PM
+
+```
+
+Let's compare the fitted (predicted) outcome values (fitted values) $\hat{Y}$ to the observed outcome values $Y$.
+
+```{r}
+#| label: fig-obs-fitted
+#| fig-cap: "Comparison of observed and fitted PM2.5 values. Diagonal line indicates perfect match of fitted and observed values."
+
+ggplot(fit_PM, aes(x = value, y = .fitted)) +
+  geom_point() +
+  geom_abline(slope = 1) +
+  coord_fixed(ratio = 1) +
+  scale_y_continuous(limits = c(5, 20)) +
+  labs(x = "observed outcome values", y = "predicted outcome values")
+
+```
+
+Our range of predicted outcomes appears to be smaller compared to the actual observed values.
+
+We can quantify our model performances using the root mean square error (rmse)^[Recall, that this is the root of the sum of all the distances between observed and fitter values over the number of observations $RMSE = \frac{\sqrt{\sum_{i=1}^{n}({\hat{y}_{t}-y_{t}})^{2}}}{n}$].
+
+We can calculate RMSE using `yardsticks:rmse()`
+
+```{r}
+
+# calculate rmse
+fit_PM %>%
+  rmse(truth = value, estimate = .fitted)
+
+```
+
+
+## Cross validation
+
+We previously realized that without context rmse is not that helpful, the smaller the value the better - but small compared to what? One option would be to compare whether the rmse for our training data set is comparable to our test data set, indicating that it works similarly well for both data sets. However, we only get to use our test data set once - at the very end, once we have fit and tuned all the parameters for our model, which means we don't get to use it during the optimization proess.
+
+This poses a problem that we solve using the process of cross-validation. To do this we further split our training data set into multiple data sets for a better assessment and optimization of our model before turning to our test data set.
+
+While there are several methods for cross validation, we will use **k-fold** (or **v-fold**) cross validation which is straightforward but effective. To do this, we split our data into $k$ equally sized subsets (folds). Then we take all but one of these subset (this is called the **holdout**), fit the model and assess the performance of that model using the holdout set. We keep repeating this process until every subset has been left out once.
+
+We are going to ignore the spatial dependence of our data set and randomly subset our training data set into four cross-validation folds. A more involved version of his would involve leaving out blocks of monitors based on geography to test for differences in geography impacting the performance of the data.
+
+We can use `rsample::vfold()` to create the cross-validation fold^[we will create 4 sets, this is low, typically you would use 10].
+
+```{r}
+
+# create four subsets
+kfold_pm <- rsample::vfold_cv(data = train_pm, v = 4)
+
+kfold_pm
+
+```
+
+We can use `tune::fit_resamples()` to perform the cross-validation assessment. This automates the process where it will first use fold 1-3, fit the model, the assess the performance using fold 4, then it would use fold 1, 2, and 4 to fit the model and fold 3 for assessment etc. There should always be as many iterations as there are folds.
+
+```{r}
+
+xVal <- fit_resamples(PM_wflow, kfold_pm)
+
+```
+
+Our next step is would be to take a look at a set of performance metrics based on the fit of the cross validation assessment. For example, `tune::show_best()` will calculate the mean `RMSE` value across all four folds.
+
+```{r}
+
+show_best(xVal, metric = "rmse")
+
+``` 
+
+We just built a predictive model using a linear regression. This is an example what we generally refer to as a **supervised Machine Learning model**^[Supervised models use labeled data to "supervise" the building of the model.]. You have probably primarily used it as a statistical model, i.e. we are interested in making inferences about the population as a whole and understanding relationships between dependent and independent variables. But it can also be used for predictive modeling, where we train the model based on features. However, the more predictor variables are included, the more difficult it becomes to calculate the coefficients. 
+
+**Random Forest** is a decision tree method that can also be used for a regression analysis, it is also a supervised ML model. We will explore what this looks like in the next chapter. You will quickly see that the individual steps and even most of the code is the same, with the main difference being that we define a different model and engine.
+

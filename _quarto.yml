@@ -53,6 +53,22 @@ book:
       chapters:
         - 23_phenology.qmd
         - 24_phenology-modeling.qmd
+        
+    - part: H_air-pollution.qmd
+      chapters:
+        - 25_predictors.qmd
+        - 26_linear-regression-model.qmd
+        - 27_random-forest-model.qmd
+        - 28_analyze-model-results.qmd
+        
+    - part: I_macrosystems-ecology.qmd
+      chapters:
+        - 29_thermal-structure.qmd
+        - 30_elnino.qmd
+        
+    - part: J_remote-sensing.qmd
+      chapters:
+        - 31_vegetation.qmd
 
     - part: z_appendix.qmd
       chapters:

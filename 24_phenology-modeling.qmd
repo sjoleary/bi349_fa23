@@ -360,7 +360,7 @@ tidy(lm_fit) %>%
 
 ```
 
-Now we need to use our model to predict values for our training data and the combine that output with our test_data that also contains the observed flowering dates.
+Now we need to use our model to predict values for our test data set and the combine that output with our `test_data` object that also contains the observed flowering dates.
 
 ```{r}
 
@@ -370,11 +370,11 @@ flowering_pred <- predict(lm_fit, test_data) %>%
 
 ```
 
-Let's take a look at how well our model performs by comparing the observed and predicted flowering dates
+Let's take a look at how well our model performs by comparing the observed and predicted flowering dates for our test data set that was not used to train the model.
 
 ```{r}
 #| label: tbl-fitt-model
-#| tbl-cap: "Comparison of observed and predicted flowering dates for training data."
+#| tbl-cap: "Comparison of observed and predicted flowering dates for test data."
 
 flowering_pred %>%
   arrange(desc(.pred)) %>%
@@ -385,8 +385,8 @@ flowering_pred %>%
 Let's make a plot that will allow us to compare the predicted vs observed values.
 
 ```{r}
-#| label: fig-pred-obs-training
-#| fig-cap: "Comparison of predicted vs. observed flowering date for training data set. The dashed black line indicates perfect predictions, the red line is the linear trendline showing relationship of observed vs predicted values."
+#| label: fig-pred-obs-test
+#| fig-cap: "Comparison of predicted vs. observed flowering date for test data set. The dashed black line indicates perfect predictions, the red line is the linear trendline showing relationship of observed vs predicted values."
 
 ggplot(flowering_pred, aes(x = day_of_year, y = .pred)) +
   geom_smooth(method = "lm", color = "darkred") +
@@ -396,13 +396,13 @@ ggplot(flowering_pred, aes(x = day_of_year, y = .pred)) +
 
 ```
 
-If we had "perfect" predictions, our linear trendline should fall on top of the dashed line indicating perfect predictions.
+If we had "perfect" predictions, our linear trend line should fall on top of the dashed line indicating perfect predictions.
 
 One way we can quantify this is calculating the **root-mean-square deviation** (RMSE) which is the standard deviation of the residuals, i.e. the prediction errors. We can calculate this using the package `yardstick` which contains functions to assess model performance.
 
 ```{r}
 #| label: tbl-rmse
-#| tbl-cap: "Root mean square deviation of residuals for the predicted model."
+#| tbl-cap: "Root mean square deviation of residuals for modeled training data values."
 
 rmse(flowering_pred, 
      truth = day_of_year, 

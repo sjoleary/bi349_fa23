@@ -1,4 +1,4 @@
-# Data/Shark wrangling {.unnumbered}
+# Shark nurseries | Data Wrangling {.unnumbered}
 
 For each of our modules we will have a project-folder with an `Rproject`, `*.qmd`-files, and sub-directories for data, scripts, and results as described in our `Rproject` Tutorial. You should create a directory on your Desktop or Documents folder on your laptop (name it something like `bi349`) as a home directory for all of our project folders this semester. 
 

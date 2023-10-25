@@ -1,0 +1,446 @@
+
+# Random Forest Model
+
+```{r}
+#| label: setup
+#| include: false
+
+# custom functions ----
+
+library(ggplot2)
+
+theme_standard <- theme_classic() +
+  theme(
+    axis.text = element_text(size = 11, color = "black"),
+    axis.title = element_text(size = 16, color = "black"),
+    axis.title.y = element_text(vjust = 1.5, color = "black"),
+    axis.line = element_line(color = "black"),
+    
+    legend.position = "bottom",
+    
+    panel.background = element_rect(fill = "white", color = NA), 
+    panel.border = element_blank(), 
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(), 
+    strip.background = element_rect(fill = "grey95", color = "black"), 
+    strip.text.x = element_text(size = 16, color = "black"),
+    strip.text.y = element_text(size = 16, color = "black")) 
+
+theme_facet <- theme_classic() +
+  theme(
+    axis.text = element_text(size = 11, color = "black"),
+    axis.title = element_text(size = 16, color = "black"),
+    axis.title.y = element_text(vjust = 1.5, color = "black"),
+    axis.line = element_line(color = "black"),
+    
+    legend.position = "bottom",
+    
+    panel.background = element_rect(fill = "white", color = NA), 
+    panel.border = element_rect(fill = NA, color = "black"), 
+    panel.grid.major = element_line(color = "grey85"), 
+    panel.grid.minor = element_blank(), 
+    strip.background = element_rect(fill = "grey95", color = "black"), 
+    strip.text.x = element_text(size = 16, color = "black"),
+    strip.text.y = element_text(size = 16, color = "black")) 
+
+
+
+# set options
+knitr::opts_chunk$set(
+  tidy = FALSE, 
+  message = FALSE,
+	warning = FALSE)
+
+options(htmltools.dir.version = FALSE)
+
+theme_set(theme_standard)
+
+```
+
+
+**Learning Objectives**
+
+After completing this tutorial you should be able to
+
+* define what a hyperparameter is and describe the process of model tuning.
+* understand the basic utility of machine learning for prediction and classification and use the `tidymodels` packages to train and test a random forest model.
+* interpret root mean squared error (rmse) to assess the performance of prediction.
+
+[Download the directory for this project here](https://drive.google.com/drive/folders/11OimvFz3_OBQo9JxKBcDgtA_9N8z-bvF?usp=share_link), make sure the directory is unzipped and move it to your `bi328` directory. You can open the `Rproj` for this module either by double clicking on it which will launch `Rstudio` or by opening `Rstudio` and then using `File > Open Project` or by clicking on the `Rproject` icon in the top right of your program window and selecting `Open Project`. 
+
+There should be a file named `27_random-forest-model.qmd` in that project directory. Use that file to work through this tutorial - you will hand in your rendered ("knitted") `quarto` file as your homework assignment. So, first thing in the `YAML` header, change the author to your name. You will use this `quarto` document to record your answers. Remember to use comments to annotate your code; at minimum you should have one comment per code set^[You should do this whether you are adding code yourself or using code from our manual, even if it isn't commented in the manual... especially when the code is already included for you, add comments to describe how the function works/what it does as we introduce it during the participatory coding session so you can refer back to it.] you may of course add as many comments as you need to be able to recall what you did. Similarly, take notes in the document as we discuss discussion/reflection questions but make sure that you go back and clean them up for "public consumption".
+
+Before you get started, let's make sure to read in all the packages we will need^[Check that all of these packages are installed before you load them!].
+
+```{r}
+
+# load libraries ----
+
+# reporting
+library(knitr)
+
+# visualization
+library(ggplot2)
+library(ggthemes)
+library(patchwork)
+
+# data wrangling
+library(dplyr)
+library(tidyr)
+library(readr)
+library(skimr)
+library(janitor)
+library(magrittr)
+library(lubridate)
+
+# modeling
+library(tidymodels)
+library(vip)
+library(randomForest)
+library(doParallel)
+
+# set other options ----
+
+# scientific notation
+options(scipen=999)
+
+# turn off messages and warnings
+knitr::opts_chunk$set(
+  tidy = FALSE, 
+  message = FALSE,
+	warning = FALSE)
+
+# set the ggplot theme for the document
+theme_set(theme_bw())
+
+# set random seed
+set.seed(42)
+
+```
+
+
+## Predict air pollution using Random Forest regression
+
+**Random Forest** is a decision tree method that can also be used for a regression analysis, it is also a supervised ML model. 
+
+A decision tree partitions data based on a series of sequential decisions. Generally, these decisions are binary (two branches) and are chose to optimally split the data. Each branch is split further based on certain characteristics until all observations in a "branch" are "the same" form in the tree.
+
+Once a tree has been built, you can then follow the tree to predict the outcome for new observations. you have likely used a dichotomous key to identify organisms, this is roughly the same process. 
+
+For a random forest, multiple decision trees are created^[Trees, forests ... get it?]. Each new tree is based using a random subset of the training data. The mean predictions from each tree is then used to generate the final output.
+
+We will use the `randomForest` package. It does not allow for categorical variables with more than 53 levels. We manipulated the `city` column earlier so that it now has 2 levels instead of > 600. However, we will need to remove the `zcta` and `county` variables.
+
+Let's pull our data set with features and outcome variables back in.
+
+```{r}
+
+# read & wrangle data set
+pm <- read_delim("data/air_pollution.csv", delim = ",") %>%
+  clean_names() %>%
+  mutate(across(c(id, fips, zcta), as.factor)) %>%
+  mutate(city = case_when(city == "Not in a city" ~ "Not in a city",
+                          city != "Not in a city" ~ "In a city"))
+
+```
+
+Again, we need to start by using `rsample::initial_split()` to randomly subset our data into a training (2/3 of observations) and test (1/3 of observations), data set.
+
+```{r}
+
+# split sample
+pm_split <- rsample::initial_split(data = pm, prop = 2/3)
+
+# check proportions of split
+pm_split
+
+```
+
+Next, we will extract the testing and training data to create to separate `data.frames()`
+
+```{r}
+
+# training data set
+train_pm <- training(pm_split)
+
+# test data set
+test_pm <- testing(pm_split)
+
+```
+
+We can update the recipe we designed earlier to pre-process our data set to build a regression using a random forest.
+
+```{r}
+
+RF_rec <- recipe(train_pm) %>%
+    update_role(everything(), new_role = "predictor")%>%
+    update_role(value, new_role = "outcome")%>%
+    update_role(id, new_role = "id variable") %>%
+    update_role("fips", new_role = "county id") %>%
+    step_novel("state") %>%
+    step_string2factor("state", "county", "city") %>%
+    step_rm("county") %>%
+    step_rm("zcta") %>%
+    step_corr(all_numeric())%>%
+    step_nzv(all_numeric())
+
+```
+
+We will now have to specify a new model. We will need to determine the number of predictor variables (`mtry`) to randomly sample at each split when creating the tree models. The default for a regression analysis is the number of predictors divided by 3. We will also specify the minimum number of data points at a node for a node to be split further (`min_n`).
+
+```{r}
+
+RF_PM <- rand_forest(mtry = 10, min_n = 3) %>%   # specify model
+  set_engine("randomForest") %>%                  # set engine
+  set_mode("regression")                          # set mode (continuous - regression)
+
+RF_PM
+
+```
+
+Our next step is to specify our workflow:
+
+```{r}
+
+# specify workflow
+RF_wflow <- workflows::workflow() %>%
+            workflows::add_recipe(RF_rec) %>%
+            workflows::add_model(RF_PM)
+
+RF_wflow
+
+```
+
+Now it's time to fit the model:
+
+```{r}
+
+RF_wflow_fit <- fit(RF_wflow, data = train_pm)
+
+```
+
+Let's pull out our top 10 contributing variables
+
+```{r}
+
+RF_wflow_fit %>% 
+  pull_workflow_fit() %>% 
+  vip(num_features = 10)
+
+```
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Identify the most important predictor variables for this model. Compare and contrast the important predictor variables for our two models.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+Our next step is to evaluate our model performance using cross validation^[Notice the benefit of writing up our specific steps (in this case how we want to perform a cross-validation) for running multiple types of models, we can just reuse `kfold_pm` as specified earlier! We will have to re-specify it here, because we have a separate quarto document, but if this was the same quarto document we wouldn't need to do that we could just use the same set].
+
+```{r}
+
+# create four subsets
+kfold_pm <- rsample::vfold_cv(data = train_pm, v = 4)
+
+# perform cross-validation
+xVal_RF <- tune::fit_resamples(RF_wflow, kfold_pm)
+
+# print rmse and rsq
+collect_metrics(xVal_RF)
+
+```
+
+Now we can compare the two models:
+
+```{r}
+
+# print rmse and rsq
+collect_metrics(xVal_RF)
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Compare these results to the results from our linear regression model. Argue which model you think has the better performance (be sure to explain how you are using RMSE and R2 to support your answer.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+Increasing the number of trees used to generate the model (`trees`) or the number of predictor variables sampled for each split (`mtry`) would increase the performance of our model (but also requires more computational time and power).
+
+
+## Model Tuning
+
+**Hyperparameters** describe the various arguments (parameters) that we need to specify about a given model. In this case `mtry` is a hyperparameter. We used the default which is a rule of thumb for a "good value", however, we might want to identify the "best" value for our specific model, i.e. identifying the value that gives us the optimum performance for our model.
+
+This process of optimizing parameters is called **tuning**.
+
+Shall we give it a go? Let's see if we can optimize values for `mtry` and `min_n`. Again, the goal for optimization is to not over- or under-fit but rather describe the true signal in the data as simply as possible.
+
+Tuning is where the cross validation shows its true power because we can run cross-validation for a range of (combinations of) values for the parameters we want to optimize. The assessment using the holdout folds allows us to evaluate not only which model best describes our data but is able to predict outcomes for a new set of observations.
+
+To do this, we can use the same syntax as earlier to specify our model, but instead of specifying exact values for `mtry` and `min_n` we will specify that these are the parameters we want to tune using `tune()`.
+
+```{r}
+
+tune_RF <- rand_forest(mtry = tune(), min_n = tune()) %>%
+  set_engine("randomForest") %>%
+  set_mode("regression")
+
+tune_RF
+
+```
+
+Now, all we have to do is add this model specification to our workflow^[Again, this is the convenience that comes with taking the time to specify a workflow!].
+
+```{r}
+
+RF_tune_wflow <- workflows::workflow() %>%
+            workflows::add_recipe(RF_rec) %>%
+            workflows::add_model(tune_RF)
+
+
+RF_tune_wflow
+
+```
+
+We will use `tune::tune_grid()` to specify the range of combinations of values we want to test using our cross validation samples of our training set to determine the optimum combination.
+
+This is a lot more computationally intensive than what we have done earlier. One way to increase efficiency is to run processes in parallel (at the same time) on multiple cores.
+
+Check how many cores your laptop has:
+
+```{r}
+
+detectCores()
+
+```
+
+Let's tune some parameters! By default, the the values for the hyperparameters are randomly drawn from a range of reasonable values, though we will specify how many we want to test using `grid`. This will take a little bit longer to process than you are used to:
+
+```{r}
+
+# specify number of cores to use
+doParallel::registerDoParallel(cores = 2)
+
+# tune parameters using 20 values per parameter
+tune_RF_results <- tune_grid(object = RF_tune_wflow, resamples = kfold_pm, grid = 20)
+
+tune_RF_results
+
+```
+
+Once we have tested the range of values we can asses our results using `RMSE` and `R2`.
+
+```{r}
+
+# compare performance using RMSE and R2
+tune_RF_results %>%
+  collect_metrics()
+
+```
+
+The function `show_best()` can be used to pull out the combination of values for `min_n` and `mtry` with the best performance.
+
+```{r}
+
+# identify optimized model
+show_best(tune_RF_results, metric = "rmse", n =1)
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Which combination of `mtry` and `min_n` creates the best model?
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+## Final model performance evaluation
+
+We almost did it! We now have exhaustively used our training data set to build models and test performances - the time has come to evaluate the performance using our testing data.
+
+To do this, we will use the optimized random forest model we built using our training data to predict values for the monitors in our testing data.
+
+```{r}
+
+# pull the optimal model parameters
+tuned_RF_values<- select_best(tune_RF_results, "rmse")
+
+tuned_RF_values
+
+```
+
+Let's set up our finalized workflow using those values.
+
+```{r}
+
+# define workflow using optimized parameters
+RF_tuned_wflow <-RF_tune_wflow %>%
+  tune::finalize_workflow(tuned_RF_values)
+
+```
+
+We can use the `tune::final_fit()` function to fit the final model to the full training set along with the testing data.
+
+```{r}
+
+# build model using training data and predict testing data
+overallfit <- RF_wflow %>%
+  tune::last_fit(pm_split)
+
+```
+
+Let's check the performance of the model on the test data (i.e. how well we were able to predict the outcome value).
+
+```{r}
+
+collect_metrics(overallfit)
+
+```
+
+Our `RMSE` should be similar to the cross validation sets indicating good performance, i.e. this means that we can expect to achieve our goal of predicting air pollution in areas with no or only sparse monitoring based on the predictors with reasonable accuracy.
+
+We can also generate a table comparing predicted and observed outcome variables to get an idea of how well they match up
+
+```{r}
+
+overallfit %>%
+  collect_predictions() %>%
+  head()
+
+```

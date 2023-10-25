@@ -732,10 +732,8 @@ ggplot(temp, aes(x = year, y = temperature)) +
   geom_line(color = "darkblue", size = 1) +
   geom_point(shape = 21, size = 3, color = "darkblue", fill = "white") +
   geom_smooth(method = "lm", color = "red") +
-  scale_fill_viridis_c() +
-  labs(x = "year", y = "flowering date") +
-  theme_standard +
-  theme(legend.position = "bottom")
+  labs(x = "year", y = "temperatue") +
+  theme_standard 
 
 ```
 

@@ -1,0 +1,739 @@
+
+# Predictor variables
+
+```{r}
+#| label: setup
+#| include: false
+
+# custom functions ----
+
+library(ggplot2)
+
+theme_standard <- theme_classic() +
+  theme(
+    axis.text = element_text(size = 11, color = "black"),
+    axis.title = element_text(size = 16, color = "black"),
+    axis.title.y = element_text(vjust = 1.5, color = "black"),
+    axis.line = element_line(color = "black"),
+    
+    legend.position = "bottom",
+    
+    panel.background = element_rect(fill = "white", color = NA), 
+    panel.border = element_blank(), 
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(), 
+    strip.background = element_rect(fill = "grey95", color = "black"), 
+    strip.text.x = element_text(size = 16, color = "black"),
+    strip.text.y = element_text(size = 16, color = "black")) 
+
+theme_facet <- theme_classic() +
+  theme(
+    axis.text = element_text(size = 11, color = "black"),
+    axis.title = element_text(size = 16, color = "black"),
+    axis.title.y = element_text(vjust = 1.5, color = "black"),
+    axis.line = element_line(color = "black"),
+    
+    legend.position = "bottom",
+    
+    panel.background = element_rect(fill = "white", color = NA), 
+    panel.border = element_rect(fill = NA, color = "black"), 
+    panel.grid.major = element_line(color = "grey85"), 
+    panel.grid.minor = element_blank(), 
+    strip.background = element_rect(fill = "grey95", color = "black"), 
+    strip.text.x = element_text(size = 16, color = "black"),
+    strip.text.y = element_text(size = 16, color = "black")) 
+
+# set options
+knitr::opts_chunk$set(
+  tidy = FALSE, 
+  message = FALSE,
+	warning = FALSE)
+
+options(htmltools.dir.version = FALSE)
+
+theme_set(theme_standard)
+
+```
+
+
+**Learning Objectives**
+
+After completing this tutorial you should be able to
+
+* distinguish between outcome and predictor variables (features).
+* outline characteristics required to compile appropriate data sets to train a predictive model.
+* evaluate the correlation among predictor variables using `corrplot`.
+
+
+[Download the directory for this project here](https://drive.google.com/drive/folders/11OimvFz3_OBQo9JxKBcDgtA_9N8z-bvF?usp=share_link), make sure the directory is unzipped and move it to your `bi328` directory. You can open the `Rproj` for this module either by double clicking on it which will launch `Rstudio` or by opening `Rstudio` and then using `File > Open Project` or by clicking on the `Rproject` icon in the top right of your program window and selecting `Open Project`. 
+
+There should be a file named `25_predictors.qmd` in that project directory. Use that file to work through this tutorial - you will hand in your rendered ("knitted") `quarto` file as your homework assignment. So, first thing in the `YAML` header, change the author to your name. You will use this `quarto` document to record your answers. Remember to use comments to annotate your code; at minimum you should have one comment per code set^[You should do this whether you are adding code yourself or using code from our manual, even if it isn't commented in the manual... especially when the code is already included for you, add comments to describe how the function works/what it does as we introduce it during the participatory coding session so you can refer back to it.] you may of course add as many comments as you need to be able to recall what you did. Similarly, take notes in the document as we discuss discussion/reflection questions but make sure that you go back and clean them up for "public consumption".
+
+You may need to install a few additional packages before we get started. Check the code chunk below and install any packages you still need. 
+
+```{r}
+
+# load libraries ----
+
+# reporting
+library(knitr)
+
+# visualization
+library(ggplot2)
+library(ggthemes)
+library(patchwork)
+
+# data wrangling
+library(dplyr)
+library(tidyr)
+library(readr)
+library(skimr)
+library(janitor)
+library(magrittr)
+library(lubridate)
+
+# modeling
+library(corrplot)
+library(GGally)
+
+# set other options ----
+
+# scientific notation
+options(scipen=999)
+
+# turn off messages and warnings
+knitr::opts_chunk$set(
+  tidy = FALSE, 
+  message = FALSE,
+	warning = FALSE)
+
+# set the ggplot theme for the document
+theme_set(theme_bw())
+
+```
+
+## Machine learning and predictive modeling
+
+We are going to use machine learning for to build and train our predictive modeling.
+
+You might recall from your biostats class that typically we draw a sample from a population and then we use what we learn from the sample to make inferences about the population that they represent, i.e. we can infer the average value of an observation in the (unsampled) population based on the sample^[Recall, for linear regressions we use the formula "on average for an increase of one unit of the independent variable we expect the independent variable to increase by the value of the slope" to describe out results.].
+
+For prediction we also start with a sample, however, in this case the goal is to be able to predict a single observation's value of a given characteristic based on the characteristics of the observations in the sample - our goal is not to make a statement about what the average expectation for the value of an observation is, we want to predict the actual value for that observation.
+
+In the case at hand, we have our continuous outcome variable that we want to predict (air pollution levels) which we will denote as $Y$. $X$ would be our set of predictor variables with $X_{1}, ... X_{p}$ denoting individual features (development, population density ...).
+
+Our goal is to describe a rule (machine learning algorithm) that takes values for our features as input and the predicts the air pollution (outcome variable) for situations where air pollution is unknown ($\hat{Y}$) . This process is what we generally describe as training a model and means that we are using a data set where both $X$ and $Y$ are known to estimate a function $\hat{Y} = f(X)$ that uses the predictor variables as input.
+
+The better our model, the more closely our predicted outcome $\hat{Y}$ should match our actual outcome $Y$. In other words we are trying to minimize the distance between $\hat{Y} = f(X)$ and $Y$^[This is what is referred to as an optimization problem.]. The choice of the distance metric ($d(Y - f(X))$) is frequently the absolute or squared difference.
+
+In order to set up (and then solve!) a typical ML problem we need four components:
+
+1. a training data set (i.e. matching data set of outcome and predictor variables)
+2. a (set of) algorithms to try values of $f$.
+3. A distance metric $d$ to measure how closely $Y$ and $\hat{Y}$ match.
+4. A definition of a "good" (acceptable) distance.
+
+
+## Data for predictive modeling
+
+We will use a data set gathered using air pollution monitoring. In this system of monitors about 90% are located within cities leading to rural areas being severely under-monitored. Our goal is to use this data set to train  model that can accurately predict air pollution levels even when physical monitors are not present. A primary interest in air pollution is due to the adverse health outcomes related to exposure.
+
+Before we start, we should consider limitations of the data set we will look at to make sure that we can answer our question and to make sure that we don't overstep in our interpretation.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Consider limitations of the data that you should keep in mind when interpreting and discussing your results.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+::: {.callout-tip icon=false collapse=true}
+
+## {{< fa person-chalkboard >}}    Pointers
+
+Here are some factors to consider:
+
+1. What limitations come with the fact that air pollutants are measured as "Particulate Matter"?
+2. We are measuring (average) outdoor pollution levels; how does this related to making predictions about individual exposures?
+3. We are using mean estimates of pollution levels.
+
+:::
+
+We will be using supervised machine learning to predict pollution levels. To do this, we need two main types of data:
+
+1. A **continuous outcome variable** - this is the variable we want to predict.
+2. A **set of features** or predictor variables used to predict the outcome variable.
+
+In order to build and train a model you need corresponding data sets^[Corresponding means they should have the same/very similar spatial and temporal resolution.]. The underlying principle is that if you determine the existing relationship and describe it mathematically using an existing data set, then you would also be able predict the value for that outcome variable for a new observation as long as you have values for the predictor variable.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+For our example of creating a model with the goal of predicting pollution levels, what would be our **outcome variable** and what are potential **features** (or predictor variables)?
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-tip icon=false collapse=true}
+
+## {{< fa person-chalkboard >}}    Pointers
+
+Consider what we want to predict (What is the outcome of the model? What quantity do we hope to get as a result?) and which parameters might contribute to air pollution levels (i.e. factors that might be causing it to go up or down/are correlated to air pollution).
+
+:::
+
+With the rise of computational power available at our fingertips, Machine Learning and Artificial Intelligence approaches are increasingly being used to solve problems, especially when large data sets are involved. Unfortunately, this means it quickly turns into a black box where we dump in some outcome and predictor variables give it a good shake and take the "answer" we receive at face value.
+
+To avoid this we need to start with a specific question in mind and carefully consider how our outcome and features are related. Good questions have a plausible explanation for why features predict the outcome and critically evaluate potential for variation in both the features and outcome over time.
+
+We will be using a data set that was previously compiled by [Roger Peng](https://rdpeng.org/), a scientist who studies air pollution, climate change and public health. We will import a data set to work with that has already combined monitoring data and possible predictor variables that have been compiled by a range of sources.
+
+The monitoring data comes from gravimetric monitors operated by the EPA that are designed to capture fine particulate matter (PM2.5) using a filtration system. Values are measure either daily or weekly. Our feature data set contains values for each of the 876 monitors (observations) and has been compiled from the EPA, NASA, US Census and National Center for Health Statistics. Most of the features have been taken for a circular area that surround the monitor itself (buffer).
+
+For this module we will explore geographic patterns of air pollution and determine whether we can predict levels of pollution for areas where we do not have monitors based on available information from areas that do have monitors. Specifically, we will answer the central question **Can we predict annual average air pollution concentrations at the resolution of zip code regional levels using predictor variables describing population density, urbanization, road density, satellite pollution data, and chemical modeling data?**
+
+
+## Explore the data set
+
+Let's import the data set.
+
+```{r}
+
+pm <- read_delim("data/air_pollution.csv", delim = ",") %>%
+  clean_names()
+
+```
+
+Let's take a quick look at the data types to make sure everything read in correctly.
+
+```{r}
+
+pm %>%
+  glimpse()
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Describe your data set, pay specific attention to the following questions to make sure you have oriented yourself:
+
+* How many monitors do we have in the data set? 
+* Which column contains our outcome variable? 
+* Which contains our predictor variables?
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-tip icon=false collapse=true}
+
+## {{< fa person-chalkboard >}}    Pointers
+
+* The column `value` contains PM2.5 concentrations in mass concentration (µg/m3) - this is our outcome variable.
+* The column `id` codes for the monitors.
+* The remaining columns give us some additional information on the location where the monitor is located - we will have to assess which of those could be good predictor variables.
+
+Here are the specifics for each column:
+
+Variable   | Details                                                                        
+---------- |-------------
+**id**  | Monitor number  <br> -- the county number is indicated before the decimal <br> -- the monitor number is indicated after the decimal <br>  **Example**: 1073.0023  is Jefferson county (1073) and .0023 one of 8 monitors 
+**fips** | Federal information processing standard number for the county where the monitor is located <br> -- 5 digit id code for counties (zero is often the first value and sometimes is not shown) <br> -- the first 2 numbers indicate the state <br> -- the last three numbers indicate the county <br>  **Example**: Alabama's state code is 01 because it is first alphabetically <br> (note: Alaska and Hawaii are not included because they are not part of the contiguous US)  
+**Lat** | Latitude of the monitor in degrees  
+**Lon** | Longitude of the monitor in degrees  
+**state** | State where the monitor is located
+**county** | County where the monitor is located
+**city** | City where the monitor is located
+**CMAQ**  | Estimated values of air pollution from a computational model called [**Community Multiscale Air Quality (CMAQ)**](https://www.epa.gov/cmaq){target="_blank"} <br> --  A monitoring system that simulates the physics of the atmosphere using chemistry and weather data to predict the air pollution <br> -- ***Does not use any of the PM~2.5~ gravimetric monitoring data.*** (There is a version that does use the gravimetric monitoring data, but not this one!) <br> -- Data from the EPA
+**zcta** | [Zip Code Tabulation Area](https://www2.census.gov/geo/pdfs/education/brochures/ZCTAs.pdf){target="_blank"} where the monitor is located <br> -- Postal Zip codes are converted into "generalized areal representations" that are non-overlapping  <br> -- Data from the 2010 Census  
+**zcta_area** | Land area of the zip code area in meters squared  <br> -- Data from the 2010 Census  
+**zcta_pop** | Population in the zip code area  <br> -- Data from the 2010 Census  
+**imp_a500** | Impervious surface measure <br> -- Within a circle with a radius of 500 meters around the monitor <br> -- Impervious surface are roads, concrete, parking lots, buildings <br> -- This is a measure of development 
+**imp_a1000** | Impervious surface measure <br> --  Within a circle with a radius of 1000 meters around the monitor
+**imp_a5000** | Impervious surface measure <br> --  Within a circle with a radius of 5000 meters around the monitor  
+**imp_a10000** | Impervious surface measure <br> --  Within a circle with a radius of 10000 meters around the monitor   
+**imp_a15000** | Impervious surface measure <br> --  Within a circle with a radius of 15000 meters around the monitor  
+**county_area** | Land area of the county of the monitor in meters squared  
+**county_pop** | Population of the county of the monitor  
+**Log_dist_to_prisec** | Log (Natural log) distance to a primary or secondary road from the monitor <br> -- Highway or major road  
+**log_pri_length_5000** | Count of primary road length in meters in a circle with a radius of 5000 meters around the monitor (Natural log) <br> -- Highways only  
+**log_pri_length_10000** | Count of primary road length in meters in a circle with a radius of 10000 meters around the monitor (Natural log) <br> -- Highways only  
+**log_pri_length_15000** | Count of primary road length in meters in a circle with a radius of 15000 meters around the monitor (Natural log) <br> -- Highways only  
+**log_pri_length_25000** | Count of primary road length in meters in a circle with a radius of 25000 meters around the monitor (Natural log) <br> -- Highways only  
+**log_prisec_length_500** | Count of primary and secondary road length in meters in a circle with a radius of 500 meters around the monitor (Natural log)  <br> -- Highway and secondary roads  
+**log_prisec_length_1000** | Count of primary and secondary road length in meters in a circle with a radius of 1000 meters around the monitor (Natural log)  <br> -- Highway and secondary roads  
+**log_prisec_length_5000** | Count of primary and secondary road length in meters in a circle with a radius of 5000 meters around the monitor (Natural log)  <br> -- Highway and secondary roads  
+**log_prisec_length_10000** | Count of primary and secondary road length in meters in a circle with a radius of 10000 meters around the monitor (Natural log)  <br> -- Highway and secondary roads  
+**log_prisec_length_15000** | Count of primary and secondary road length in meters in a circle with a radius of 15000 meters around the monitor (Natural log)  <br> -- Highway and secondary roads  
+**log_prisec_length_25000** | Count of primary and secondary road length in meters in a circle with a radius of 25000 meters around the monitor (Natural log)  <br> -- Highway and secondary roads      
+**log_nei_2008_pm25_sum_10000** | Tons of emissions from major sources data base (annual data) sum of all sources within a circle with a radius of 10000 meters of distance around the monitor (Natural log)    
+**log_nei_2008_pm25_sum_15000** | Tons of emissions from major sources data base (annual data) sum of all sources within a circle with a radius of 15000 meters of distance around the monitor (Natural log)     
+**log_nei_2008_pm25_sum_25000** | Tons of emissions from major sources data base (annual data) sum of all sources within a circle with a radius of 25000 meters of distance around the monitor (Natural log)     
+**log_nei_2008_pm10_sum_10000** | Tons of emissions from major sources data base (annual data) sum of all sources within a circle with a radius of 10000 meters of distance around the monitor (Natural log)      
+**log_nei_2008_pm10_sum_15000**| Tons of emissions from major sources data base (annual data) sum of all sources within a circle with a radius of 15000 meters of distance around the monitor (Natural log)      
+**log_nei_2008_pm10_sum_25000** | Tons of emissions from major sources data base (annual data) sum of all sources within a circle with a radius of 25000 meters of distance around the monitor (Natural log)      
+**popdens_county** | Population density (number of people per kilometer squared area of the county)
+**popdens_zcta** | Population density (number of people per kilometer squared area of zcta)
+**nohs** | Percentage of people in zcta area where the monitor is that **do not have a high school degree** <br> -- Data from the Census
+**somehs** | Percentage of people in zcta area where the monitor whose highest formal educational attainment was **some high school education** <br> -- Data from the Census
+**hs** | Percentage of people in zcta area where the monitor whose highest formal educational attainment was completing a **high school degree** <br> -- Data from the Census  
+**somecollege** | Percentage of people in zcta area where the monitor whose highest formal educational attainment was completing **some college education** <br> -- Data from the Census 
+**associate** | Percentage of people in zcta area where the monitor whose highest formal educational attainment was completing an **associate degree** <br> -- Data from the Census 
+**bachelor** | Percentage of people in zcta area where the monitor whose highest formal educational attainment was a **bachelor's degree** <br> -- Data from the Census 
+**grad** | Percentage of people in zcta area where the monitor whose highest formal educational attainment was a **graduate degree** <br> -- Data from the Census 
+**pov** | Percentage of people in zcta area where the monitor is that lived in [**poverty**](https://aspe.hhs.gov/2008-hhs-poverty-guidelines) in 2008 - or would it have been 2007 guidelines??https://aspe.hhs.gov/2007-hhs-poverty-guidelines <br> -- Data from the Census  
+**hs_orless** |  Percentage of people in zcta area where the monitor whose highest formal educational attainment was a **high school degree or less** (sum of nohs, somehs, and hs)  
+**urc2013** | [2013 Urban-rural classification](https://www.cdc.gov/nchs/data/series/sr_02/sr02_166.pdf){target="_blank"} of the county where the monitor is located <br> -- 6 category variable - 1 is totally urban 6 is completely rural <br>  -- Data from the [National Center for Health Statistics](https://www.cdc.gov/nchs/index.htm){target="_blank"}     
+**urc2006** | [2006 Urban-rural classification](https://www.cdc.gov/nchs/data/series/sr_02/sr02_154.pdf){target="_blank"} of the county where the monitor is located <br> -- 6 category variable - 1 is totally urban 6 is completely rural <br> -- Data from the [National Center for Health Statistics](https://www.cdc.gov/nchs/index.htm){target="_blank"}     
+**aod** | Aerosol Optical Depth measurement from a NASA satellite <br> -- based on the diffraction of a laser <br> -- used as a proxy of particulate pollution <br> -- unit-less - higher value indicates more pollution <br> -- Data from NASA  
+
+:::
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Take a closer look at the columns `id`, `fips`, and `zcta`, pay specific attention to the following questions:
+
+* What data type are they? 
+* What information do you think they hold? 
+* Does the type of data they hold match their assigned data type?
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-tip collapse=true}
+
+## Solution
+
+These are all currently numerical variables and R thinks they are continuous variables. However `id` is the monitor ID, `fips` is the federal information processing standard number fo the country where it is located, and `zcta` is the zip code tabulation area. 
+
+These should all be categorical variables and so we need to convert them to factors, which are ordered characters using the function `as.factor()`.
+
+```{r}
+
+pm <- pm %>%
+  mutate(across(c(id, fips, zcta), as.factor))
+
+```
+
+::: 
+
+Let's dig a little bit deeper using `skim()`.
+
+```{r}
+#| label: tbl
+#| tbl-cap: "Data summary feature data set for air pollution monitoring."
+
+skim(pm)
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Here are a few starting points to explore your data set more in depth:
+
+* How much missing data is there?
+* What data types are represented?
+* How many states are represented?
+* Are there variables with large ranges? small ranges?
+* Are there variables with normal distributions? very uneven distributions?
+
+For each question also explain how you figured out the answer)
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+Next step is to look a little bit deeper at what specific information is in each column to make sure we are considering confounding variables or biases in the data set.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Here are a few starting points to explore:
+
+* What states are included?
+* what cities have the highest number of air monitors?
+
+For each question include the code you used to get the answer:
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+::: {.callout-tip collapse=true}
+
+## Solution
+
+What states are included?
+
+```{r}
+#| label: tbl-states
+#| tbl-cap: "States with available data."
+#| tbl-cap-location: top
+#| echo: false
+
+pm %>%
+  distinct(state) %>%
+  kable()
+
+```
+
+Cities with largest number of air monitors?
+
+```{r}
+#| label: tbl-cities-monitors
+#| tbl-cap: "Number of air monitors located in each city compared to rural areas."
+#| tbl-cap-location: top
+#| echo: false
+
+pm %>%
+  group_by(city) %>%
+  count() %>%
+  ungroup() %>%
+  slice_max(n = 15, order_by = n) %>%
+  arrange(desc(n), city) %>%
+  kable()
+
+```
+
+:::
+
+We should also evaluate to which extent our predictor variables are correlated.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Consider why it could be problematic if we had highly correlated predictor variables in our feature set.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+::: {.callout-tip collapse=true}
+
+## Solution
+
+When we use linear regressions and predictor variables are correlated they end up predicting each other rather than the outcome variable. This is generally referred to as multicollinearity.
+
+Additionally, including redundant variables can add unnecessary noise to our model which can end up decreasing the accuracy of our precipitations and slow down our model.
+
+Correlation among predictor variables can also make it difficult to understand which of them are actually predictive.
+
+:::
+
+
+We'll start by making pairwise comparisons among all of our numeric (continuous) variables using `corrplot`.
+
+```{r}
+#| label: fig-corrplot-1
+#| fig-cap: "Pairwise comparison of correlation coefficients for all continuous variables."
+#| fig-height: 9
+#| fig-width: 9
+
+# calculate Pearson's coefficients
+PM_cor <- pm %>%
+  select_if(is.numeric) %>%
+  cor()
+  
+# plot pairwise correlation matrix
+corrplot(PM_cor, tl.cex = 0.5)
+
+```
+
+Let's re-plot that visualization using the absolute values of the Pearson correlation coefficient^[We are not interested in the direction of the correlation only how strong it is] and by organizing our variables using hierarchical clustering, i.e. variables more similar to each other will be closer to each other.
+
+```{r}
+#| label: fig-corrplot-2
+#| fig-cap: "Pairwise comparison of correlation coefficients for all continuous variables. Size and color intensity of circles represent the strength of these relationships."
+#| fig-height: 10
+#| fig-width: 10
+
+corrplot(abs(PM_cor), 
+         order = "hclust", 
+         tl.cex = 0.5, 
+         col.lim = c(0, 1))
+
+```
+
+We can now see that there are quite a few variables correlated with our outcome variable (`value`). Unsurprisingly, we also have sets of variables describing the characteristic of the area corresponding to the locations of the emissions values, primarily the variables that contain `imp_*`, `*pri_*`, `*nei_*`.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Look up what these variables are and argue whether or not it makes sense for these sets of values to be correlated to the PM2.5 value. What other variables might be good indicators?
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-tip icon=false collapse=true}
+
+## {{< fa person-chalkboard >}}    Pointers
+
+We can consider the set of `imp` variables as indicative of development/urbanization, the `pri` variables describe road density which can be an indicator of the amount of cars, an the `nei` variables describe emissions.
+
+:::
+
+We can take a closer look at sets of variables we are interested in using the `ggcorr()` and `ggpairs()` functions from the `GGally` package.
+
+Let's start with our variables describing measuring how impervious the surface is:
+
+```{r}
+#| label: fig-corr-impervious-1
+#| fig-cap: "Pairwise comparison of correlation coefficients for all variables related to levels of development, i.e. level of surface imperviousness."
+
+# plot pairwise 
+pm %>%
+  select(contains("imp")) %>%
+  ggcorr(label = TRUE)
+
+```
+
+And let's look even a little bit closer look at the relationship of these variables.visualizing the relationships using scatter plots, the distribution of values for each variable using density plots, along with the correlation coefficients. 
+
+```{r}
+#| label: fig-corr-impervious-2
+#| fig-cap: "Scatterplots describing the relationships between all combinations of values describing level of development for buffers surrounding each air pollution monitor (below the diagonal) and corresponding Pearson's correlation coefficients (above the diagonal), the distribution of values for each variable is on the diagonal."
+#| fig-height: 9
+#| fig-width: 9
+
+
+# plot scatter plots, density plots & correlation coefficients
+pm %>%
+  select(contains("imp")) %>%
+  ggpairs() 
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Think through the results of your exploration of existing correlations:
+
+* Which of these pairwise comparisons have the highest level of correlation?
+* Which have the lowest? 
+* Do these patterns make sense?
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+Next, let's take a peak at our road density data
+
+```{r}
+#| label: fig-corr-roads
+#| fig-cap: "Scatterplots describing the relationships between all combinations of values describing road density for buffers surrounding each air pollution monitor  (below the diagonal) and corresponding Pearson's correlation coefficients (above the diagonal), the distribution of values for each variable is on the diagonal."
+#| fig-height: 9
+#| fig-width: 9
+
+pm %>%
+  select(contains("pri")) %>%
+  ggpairs()
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Think through the results of your exploration of existing correlations:
+
+* Which of these pairwise comparisons have the highest level of correlation?
+* Which have the lowest? 
+* Do these patterns make sense?
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+Finally, let's look at the emissions variables:
+
+```{r}
+#| label: fig-corr-emissions
+#| fig-cap: "Scatterplots describing the relationships between all combinations of variables measuring air pollution for buffers surrounding each air pollution monitor (below the diagonal) and corresponding Pearson's correlation coefficients (above the diagonal), the distribution of values for each variable is on the diagonal."
+#| fig-height: 9
+#| fig-width: 9
+
+pm %>%
+  select(contains("nei")) %>%
+  ggpairs()
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Think through the results of your exploration of existing correlations:
+
+* Which of these pairwise comparisons have the highest level of correlation?
+* Which have the lowest? 
+* Do these patterns make sense?
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+Since we now know that the variables within these categories are correlated to each other, let's select one of each for the same buffer size and compare how they are correlated to each other as well as  population density.
+
+```{r}
+#| label: fig-corr-pop-density-1
+#| fig-cap: "Scatterplots describing the relationships between range of variables describing development, road density, emission levels, and population density for buffers surrounding each air pollution monitor (below the diagonal) and corresponding Pearson's correlation coefficients (above the diagonal), the distribution of values for each variable is on the diagonal."
+#| fig-height: 9
+#| fig-width: 9
+
+pm %>%
+select(log_nei_2008_pm25_sum_10000, popdens_county, 
+       log_pri_length_10000, imp_a10000, county_pop) %>%
+  ggpairs()
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Think through the results of your exploration of existing correlations:
+
+* Which of these pairwise comparisons have the highest level of correlation?
+* Which have the lowest? 
+* Do these patterns make sense?
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+Some of our variables have extreme variability; one way to do this is to perform a log transformation which might effect our correlations so we should take a quick look.
+
+```{r}
+#| label: fig-corr-log-transform
+#| fig-cap: "Scatterplots describing the relationships between range of variables describing development, road density, emission levels, and population density for buffers surrounding each air pollution monitor (below the diagonal) and corresponding Pearson's correlation coefficients (above the diagonal), the distribution of values for each variable is on the diagonal."
+#| fig-height: 9
+#| fig-width: 9
+
+pm %>%
+  mutate(log_popdens_county = log(popdens_county)) %>%
+  mutate(log_pop_county = log(county_pop)) %>%
+  select(log_nei_2008_pm25_sum_10000, log_popdens_county, 
+       log_pri_length_10000, imp_a10000, log_pop_county) %>%
+  ggpairs()
+
+```
+
+This does increase our correlation levels a bit but overall these variables do not appear to be highly correlated, so we should make sure keep a variable from each category to use as predictor values for our model.
+
+Finally, let's add an additional categorical variable that tells us whether or not a monitor is in a city - this will be helpful down the line.
+
+```{r}
+
+pm <- pm %>%
+  mutate(city = case_when(city == "Not in a city" ~ "Not in a city",
+                          city != "Not in a city" ~ "In a city"))
+
+```
+

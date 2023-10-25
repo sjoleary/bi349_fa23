@@ -1,9 +1,22 @@
-# Phenology {.unnumbered}
+# Phenology | Linear Regressions {.unnumbered}
 
 For each of our modules we will have a project-folder with an `Rproject`, `*.qmd`-files, and sub-directories for data, scripts, and results as described in our `Rproject` Tutorial. You should have a directory on your Desktop or Documents folder on your laptop (name it something like `bi349`) as a home directory for all of our project folders this semester. 
 
-[Download the directory for this project here]https://drive.google.com/drive/folders/1tjqJhwRjA2KTWzUws5q_ucx4njge6o1F?usp=sharing), make sure the directory is unzipped and move it to your `bi328` directory. You can open the `Rproj` for this module either by double clicking on it which will launch `Rstudio` or by opening `Rstudio` and then using `File > Open Project` or by clicking on the `Rproject` icon in the top right of your program window and selecting `Open Project`. 
+[Download the directory for this project here](https://drive.google.com/drive/folders/1tjqJhwRjA2KTWzUws5q_ucx4njge6o1F?usp=sharing), make sure the directory is unzipped and move it to your `bi328` directory. You can open the `Rproj` for this module either by double clicking on it which will launch `Rstudio` or by opening `Rstudio` and then using `File > Open Project` or by clicking on the `Rproject` icon in the top right of your program window and selecting `Open Project`. 
 
 Once you have opened a project you should see the project name in the top right corner^[Pro tip: If you run into issues where a quarto document won't render or file paths aren't working (especially if things were working previously) one of your first steps should be to double check that the correct `Rproj` is loaded.].
 
-## 
+## Phenology
+
+The **life history** of an organism describes the series of events and stages that an organism goes through over the course of its life time starting with its birth to reproducing itself and eventually dying. We use life history traits such as age-at-maturity, fecundity, life span, or growth rates to compare organisms and describe adaptations to their ecological niche and frequently categories organisms according to different life history strategies that exhibit characteristic life history traits as a result of trade-offs between putting available energy and resources towards survivorship or reproductive efforts in order to maximize reproductive fitness.
+
+While the life history of an organism provides a broad view of the entire life cycle and its adaptation to environmental factors, **phenology** specifically focuses on the periodic plant and animal life cycle events and how these are impacted by seasonal and environmental changes. While we frequently associate phenology with plants and events like flowering, fruiting, or the changing of leaf colors animals also have periodic events such as migration or hibernation which similarly can be triggered by changes in temperature, availability of light, or precipitation.
+
+Understanding the phenology of organisms is a central component to understanding ecology at a community and ecosystem level as we explore how organisms interact with each other and abiotic factors in their environment. It also has pratical applications, for example in agriculture where farmers rely on being able to make planting and harvesting decisions based off of environmental conditions and how they are likely to impact the phenology of their crops. More recently, changes in phenology have become an indicator of the impacts of climate change.
+
+## Contributions of Citizen scientists
+
+Beacuse phenology research relies on monitoring and recording data on these events, citizen scientists can make significant contributions for example by recording data on phenological events such as flowering, leaf emergence and fruiting that contribute to long-term data sets at broad geographic scale. Several organizations and initiatives encourage citizen participation in phenology research. These initiatives often provide resources, training, and tools to help citizen scientists collect and report data accurately. Some well-known programs that engage citizen scientists in phenology research include the USA National Phenology Network, Project BudBurst, and the Nature's Notebook program.
+
+For this module, we will use a data set compiled by the Minnesota Phenological Network.
+

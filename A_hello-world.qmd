@@ -1,4 +1,4 @@
-# Hello world {.unnumbered}
+# Sasquatch Distribution Models | Hello world {.unnumbered}
 
 The phrase "hello world" is a popular and simple introductory program that is often used to demonstrate the basic syntax and structure of a programming language. It's typically one of the first programs that people write when learning a new programming language.
 

@@ -100,5 +100,35 @@
   },
   "24_phenology-modeling.qmd": {
     "24_phenology-modeling.html": "5dad1d1c"
+  },
+  "25_predictors.qmd": {
+    "25_predictors.html": "738537f9"
+  },
+  "26_linear-regression-model.qmd": {
+    "26_linear-regression-model.html": "e33a7ddf"
+  },
+  "27_random-forest-model.qmd": {
+    "27_random-forest-model.html": "1119cc6e"
+  },
+  "28_analyze-model-results.qmd": {
+    "28_analyze-model-results.html": "fc07b166"
+  },
+  "I_macrosystems-ecology.qmd": {
+    "I_macrosystems-ecology.html": "273bc724"
+  },
+  "29_thermal-structure.qmd": {
+    "29_thermal-structure.html": "7fa53fdc"
+  },
+  "30_elnino.qmd": {
+    "30_elnino.html": "c6f5fa30"
+  },
+  "J_remote-sensing.qmd": {
+    "J_remote-sensing.html": "b53a08c4"
+  },
+  "31_vegetation.qmd": {
+    "31_vegetation.html": "7f2c1016"
+  },
+  "H_air-pollution.qmd": {
+    "H_air-pollution.html": "da98afc9"
   }
 }

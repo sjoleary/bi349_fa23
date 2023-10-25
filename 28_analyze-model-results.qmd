@@ -1,0 +1,589 @@
+
+# Evaluate the model results
+
+```{r}
+#| label: setup
+#| include: false
+
+# custom functions ----
+
+library(ggplot2)
+
+theme_standard <- theme_classic() +
+  theme(
+    axis.text = element_text(size = 11, color = "black"),
+    axis.title = element_text(size = 16, color = "black"),
+    axis.title.y = element_text(vjust = 1.5, color = "black"),
+    axis.line = element_line(color = "black"),
+    
+    legend.position = "bottom",
+    
+    panel.background = element_rect(fill = "white", color = NA), 
+    panel.border = element_blank(), 
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(), 
+    strip.background = element_rect(fill = "grey95", color = "black"), 
+    strip.text.x = element_text(size = 16, color = "black"),
+    strip.text.y = element_text(size = 16, color = "black")) 
+
+theme_facet <- theme_classic() +
+  theme(
+    axis.text = element_text(size = 11, color = "black"),
+    axis.title = element_text(size = 16, color = "black"),
+    axis.title.y = element_text(vjust = 1.5, color = "black"),
+    axis.line = element_line(color = "black"),
+    
+    legend.position = "bottom",
+    
+    panel.background = element_rect(fill = "white", color = NA), 
+    panel.border = element_rect(fill = NA, color = "black"), 
+    panel.grid.major = element_line(color = "grey85"), 
+    panel.grid.minor = element_blank(), 
+    strip.background = element_rect(fill = "grey95", color = "black"), 
+    strip.text.x = element_text(size = 16, color = "black"),
+    strip.text.y = element_text(size = 16, color = "black")) 
+
+theme_set(theme_standard)
+
+knitr::opts_chunk$set(
+  tidy = FALSE, 
+  message = FALSE,
+	warning = FALSE)
+
+```
+
+
+**Learning Objectives**
+
+After completing this tutorial you should be able to
+
+* visualize spatial data using a map
+* evaluate model performance
+
+
+[Download the directory for this project here](https://drive.google.com/drive/folders/11OimvFz3_OBQo9JxKBcDgtA_9N8z-bvF?usp=share_link), make sure the directory is unzipped and move it to your `bi328` directory. You can open the `Rproj` for this module either by double clicking on it which will launch `Rstudio` or by opening `Rstudio` and then using `File > Open Project` or by clicking on the `Rproject` icon in the top right of your program window and selecting `Open Project`. 
+
+There should be a file named `28_analyze-model-results.qmd` in that project directory. Use that file to work through this tutorial - you will hand in your rendered ("knitted") `quarto` file as your homework assignment. So, first thing in the `YAML` header, change the author to your name. You will use this `quarto` document to record your answers. Remember to use comments to annotate your code; at minimum you should have one comment per code set^[You should do this whether you are adding code yourself or using code from our manual, even if it isn't commented in the manual... especially when the code is already included for you, add comments to describe how the function works/what it does as we introduce it during the participatory coding session so you can refer back to it.] you may of course add as many comments as you need to be able to recall what you did. Similarly, take notes in the document as we discuss discussion/reflection questions but make sure that you go back and clean them up for "public consumption".
+
+Before you get started, let's make sure to read in all the packages we will need.
+
+```{r}
+
+# load libraries ----
+
+# reporting
+library(knitr)
+
+# visualization
+library(ggplot2)
+library(ggthemes)
+library(patchwork)
+
+# maps
+library(sf)
+library(rnaturalearth)
+library(maps)
+
+# data wrangling
+library(dplyr)
+library(tidyr)
+library(readr)
+library(skimr)
+library(janitor)
+library(magrittr)
+library(lubridate)
+library(stringr)
+
+# modelling
+library(tidymodels)
+library(vip)
+library(randomForest)
+library(doParallel)
+
+# set other options ----
+options(scipen=999)
+
+knitr::opts_chunk$set(
+  tidy = FALSE, 
+  message = FALSE,
+	warning = FALSE)
+
+```
+
+
+## Data Visualization
+
+Recall, that for this module we will ask the central question **Can we predict annual average air pollution concentrations at the resolution of zip code regional levels using predictor variables describing population density, urbanization, road density, satellite pollution data, and chemical modeling data?**
+
+We have successfully built and tested a model that fulfills our requirements (yay us!). 
+
+Let's go ahead and run through all the steps to fit that model so we are ready to go.
+
+```{r}
+
+# specify number of cores to use
+doParallel::registerDoParallel(cores = 2)
+
+# read & wrangle data set
+pm <- read_delim("data/air_pollution.csv", delim = ",") %>%
+  clean_names() %>%
+  mutate(across(c(id, fips, zcta), as.factor)) %>%
+  mutate(city = case_when(city == "Not in a city" ~ "Not in a city",
+                          city != "Not in a city" ~ "In a city"))
+
+# split sample ----
+pm_split <- rsample::initial_split(data = pm, prop = 2/3)
+
+# extract training data set
+train_pm <- training(pm_split)
+
+# extract test data set
+test_pm <- testing(pm_split)
+
+# split data for cross-validation
+kfold_pm <- rsample::vfold_cv(data = train_pm, v = 4)
+
+# ceate recipe to pre-process data set and assign variable roles
+RF_rec <- recipe(train_pm) %>%
+    update_role(everything(), new_role = "predictor")%>%
+    update_role(value, new_role = "outcome")%>%
+    update_role(id, new_role = "id variable") %>%
+    update_role("fips", new_role = "county id") %>%
+    step_novel("state") %>%
+    step_string2factor("state", "county", "city") %>%
+    step_rm("county") %>%
+    step_rm("zcta") %>%
+    step_corr(all_numeric())%>%
+    step_nzv(all_numeric())
+
+# specify model, engine, and mode and hyperparameters to tune
+tune_RF <- rand_forest(mtry = tune(), min_n = tune()) %>%
+  set_engine("randomForest") %>%
+  set_mode("regression")
+
+# specify workflow with recipe and model to be used 
+RF_tune_wflow <- workflows::workflow() %>%
+            workflows::add_recipe(RF_rec) %>%
+            workflows::add_model(tune_RF)
+
+
+# fit workflow with cross validation and tuning
+tune_RF_results <- tune_grid(object = RF_tune_wflow, resamples = kfold_pm, grid = 20)
+
+# get performance metrics and pull out the optimal model parameters
+tuned_RF_values<- select_best(tune_RF_results, "rmse")
+
+# define workflow using optimized parameters
+RF_tuned_wflow <-RF_tune_wflow %>%
+  tune::finalize_workflow(tuned_RF_values)
+
+```
+
+If we put this in the context of science as "story-telling" our narrative is the we are able to use a set of predictor values that are generally gathered at much higher resolution compared to air pollution levels to predict annual average air pollution concentrations in areas with no or only sparse monitors with reasonable accuracy.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+We have established that a good figure has a specific point and serves the narrative. Describe three visualization that you might generate to illustrate the key result of our project.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-tip icon=false collapse=true}
+
+## {{< fa person-chalkboard >}}    Pointers
+
+A map! Let's make a map to compare our predicted outcome values $\hat{Y}$ to our actual observed outcome values $Y$.
+
+:::
+
+Let's start by accessing a simple feature (`sf`) object that contains information on how to plot polygons for all countries using `rnaturalearth::ne_countries()`.
+
+```{r}
+
+world <- ne_countries(scale = "medium", returnclass = "sf")
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Use your plotting skills to plot the world map using `ggplot`.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-tip collapse=true}
+
+## Solution
+
+Here is what your maps should look like
+
+```{r}
+#| label: fig-world
+#| fig-cap-location: bottom
+#| fig-cap: "World map"
+
+# fill
+map_color <- "khaki"
+
+# plot world map
+ggplot() +
+    geom_sf(data = world, color = "black", fill = map_color) 
+
+```
+
+:::
+
+We are only interested in plotting the continental US which has the following latitude/longitude bounds:
+
+* Northern bound: 49.3457868 
+* Western bound: -124.7844079
+* Eastern bound: -66.9513812
+* Southern bound: 24.7433195
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Create a plot containing only the United States
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-tip collapse=true}
+
+## Solution
+
+```{r}
+#| label: fig-us
+#| fig-cap-location: bottom
+#| fig-cap: "Map of the continental United States"
+
+# lat/long for map extent
+x_min <- -124.7844079
+x_max <- -66.9513812
+y_min <- 24.7433195
+y_max <- 49.3457868
+
+# set color for fill
+map_color <- "khaki"
+
+# create plot
+ggplot() +
+  geom_sf(data = world, color = "black", fill = map_color) +  # plot outline of countries
+  coord_sf(xlim = c(x_min, x_max),
+           ylim = c(y_min, y_max))                            # set boundaries for map
+
+```
+
+:::
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Add the monitor stations to your map.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-tip collapse=true}
+
+## Solution
+
+```{r echo=FALSE, fig.cap=""}
+#| label: fig-US-sites
+#| fig-cap-location: bottom
+#| fig-cap: "Air pollution monitoring in the United States. Red diamaonds indicate individual monitoring sites."
+
+# create plot
+ggplot() +
+  geom_sf(data = world, color = "black", fill = map_color) +  # plot outline of countries                          
+  geom_point(data = pm, aes(x = lon, y = lat),                # add sites
+             size = 2, shape = 23, fill = "darkred") +
+  coord_sf(xlim = c(x_min, x_max),
+           ylim = c(y_min, y_max))
+
+```
+
+:::
+
+In a previous chapter, we accessed data sets containing state lines. For this data set we predicted air pollution at the county level, so let's go ahead and use `maps::map()` to access a data set with county polygons. Because we need to make sure that the object is a simple feature (`sf`), we will need to use `sf::st_as_sf()` to convert the downloaded object to the correct format.
+
+```{r}
+
+# download counties
+counties <- maps::map("county", plot = FALSE, fill = TRUE) %>%
+  st_as_sf()
+
+# object information
+counties
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Add the county information to your map. Describe how you can use this visualization to serve the narrative for this project.
+
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-tip collapse=true}
+
+## Solution
+
+```{r}
+#| label: fig-air-poll-US
+#| fig-cap-location: bottom
+#| fig-cap: "Air pollution monitoring system in continental US. Black lines indicate county lines. Individual monitors are indicated by a red diamond."
+
+# create plot
+ggplot() +
+  geom_sf(data = world, color = "black", fill = map_color) +  # plot outline of countries
+  geom_sf(data = counties, fill = NA, color = "black") +      # add county lines
+  geom_point(data = pm, aes(x = lon, y = lat),                # add sites
+             size = 2, shape = 23, fill = "darkred") +
+  coord_sf(xlim = c(x_min, x_max),
+           ylim = c(y_min, y_max))
+
+```
+
+This map effectively illustrates that there are distinct differences in the density of monitors and illustrates that especially in rural areas the distribution can be quite sparse. While, you would not necessarily include this figure to underscore your results, it could be effective to include it in your introduction to describe the need to create the model in the first place.
+
+:::
+
+Now, let's generate the set of maps comparing the observed and predicted levels of air pollution, i.e. the figure that we want to use to make the point that indeed, we are able to build and train a model that can be used to predict air pollution levels based on a set of predictor variables.
+
+First we are going to need to make sure that our `county` data set with the information to plot county polygons and the `data.frames` containing the observed and predicted air pollution values can be joined, i.e. they need to have a column in common.
+
+Let's take a look at the two objects, both contain a column with county information but you will see that the county information is formatted differently. Use bullet points to describe the steps that you will need to take so that the values will match, suggest which functions you can use to achieve this. 
+
+First, the polygons:
+
+```{r}
+
+head(counties)
+
+```
+
+Now our air pollution data:
+
+```{r}
+
+pm %>%
+  pull(county) %>%
+  head()
+
+```
+
+First, we need to separate the county and state information in the counties data set, then, we need to make the values in the `county` column uppercase to match the `pm` data set.
+
+```{r}
+
+counties <- counties %>%
+  separate(ID, into = c("state", "county"), sep = ",", remove = FALSE) %>%
+  mutate(county = str_to_title(county))
+
+head(counties)
+
+```
+
+Now we can use `inner_join()` to combine the two data sets.
+
+```{r}
+
+map_data <- counties %>%
+  inner_join(pm, by = "county")
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Skill check: Conceptually explain the difference between using `left_join()`, `inner_join()` and `full_join()`.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+We're ready to create a map displaying the observed mean annual air pollution data for each country.
+
+```{r}
+#| label: fig-pm-obs
+#| fig-cap: "Observed mean annual PM2.5 concentration for counties with air pollution monitor."
+
+p1 <- ggplot() +
+  geom_sf(data = world, color = "black", fill = NA) +
+  geom_sf(data = map_data, aes(fill = value), color = "black") +
+  scale_fill_viridis_c() +
+  coord_sf(xlim = c(x_min, x_max),
+           ylim = c(y_min, y_max)) +
+  labs(title = "Observed mean annual PM2.5 concentration")
+
+p1
+
+```
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Briefly describe this figure. Make sure to describe how the data is encoded.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+Now, let's create the same plot but displaying the predicted values. To do this we will first need to get all the predicted values for both our training and test data sets and then join that data set with our `counties` data set as above to be able to plot it.
+
+```{r}
+
+# fit model for monitors in training set
+train_fit <- RF_tuned_wflow %>%
+  fit(data = train_pm)
+
+# fit model for monitors in training set
+test_fit <- RF_tuned_wflow %>%
+  fit(data = test_pm)
+
+# predict values for monitors in training set
+pred_train <- train_fit %>%
+  predict(train_pm) %>%
+  bind_cols(train_pm) %>%
+  select(.pred, value, fips, county, id)
+
+# predict values for monitors in test set
+pred_test <- test_fit %>%
+  predict(test_pm) %>%
+  bind_cols(test_pm) %>%
+  select(.pred, value, fips, county, id)
+
+# combine data sets
+pred_PM25 <- pred_test %>%
+  bind_rows(pred_train)
+
+# add counties data for plotting
+map_data <- counties %>%
+  inner_join(pred_PM25, by = "county")
+
+```
+
+Now we should be able to create a plot with our predicted PM2.5 levels.
+
+```{r}
+#| label: fig-pm-pred
+#| fig-cap: "Predicted mean annual PM2.5 concentration for counties with air pollution monitor."
+
+p2 <- ggplot() +
+  geom_sf(data = world, color = "black", fill = NA) +
+  geom_sf(data = map_data, aes(fill = value), color = "black") +
+  scale_fill_viridis_c() +
+  coord_sf(xlim = c(x_min, x_max),
+           ylim = c(y_min, y_max)) +
+  labs(title = "Predicted mean annual PM2.5 concentration")
+
+p2
+
+```
+
+Finally, we'll use `patchwork` to create our final figure. We'll use `patchwork::plot_annotation()` to add a title and legend^[Note that adding `\n`forces a line break. Put that in your back pocket for creating good visualizations!].
+
+```{r fig.width=9, fig.height=15, fig.cap=}
+#| label: fig-pm-pred-v-obs
+#| fig-cap: "Comparison of observed and predicted mean annual PM2.5 concentration for counties with air pollution monitor."
+#| fig-width: 9
+#| fig-height: 15
+
+p1 / p2 +
+  plot_annotation(title = "Comparison of observed (top) and predicted (bottom) PM2.5 levels.",
+                  subtitle = "A random forest model was trained to predict air PM2.5 levels based on predictor \nvariables including population levels, road density, development.")
+  
+```
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Write up a paragraph (250 - 500 words^[This is the typical word limits for Abstracts]) summarizing the key question we asked, our methods to answer it, key results, discussion & key conclusions. 
+
+This will require that you look back over the previous chapters to get specific details on our results such as model performance. Over the semester you have been given several standard, formulaic ways of framing some of the these components, leverage those to write a concise but comprehensive answer. 
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
