@@ -63,12 +63,15 @@ book:
         
     - part: I_macrosystems-ecology.qmd
       chapters:
-        - 29_thermal-structure.qmd
-        - 30_elnino.qmd
+        - 29_thermal-structure-I.qmd
+        - 30_thermal-structure-II.qmd
+        - 31_elnino_I.qmd
+        - 32_elnino_II.qmd
         
     - part: J_remote-sensing.qmd
       chapters:
-        - 31_vegetation.qmd
+        - 33_vegetation-I.qmd
+        - 34_vegetation-II.qmd
 
     - part: z_appendix.qmd
       chapters:

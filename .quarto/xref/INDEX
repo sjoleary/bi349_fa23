@@ -130,5 +130,23 @@
   },
   "H_air-pollution.qmd": {
     "H_air-pollution.html": "da98afc9"
+  },
+  "29_thermal-structure-I.qmd": {
+    "29_thermal-structure-I.html": "0db3ea89"
+  },
+  "30_thermal-structure-II.qmd": {
+    "30_thermal-structure-II.html": "a1b88b69"
+  },
+  "31_elnino_I.qmd": {
+    "31_elnino_I.html": "0ec0d23f"
+  },
+  "32_elnino_II.qmd": {
+    "32_elnino_II.html": "91473ace"
+  },
+  "33_vegetation-I.qmd": {
+    "33_vegetation-I.html": "e5416569"
+  },
+  "34_vegetation-II.qmd": {
+    "34_vegetation-II.html": "46ec1a9d"
   }
 }

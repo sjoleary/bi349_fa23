@@ -2,8 +2,16 @@
 
 For each of our modules we will have a project-folder with an `Rproject`, `*.qmd`-files, and sub-directories for data, scripts, and results as described in our `Rproject` Tutorial. You should have a directory on your Desktop or Documents folder on your laptop (name it something like `bi349`) as a home directory for all of our project folders this semester. 
 
-[Download the directory for this project here](), make sure the directory is unzipped and move it to your `bi328` directory. You can open the `Rproj` for this module either by double clicking on it which will launch `Rstudio` or by opening `Rstudio` and then using `File > Open Project` or by clicking on the `Rproject` icon in the top right of your program window and selecting `Open Project`. 
+[Download the directory for this project here](https://drive.google.com/drive/folders/1dZ0UgGA9rmmUTvUbr9e9cIIC5CgJyXmw?usp=drive_link), make sure the directory is unzipped and move it to your `bi328` directory. You can open the `Rproj` for this module either by double clicking on it which will launch `Rstudio` or by opening `Rstudio` and then using `File > Open Project` or by clicking on the `Rproject` icon in the top right of your program window and selecting `Open Project`. 
 
 Once you have opened a project you should see the project name in the top right corner^[Pro tip: If you run into issues where a quarto document won't render or file paths aren't working (especially if things were working previously) one of your first steps should be to double check that the correct `Rproj` is loaded.].
 
-## 
+## Macrosystems approach to understanding the thermal structure of lakes
+
+The water temperature of lakes is the product of several interacting parameters including solar radiation, air temperature, wind, precipitation and inflow and outflow of streams and other water sources.  As the climate changes this will in turn change the thermal structure of a lake which encompasses the water temperature at multiple depths and the stratification pattern it produces due to differences in the density of water at different temperatures. Because of their position in the landscape and the thermal inertia of water, lakes can be powerful indicators of local, regional, and global climate change.
+
+In this module, we are going to take a look at how altered climate conditions can impact the thermal structure of a lake. Generally, we distinguish between stratified lakes that exhibit distinct layers of water on a density gradient compare to an isothermal lake which has the same temperature along its entire depth profile.
+
+The physics of how different parameters interact to shape the thermal structure of a lake are well understood, which allows us to build a mathematical model that describes how these factors interact and affect each other to produce the observed thermal structure. The drivers of thermal structure occur at both local and regional scales. For example the temperature of an inflowing stream (or even just tha that inflowing stream exisits) is a local factor, whereas weather and climate patterns, including the amount of precipitation, are typically going to be regional. 
+
+We are going to take a macrosystems ecology approach to address ecological dynamics and feedback across multiple spatial and temporal scales. We will use the General Lake Model to simulated the thermal structure of lakes based on different climate scenarios to test different hypotheses on how complex systems with many interacting factors at different scales will respond to global change.

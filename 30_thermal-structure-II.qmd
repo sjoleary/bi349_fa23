@@ -1,0 +1,485 @@
+
+# Lake thermal structures II
+
+```{r}
+#| label: setup
+#| include: false
+
+# custom functions ----
+
+library(ggplot2)
+
+theme_standard <- theme_classic() +
+  theme(
+    axis.text = element_text(size = 11, color = "black"),
+    axis.title = element_text(size = 16, color = "black"),
+    axis.title.y = element_text(vjust = 1.5, color = "black"),
+    axis.line = element_line(color = "black"),
+    
+    legend.position = "bottom",
+    
+    panel.background = element_rect(fill = "white", color = NA), 
+    panel.border = element_blank(), 
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(), 
+    strip.background = element_rect(fill = "grey95", color = "black"), 
+    strip.text.x = element_text(size = 16, color = "black"),
+    strip.text.y = element_text(size = 16, color = "black")) 
+
+theme_facet <- theme_classic() +
+  theme(
+    axis.text = element_text(size = 11, color = "black"),
+    axis.title = element_text(size = 16, color = "black"),
+    axis.title.y = element_text(vjust = 1.5, color = "black"),
+    axis.line = element_line(color = "black"),
+    
+    legend.position = "bottom",
+    
+    panel.background = element_rect(fill = "white", color = NA), 
+    panel.border = element_rect(fill = NA, color = "black"), 
+    panel.grid.major = element_line(color = "grey85"), 
+    panel.grid.minor = element_blank(), 
+    strip.background = element_rect(fill = "grey95", color = "black"), 
+    strip.text.x = element_text(size = 16, color = "black"),
+    strip.text.y = element_text(size = 16, color = "black")) 
+
+
+
+# set options
+knitr::opts_chunk$set(
+  tidy = FALSE, 
+  message = FALSE,
+	warning = FALSE)
+
+options(htmltools.dir.version = FALSE)
+
+theme_set(theme_standard)
+
+```
+
+
+**Learning Objectives**
+
+After completing this tutorial you should be able to
+
+* formulate the importance of simulated data to exploring complex questions
+* set up and run the General Lake Model (GLM) to simulate lake thermal structure
+* design climate scenarios, simulate their effect on lake thermal structure, and interpret the model output
+
+
+[Download the directory for this project here](https://drive.google.com/drive/folders/1dZ0UgGA9rmmUTvUbr9e9cIIC5CgJyXmw?usp=drive_link), make sure the directory is unzipped and move it to your `bi328` directory. You can open the `Rproj` for this module either by double clicking on it which will launch `Rstudio` or by opening `Rstudio` and then using `File > Open Project` or by clicking on the `Rproject` icon in the top right of your program window and selecting `Open Project`. 
+
+There should be a file named `30_thermal-structure-II.qmd` in that project directory. Use that file to work through this tutorial - you will hand in your rendered ("knitted") `quarto` file as your homework assignment. So, first thing in the `YAML` header, change the author to your name. You will use this `quarto` document to record your answers. Remember to use comments to annotate your code; at minimum you should have one comment per code set^[You should do this whether you are adding code yourself or using code from our manual, even if it isn't commented in the manual... especially when the code is already included for you, add comments to describe how the function works/what it does as we introduce it during the participatory coding session so you can refer back to it.] you may of course add as many comments as you need to be able to recall what you did. Similarly, take notes in the document as we discuss discussion/reflection questions but make sure that you go back and clean them up for "public consumption".
+
+Before you get started, let's make sure to read in all the packages we will need.
+
+```{r}
+
+
+# load libraries ----
+
+# reporting
+library(knitr)
+
+# visualization
+library(ggplot2)
+library(ggthemes)
+library(patchwork)
+
+# data wrangling
+library(dplyr)
+library(tidyr)
+library(readr)
+library(skimr)
+library(janitor)
+library(magrittr)
+library(lubridate)
+
+# General Lake Model
+library(GLMr)
+library(glmtools)
+
+# set other options ----
+options(scipen=999)
+
+knitr::opts_chunk$set(
+  tidy = FALSE, 
+  message = FALSE,
+	warning = FALSE)
+
+
+```
+
+
+## Develop your own climate scenario
+
+Now that we have an idea of how to interact with the model, and we've tested the quality of our model by comparing observed and simulated data sets let's use the model to simulate a data set for a specific climate model.
+
+You are going to develop two climate scenarios involving an extreme event (e.g. hurricane) and a more gradual change (e.g. increase in observed air temperature).
+
+For some inspiration on your climate scenario you can check out a [visualization of high and low emission scenarios](http://climatedata.us/) and how they impact temperature and precipitation. You can also take a look at [global projections](https://climatemodels.uchicago.edu/maps/) to see how much change is expected for various models and metrics.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+For each climate scenario describe which meteorological variables (air temperature, precipitation, wind) you will modify, by how much and why you are modifying them in this year, and when during your simulations you will modify the variables you have specified.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+Next, you will need to modify the input data (`met_hourly.csv`) to reflect the climate scenario you want to run. 
+
+::: {.callout-warning}
+
+**Make sure to follow the instructions on how to do this closely to make sure that you will be able to use your input file without issues to run the model.**
+
+:::
+
+In your project folder create a new folder called `sim1`. Then make a copy of `met_hourly.csv` and place it into that folder and rename it `sim1_met_hourly.csv`. Be sure to do this *before* you open it and make any changes to the file. Also add a copy of `glm2.nml` to this folder.
+
+::: {.callout-warning}
+
+Before you start - any time you open a `*_met_hourly.csv` file in Microsoft Excel it will alter the date/time formatting of the file so that `GLM` cannot read it. To avoid this error you will need to follow the steps below any time you change your `met` file.
+
+:::
+
+1. Just to be safe, copy and paste an extra version of the `met_hourly.csv` file in your `sim` folder so that you have a backup instead you make mistakes and want to go back to it. rename it `met_hourly_original.csv` or similar and be sure **not** to open this file in excel.
+2. Open the `sim1/sim1_met_hourly.csv` file in Excel. Manipulate the input variables to reflect the weather event/climate scenario you have designed^[A note on units: rain should be in meters per day, usually we measure precipitation in mm/d but make sure to convert to m/d by multiplying by 0.001 when you enter it into your `met` file]. The order of columns does not matter but you can only have one of for each variable and the columns names **should not be changed**.
+3. Once you have finished editing your file, reformat your date/time column.
+    + highlight the `time` column in Excel
+    + click on `Format Cells` and then on `Custom`
+    + in the `Type` or `Formatting` box, change the default to `YYYY-MM-DD hh:mm:ss` exactly - this is the only format that GLM recognizes.
+    + save the file once you are done and close the `csv` file - any time you open the file in Excel you will need to format this column and save the change!
+4. Read in the altered `met_hourly` file to Rstudio, convert the format of the date/time column and write it back out to file.
+
+```{r}
+#| eval: false
+
+# read in altered met file & convert time format for GLM
+metadata <- read_delim("sim/met_hourly_plus2.csv", delim = ",") %>%
+  mutate(time = as.POSIXct(strptime(time, "%Y-%m-%d %H:%M:%S", tz="EST")))
+         
+# write back to file
+write_delim(metadata, "sim/sim1_met_hourly.csv", delim = ",")
+
+```
+
+::: {.callout-warning}
+
+**Any time you alter the `met` file you will need to go back through these steps!**
+
+:::
+
+Before we can run the simulations, we will also need to edit the `glm2.nml` file to change the name of your input meteorological file so that it knows what file it should be looking for to get the meteorological data to run the model with.
+
+Open the `nml` file that you have placed in your `sim1` folder in a text editor^[You can also open directly in Rstudios built in text editor if you prefer.] and scroll down to the meteorology section. Here, change the `meteo_fl` entry to your new file name (`sim1_met_hourly.csv`) for your climate scenario^[Pro tip: Us the `Find` option to locate the `nml` file. Details count: Make sure that your quotes `'` around the file name are upright and not slanted!].
+
+Once you've edited the `met` file name in your `nml` file, double check that you've made sure that it's correct. You can do this by reading in the file.
+
+```{r}
+#| eval: false
+
+# change the path to new sim folder
+nml_file <-  "sim1/glm2.nml"
+
+# read altered nml file
+nml <- read_nml(nml_file)
+
+# check met file name
+get_nml_value(nml, "meteo_fl")
+
+```
+
+If you made the changes correctly the output should list the name of the meteorological file you specified that describes your weather/climate scenario (`sim1_met_hourly.csv`).
+
+Once you have completed this you are ready to run your climate scenarios.
+
+Repeat the process to create your second simulation.
+
+
+## Run climate scenario 1
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Give a one sentence description of the scenario you are running and then outline how you would expect your climate change scenario to affect the thermal structure in Awesome Lake both in terms of water temperature and in stratification timing and strength.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+Now, let's run the scenario.
+
+```{r}
+#| eval: false
+
+# run model for climate scenario
+run_glm("sim1/", verbose = TRUE)
+
+```
+
+Our next step will be specifying the file path for our output so we can use the functions from `glmtools` to process the simulation output. Since this is our first climate scenario, we'll name the variable `climate1`. Contrast this with our variable `baseline` that has the simulated output for current, typical meteorological conditions across a year based on the `met_hourly.csv` input file. Keep in mind that we use the same parameters to describe the link for both simulations - so we are keeping the lake the same and comparing different scenarios for the drivers of thermal structure^[The other type of comparison you could make is having the same conditions for drivers and two or more different lakes.].
+
+```{r}
+#| eval: false
+
+# define file path for output for baseline scenario
+baseline <- file.path("sim", 'output.nc')
+
+# define file path for output for climate scenario 1
+climate1 <- file.path("sim1", "output.nc")
+
+```
+
+Next, let's pull the surface temperature for our first climate scenario^[Recall, that we did this earlier or our baseline scenario and stored that information in the `data.frame` `surf_temp`.].
+
+```{r}
+#| eval: false
+
+surf_temp_cl1 <- get_var(file = climate1, "temp", reference = "surface", z_out = c(1)) %>%
+  rename(Scenario1_Temp = temp_1)
+
+```
+
+
+## Run climate scenario 2
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Give a one sentence description of the scenario you are running and then outline how you would expect your climate change scenario to affect the thermal structure in Awesome Lake both in terms of water temperature and in stratification timing and strength.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+Now, let's run the scenario. Make sure that your folder `sim2` has the appropriate `met` data and that you have changed the filename in the `nml` file accordingly.
+
+```{r}
+#| eval: false
+
+# run model for climate scenario
+run_glm("sim2/", verbose = TRUE)
+
+```
+
+Again, we will want to specify the file path for our output - we'll name this variable `climate2`. So now we have three file path variables `baseline`, `climate1`, and `climate2`. We will use those in the next section to plot the results of our simulations.
+
+```{r}
+#| eval: false
+
+# define file path for output
+climate2 <- file.path("sim2", "output.nc")
+
+```
+
+Next, let's pull the surface temperature for our second scenario climate scenario.
+
+```{r}
+#| eval: false
+
+surf_temp_cl2 <- get_var(file = climate1, "temp", reference = "surface", z_out = c(1)) %>%
+  rename(Scenario2_Temp = temp_1)
+
+```
+
+
+## Compare your results
+
+We have three scenarios to compare, your `baseline` which is the scenario based on current conditions, a simulation of a short-term climate/weather event (`climate1`), and a gradual change (`climate2`)^[Depending on how you set this up the names might be swapped for your scenarios].
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Use your data wrangling skills to create a single data frame that contains the surface temperature for your baseline data and your two climate scenarios and create plot that allows you to compare how surface temperature changes over the simulated time period for all three scenarios.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-tip collapse=true}
+
+## Pointers
+
+We currently have our surface temperature data in three separate data sets. We want them to be in a single data set. The first step will be to combine all three data sets. We have a column in common (`DateTime`), so we will want to use `left_join()`.
+
+Dates are notoriously messy to work with, so we will use mutate to make sure that all of them are in the same format first, using `mutate()`.
+
+```{r}
+#| eval: false
+
+surf_temp <- surf_temp %>%
+  mutate(DateTime = as.POSIXct(strptime(DateTime, "%Y-%m-%d", tz="EST")))
+
+surf_temp_cl1 <- surf_temp_cl1 %>%
+  mutate(DateTime = as.POSIXct(strptime(DateTime, "%Y-%m-%d", tz="EST")))
+
+surf_temp_cl2 <- surf_temp_cl2 %>%
+  mutate(DateTime = as.POSIXct(strptime(DateTime, "%Y-%m-%d", tz="EST")))
+
+surf_temp_all <- surf_temp %>%
+  left_join(surf_temp_cl1) %>%
+  left_join(surf_temp_cl2)
+
+```
+
+Before you can plot the data, you will need to create a tidy data set. Currently our column names for each of the scenarios are actually values, so it isn't a tidy data set.
+
+```{r}
+#| eval: false
+
+tidy_temp <- surf_temp_all %>%
+  pivot_longer(names_to = "scenarios", values_to = "temperature", 2:4)
+
+```
+
+Now it will be easy to create your summary plot!
+
+:::
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Describe your results using the figure you just created. Remember to start with the general trends and patterns first and then highlight notable details. Be specific (consider things like min/max temperature, changes over time etc.).
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Create a plot showing the thermal structure of Lake Awesome for your baseline scenario, scenario 1 & 2.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-tip icon=false collapse=true}
+
+## {{< fa person-chalkboard >}}    Pointers
+
+You will be needing to use the function `plot_temp()` as we did above. Change the syntax accordingly. You will need to change the `file` argument to plot each scenario. Remember, we have stored the information for the output files of the simulations in the vectors `baseline`, `climate1`, and `climate2`.
+
+Remember, to use `fig-height` and `fig-width` to adjust the size of your figure so that you have an easily readable figure once you knit your document.
+
+
+:::
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Compare and contrast the thermal structure of Lake Awesome for the simulations of your baseline and two climate scenarios based on the figure above. Be specific - key things to think about are min/max temperatures, stratification vs isothermal, depth of the thermocline, how patterns change over time).
+
+Remember, this should be just a description - hang onto your discussion & interpretation of your results for the next question!
+
+:::
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Discuss your results. Things to consider: Do your results support or contradict your hypotheses (how you were expecting the surface temperature and thermal structure to change for each scenario), what drivers did you manipulate and what mechanisms are in play in how they alter thermal structure (which cause heating/cooling/mixing?), consider temporal and spatial patterns (depth), what impacts might this have on organisms living in the lake?
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Over the course of the semester we have discussed that (data) science is an iterative process, where we ask initial questions/formulate an initial hypothesis, test/explore it and then once we are done we generally have additional questions to explore.
+
+Based on what you have learned from running one simulation each for a gradual change (climate) and an extreme event (weather/climate), outline how would your refine your question and design and experiment running a series of simulations.
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+
+
+## Acknowledgments
+
+These activities are based on the EDDIE Climate Change Effects on Lake Temperatures module.^[Carey, C.C., S. Aditya, K. Subratie, V. Daneshmand, R. Figueiredo, and K.J. Farrell. 24 August 2020. Macrosystems EDDIE: Climate Change Effects on Lake Temperatures. Macrosystems EDDIE Module 1, Version 2.] 

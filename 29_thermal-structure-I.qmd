@@ -1,0 +1,575 @@
+
+# Lake thermal structures I
+
+```{r}
+#| label: setup
+#| include: false
+
+# custom functions ----
+
+library(ggplot2)
+
+theme_standard <- theme_classic() +
+  theme(
+    axis.text = element_text(size = 11, color = "black"),
+    axis.title = element_text(size = 16, color = "black"),
+    axis.title.y = element_text(vjust = 1.5, color = "black"),
+    axis.line = element_line(color = "black"),
+    
+    legend.position = "bottom",
+    
+    panel.background = element_rect(fill = "white", color = NA), 
+    panel.border = element_blank(), 
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(), 
+    strip.background = element_rect(fill = "grey95", color = "black"), 
+    strip.text.x = element_text(size = 16, color = "black"),
+    strip.text.y = element_text(size = 16, color = "black")) 
+
+theme_facet <- theme_classic() +
+  theme(
+    axis.text = element_text(size = 11, color = "black"),
+    axis.title = element_text(size = 16, color = "black"),
+    axis.title.y = element_text(vjust = 1.5, color = "black"),
+    axis.line = element_line(color = "black"),
+    
+    legend.position = "bottom",
+    
+    panel.background = element_rect(fill = "white", color = NA), 
+    panel.border = element_rect(fill = NA, color = "black"), 
+    panel.grid.major = element_line(color = "grey85"), 
+    panel.grid.minor = element_blank(), 
+    strip.background = element_rect(fill = "grey95", color = "black"), 
+    strip.text.x = element_text(size = 16, color = "black"),
+    strip.text.y = element_text(size = 16, color = "black")) 
+
+
+
+# set options
+knitr::opts_chunk$set(
+  tidy = FALSE, 
+  message = FALSE,
+	warning = FALSE)
+
+options(htmltools.dir.version = FALSE)
+
+theme_set(theme_standard)
+
+```
+
+
+**Learning Objectives**
+
+After completing this tutorial you should be able to
+
+* formulate the importance of simulated data to exploring complex questions
+* set up and run the General Lake Model (GLM) to simulate lake thermal structure
+* design climate scenarios, simulate their effect on lake thermal structure, and interpret the model output
+
+[Download the directory for this project here](https://drive.google.com/drive/folders/1dZ0UgGA9rmmUTvUbr9e9cIIC5CgJyXmw?usp=drive_link), make sure the directory is unzipped and move it to your `bi328` directory. You can open the `Rproj` for this module either by double clicking on it which will launch `Rstudio` or by opening `Rstudio` and then using `File > Open Project` or by clicking on the `Rproject` icon in the top right of your program window and selecting `Open Project`. 
+
+There should be a file named `29_thermal-structure-I.qmd` in that project directory. Use that file to work through this tutorial - you will hand in your rendered ("knitted") `quarto` file as your homework assignment. So, first thing in the `YAML` header, change the author to your name. You will use this `quarto` document to record your answers. Remember to use comments to annotate your code; at minimum you should have one comment per code set^[You should do this whether you are adding code yourself or using code from our manual, even if it isn't commented in the manual... especially when the code is already included for you, add comments to describe how the function works/what it does as we introduce it during the participatory coding session so you can refer back to it.] you may of course add as many comments as you need to be able to recall what you did. Similarly, take notes in the document as we discuss discussion/reflection questions but make sure that you go back and clean them up for "public consumption".
+
+We are going to have to install a few specialized packages for this module. We will be using `devtools::install_github()` which allows us to install a repository directly from github^[Typically we have been installing from CRAN].
+
+```{r}
+#| eval: false
+
+# install devtools if you have not already
+install.packages("devtools")
+
+# this will likely take a few minutes
+# if successful will say "DONE (GLMr)" at end of output
+devtools::install_github("CareyLabVT/GLMr", force = TRUE)
+
+# this will also take a few minutes
+# you might get a pop up asking if you want to compile from source
+devtools::install_github("CareyLabVT/glmtools", force = TRUE)
+
+```
+
+Now we are ready to read in all the packages we will need.
+
+```{r}
+
+# load libraries ----
+
+# reporting
+library(knitr)
+
+# visualization
+library(ggplot2)
+library(ggthemes)
+library(patchwork)
+
+# data wrangling
+library(dplyr)
+library(tidyr)
+library(readr)
+library(skimr)
+library(janitor)
+library(magrittr)
+library(lubridate)
+
+# General Lake Model
+library(GLMr)
+library(glmtools)
+
+# set other options ----
+options(scipen=999)
+
+knitr::opts_chunk$set(
+  tidy = FALSE, 
+  message = FALSE,
+	warning = FALSE)
+
+```
+
+
+## Macrosystems ecology
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Briefly describe the central questions explore in macrosystems ecology and outline some of the challenges to the field.
+
+:::
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+## The power of simulated data
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Describe benefits and challenges of using simulated to investigate complex questions, especially in the context of global change ecology.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+In this module, we are going to set up a lake model to explore how different climate scenarios will impact the thermal structure of a lake.
+
+
+## Get to know the model
+
+We are going to start off by plotting water temperature data using a default model lake and real climate forcing data to get to know the model.
+
+We are going to use additional scripts/files that will allow you to tell the General Lake Model (GLM) how you want the model to be run. The GLM is not written in R, rather we have wrapper functions written in R that allow us to interface with the model. The advantage of doing this is that we can run the model and then interpret the output in the same environment.
+
+We will use `*.nml` scripts to run the GLM simulations. This script sets all the initial conditions of the lake we want to simulate, i.e. id defines the parameters. It includes various sections including `glm_setup`, `morphometry`, and `metereology`.
+
+We are going to run all of our simulations in separate directories that will contain input files/scripts defining parameters, all output will also be written to that directory. If you check the file structure for our project directory you will notice that we have a folder called `sim`. This already contains a file called `glm2.nml` for a default lake. We will create a vector with our path, that way we won't constantly have to type in the path, instead we can use the object name.
+
+
+```{r}
+
+# set path for nml file
+nml_file <- "sim/glm2.nml"
+
+# read in nml file
+nml <- read_nml(nml_file)
+
+# see contents
+print(nml)
+
+```
+
+Let's take a look at the various values that have been set for different parameters that determine how we will be running our simulation.
+
+First, let's find out what our lake is called.
+
+```{r}
+
+# query lake name
+get_nml_value(nml, "lake_name")
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Use the `get_nml_value()` function to query additional parameters that have been set in your `*.nml` file. You can do this by changing the argument `lake_name` to `lake_depth`, `latitude`, and `longitude`.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+Now, let's take a closer look at the meteorological input data for the duration of our simulation.
+
+```{r}
+#| label: fig-therm-str
+#| fig-cap: "Metereological data describing drivers of thermal structure of Lake Awesome."
+#| fig-width: 8
+#| fig-height: 15
+
+plot_meteo(nml_file)
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Briefly describe what meteorological data has been defined for this simulation run and argue why these are important parameters to know to accurately model the thermal structure of a Lake.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Use the information you've pulled from the `nml` file to describe where your lake is located and what the maximum depth is.
+
+This lake is based on a real lake. Figure out where this lake is located (what the name of the lake is) and argue whether you think the meteorological data is reasonable for the model lake.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+## Run simulation & compare to real data
+
+Because this is a real lake we also have observed data from sensors in the lake.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Outline the importance of being able to assess the quality of a model and simulated data using observed data.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+Now, let's get to the good stuff and actually run the simulation; to run this simulation it will pull data from the `nml` file describing the lake along with information on drivers from the `met_hourly.csv` file in your `sim` folder.
+
+```{r}
+
+# run model
+run_glm("sim/", verbose = TRUE)
+
+```
+
+If you check your `sim` directory, you should now see output files that have been added (check the modified dates). 
+
+The important files is `output.nc` which contains all the output data from our simulation. Again, we'll create a vector with the path to the output file. This is our baseline simulated data based on observed conditions recorded in the `met_hourly.csv` file.
+
+```{r}
+
+baseline <- file.path("sim", 'output.nc')
+
+```
+
+Now, let's pull the data describing daily surface water temperatures in the lake during our baseline simulation and store it in a `data.frame` so we can compare it to our climate scenario down the road.
+
+```{r}
+
+# create data frame with surface temperature
+surf_temp <- get_var(file = baseline, "temp", reference = "surface", z_out = c(1)) %>%
+  rename(Baseline_Temp = temp_1)
+
+```
+
+For now, let's visualize our simulated water temperatures using a heat map.
+
+```{r}
+#| label: fig-th-str-sim
+#| fig-cap: "Thermal structure for our simulated lake."
+
+plot_temp(file = baseline, fig_path = FALSE)
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Briefly describe how the data is encoded in this figure and how it should be interpreted.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Describe the seasonal pattern of thermal structure in this lake across seasons. Be specific, e.g. use the color gradient scale to identify when and at which layers the lake is the warmest/coldest, what maximum and minimum temperatures are.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+In your `sim` filder there is an additional filed called `field_data.csv` contains the observed data for buoys in the lake. Let's compare how modeled data (`baseline`) compares to the observed field data for our lake.
+
+```{r}
+#| label: fig-comp-sim-obs
+#| fig-cap: "Comparison of field data and simulated temperatures."
+#| fig-width: 8
+#| fig-height: 10
+
+# define observed field data
+field_file <- file.path("sim", "field_data.csv")
+
+# plot simulated vs observed data
+plot_temp_compare(baseline, field_file)
+
+```
+
+The top panel shows the observed data measured at different depths and times using high-frequency sensors on a buoy, each measurement is depicted by black circles. The heatmap represents the extrapolated values between sensors.
+
+The bottom panel shows the modeled data.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Briefly assess how well the model replicates the real-world lake (explain how you are coming to this conclusion); include information on the water temperatures and thermocline depths in your comparison.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+We can also compare different physical lake characteristics between the simulated and observed lake.
+
+First, let's take a look at what metrics we can compare.
+
+```{r}
+
+sim_metrics(with_nml = FALSE)
+
+```
+
+We can extract the observed and simulated thermocline depths for these metrics and compare them to assess the quality of our model. 
+
+Let's start with pulling out information on the thermocline depths and return them as a `data.frame`.
+
+```{r}
+
+therm_depths <- compare_to_field(baseline, field_file, metric = "thermo.depth", 
+                                 as_value = TRUE, na.rm = TRUE)
+
+head(therm_depths)
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Plot the observed vs. simulated thermocline depths to compare the model and observed data.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+
+::: {.callout-tip collapse=true}
+
+## Solution
+
+This can be done in a straight forward way using a line plot.
+
+```{r}
+#| label: fig-mod-obs-thermocline
+#| fig-cap: "Comparison of modeled and observed thermoclines."
+#| echo: false
+
+therm_depths %>%
+  pivot_longer(names_to = "dataset", values_to = "thermo_depth", 2:3) %>%
+  ggplot(aes(x = DateTime, y = thermo_depth, color = dataset)) +
+  geom_line(size = 1) +
+  scale_color_manual(values = c("darkblue", "darkred")) +
+  labs(x = "Date", y = "Thermocline depth [m]")
+
+```
+
+:::
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Extract the observed and model water temperatures into a `data.frame` called `water_temp` and create a plot to compare them.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-tip icon=false collapse=true}
+
+## {{< fa person-chalkboard >}}    Pointers
+
+Before you plot your data take a look at the data set - you'll notice that there are multiple observations for the same time point.
+
+Let's use a scatter plot instead of a line plot to make sure we can see all the data.
+
+```{r}
+#| label: fig-mod-obs-temp
+#| fig-cap-location: bottom
+#| fig-cap: "Comparison of modeled and observed water temperatures."
+
+water_temp <- compare_to_field(baseline, field_file, metric = "water.temperature",
+                               as_value = TRUE, na.rm = TRUE)
+
+water_temp %>%
+  pivot_longer(names_to = "dataset", values_to = "water_temp", 2:3) %>%
+  ggplot(aes(x = DateTime, y = water_temp, color = dataset)) +
+  geom_point(shape = 1) +
+  scale_color_manual(values = c("darkblue", "darkred")) +
+  labs(x = "Date", y = "Water temperature [C]")
+
+```
+
+:::
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Extract the observed and model water densities into a `data.frame` called `water_density` and create a plot to compare them.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Explain why water temperature and water densities have multiple data points for each day. Compare and contrast the patterns you observe between the two plots and explain the mechanism linking the two metrics.
+
+Define the terms epilimnion, hypolimnion, thermocline, stratification, and isothermal. Use these terms to describe the seasonal pattern of water temperatures and stratification.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Use your comparisons of observed and modeled data for various metrics (thermocline, water temperatures, water density) to assess the quality of our lake model and argue whether or not our modeled output is a good representation of the observed lake water temperatures.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+
+
+## Acknowledgments
+
+These activities are based on the EDDIE Climate Change Effects on Lake Temperatures module.^[Carey, C.C., S. Aditya, K. Subratie, V. Daneshmand, R. Figueiredo, and K.J. Farrell. 24 August 2020. Macrosystems EDDIE: Climate Change Effects on Lake Temperatures. Macrosystems EDDIE Module 1, Version 2.]

@@ -345,7 +345,8 @@ Take a closer look at the columns `id`, `fips`, and `zcta`, pay specific attenti
 
 ## Solution
 
-These are all currently numerical variables and R thinks they are continuous variables. However `id` is the monitor ID, `fips` is the federal information processing standard number fo the country where it is located, and `zcta` is the zip code tabulation area. 
+These are all currently numerical variables and R thinks they are continuous variables. However `id` is the monitor ID, `fips` is the federal information processing standard number of the country where it is located, and `zcta` is the zip code tabulation area. 
+
 
 These should all be categorical variables and so we need to convert them to factors, which are ordered characters using the function `as.factor()`.
 
