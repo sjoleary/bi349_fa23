@@ -1,0 +1,545 @@
+
+# Teleconnections I
+
+```{r}
+#| label: setup
+#| include: false
+
+# custom functions ----
+
+library(ggplot2)
+
+theme_standard <- theme_classic() +
+  theme(
+    axis.text = element_text(size = 11, color = "black"),
+    axis.title = element_text(size = 16, color = "black"),
+    axis.title.y = element_text(vjust = 1.5, color = "black"),
+    axis.line = element_line(color = "black"),
+    
+    legend.position = "bottom",
+    
+    panel.background = element_rect(fill = "white", color = NA), 
+    panel.border = element_blank(), 
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(), 
+    strip.background = element_rect(fill = "grey95", color = "black"), 
+    strip.text.x = element_text(size = 16, color = "black"),
+    strip.text.y = element_text(size = 16, color = "black")) 
+
+theme_facet <- theme_classic() +
+  theme(
+    axis.text = element_text(size = 11, color = "black"),
+    axis.title = element_text(size = 16, color = "black"),
+    axis.title.y = element_text(vjust = 1.5, color = "black"),
+    axis.line = element_line(color = "black"),
+    
+    legend.position = "bottom",
+    
+    panel.background = element_rect(fill = "white", color = NA), 
+    panel.border = element_rect(fill = NA, color = "black"), 
+    panel.grid.major = element_line(color = "grey85"), 
+    panel.grid.minor = element_blank(), 
+    strip.background = element_rect(fill = "grey95", color = "black"), 
+    strip.text.x = element_text(size = 16, color = "black"),
+    strip.text.y = element_text(size = 16, color = "black")) 
+
+
+
+# set options
+knitr::opts_chunk$set(
+  tidy = FALSE, 
+  message = FALSE,
+	warning = FALSE)
+
+options(htmltools.dir.version = FALSE)
+
+theme_set(theme_standard)
+
+```
+
+
+**Learning Objectives**
+
+After completing this tutorial you should be able to
+
+* describe the concepts of macrosystems and teleconnections and how different ecological processes can interact at local, regional, and global scales.
+* set up and run lake models to simulate lake temperatures, thermal structure, and ice cover in multiple lakes.
+* formulate hypotheses about the effects of teleconnected climate scenarios on different lake modules and test them using simulations.
+* describe how local characteristics modify global-scale climate forcing effects on lake temperatures and ice cover.
+
+
+
+[Download the directory for this project here](https://drive.google.com/drive/folders/1dZ0UgGA9rmmUTvUbr9e9cIIC5CgJyXmw?usp=drive_link), make sure the directory is unzipped and move it to your `bi328` directory. You can open the `Rproj` for this module either by double clicking on it which will launch `Rstudio` or by opening `Rstudio` and then using `File > Open Project` or by clicking on the `Rproject` icon in the top right of your program window and selecting `Open Project`. 
+
+There should be a file named `31_elnino_I.qmd` in that project directory. Use that file to work through this tutorial - you will hand in your rendered ("knitted") `quarto` file as your homework assignment. So, first thing in the `YAML` header, change the author to your name. You will use this `quarto` document to record your answers. Remember to use comments to annotate your code; at minimum you should have one comment per code set^[You should do this whether you are adding code yourself or using code from our manual, even if it isn't commented in the manual... especially when the code is already included for you, add comments to describe how the function works/what it does as we introduce it during the participatory coding session so you can refer back to it.] you may of course add as many comments as you need to be able to recall what you did. Similarly, take notes in the document as we discuss discussion/reflection questions but make sure that you go back and clean them up for "public consumption".
+
+Before you get started, let's make sure to read in all the packages we will need.
+
+```{r}
+
+# load libraries ----
+
+# reporting
+library(knitr)
+
+# visualization
+library(ggplot2)
+library(ggthemes)
+library(patchwork)
+library(ggrepel)
+
+# data wrangling
+library(dplyr)
+library(tidyr)
+library(readr)
+library(skimr)
+library(janitor)
+library(magrittr)
+library(lubridate)
+
+# lake models
+library(GLMr)
+library(glmtools)
+
+# mapping
+library(sf)
+library(ggspatial)
+library(rnaturalearth)
+library(rnaturalearthhires)
+library(rnaturalearthdata)
+
+# set other options ----
+options(scipen=999)
+
+knitr::opts_chunk$set(
+  tidy = FALSE, 
+  message = FALSE,
+	warning = FALSE)
+
+```
+
+
+
+## Teleconnections
+
+We have already seen how local and regional drivers can impact the thermal structure of lakes. Local impacts could include something like land cover change which alters the stream inflow/outflow of a lake impacting temperature. At a regional scale climate change can alter weather patterns, including both extreme events which disrupt regular seasonal patterns or also gradual change which raises lake temperatures overall.
+
+Next, we are going to explore how ecosystems can be influenced on a global scale by teleconnections, i.e. meteorological, societal, and/or ecological phenomenon that link remote regions via cause and effect relationships. Simulations are especially powerful in this context, because it allows researchers to manipulate drivers independently from each other to disentangle how they impact ecosystems. By running different teleconnection scenarios, scientists are then able to better predict how ecosystems will respond to remote drivers.
+
+In our module, we will specifically look at lake thermal structure and ice cover and determine how it is impacted by climate teleconnections to decadal events such as the El Niño/Southern Oscillation (ENSO). This is an example of a global driver. ENSO period with warmer ocean surface temperatures in the Pacific Ocean affect regular trade wind patterns. This altered atmospheric circulating impacts air temperature and precipitation patterns globally. How ENSO ends up impacting a particular lake will be further mediated by local and regional dynamics.
+
+Our central question is:
+
+**How do global ENSO teleconnections interact with local & regional drivers to affect lake temperatures, thermal structure, and ice cover?**
+
+We can address this question using the General Lake Model we used to understand the effect of local & regional drivers on the thermal structure of lakes. To explore those interactions, we varies the local/regional drivers (weather/climate) and ran different scenarios (described in our `met` file) but kept the lake we were using constant, i.e. the morphology of the lake and other specific characteristics described in the `nml` file did not change.
+
+ENSO has large-scale effects, however, the way an El Nino year plays out will vary by region, additional local effect will further modify the impacts on the thermal structure of each lake.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+![Regional differences in effect of El Nino](figures/ElNino.jpg)
+
+During El Nino years there is a shift in the climate pattern of the Pacific Ocean, resulting in unusually warm surface waters in the the eastern equatorial Pacific Ocean. Use the figure above to describe regional differences in climate patterns in North America are impacted.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+To be able to explore our question we will need `nml` files describing lakes in different regions across North America. You should a folder called `sim_lakes` to your project directory. If you take a look in there, you fill find individual folders for a set of lakes, in each folder you have an `nml` file describing that lake along with a `met` file containing observed meteorological data. These are all lakes that are part of the GLEON network.
+
+Let's take a look at where those lakes are situated.
+
+```{r}
+#| label: tbl-lakes
+#| tbl-cap: "Characteristics for eight lakes in the GLEON network."
+
+lakes <- read_delim("data/lake_characteristics.txt", delim = "\t") %>%
+  clean_names()
+
+kable(lakes)
+
+```
+
+Let's make a map displaying their geographic locations. We've previously used `geom_text()` to add text (labels) to maps. But those weren't exactly pretty maps. We are going to add a new tool to our toolbox for generating maps, `geom_label_repel()`. This function works especially well if you want to combine using a shape to plot a point and add a label that is placed in a way that it does not overlap with that point or other labels on the plot.
+
+```{r}
+#| fig-cap: "Lake locations"
+#| fig-width: 9
+#| fig-height: 5
+
+# dowhload world map as shapefile
+world <- ne_countries(scale = "medium", returnclass = "sf")
+
+# download us states as suhape file
+us_states <- ne_states(country = "United States of America", returnclass = "sf")
+
+# lat/long for map extent
+x_min <- min(lakes$longitude) - 2
+x_max <- max(lakes$longitude) + 2
+y_min <- min(lakes$latitude) - 2
+y_max <- max(lakes$latitude) + 2
+
+# set color for fill
+map_color <- "khaki3"
+
+# create plot
+ggplot() +
+  geom_sf(data = world, color = "black", fill = map_color) +  # plot outline of countries
+  geom_sf(data = us_states, color = "black", fill = NA) +     # plot outline of states
+  coord_sf(xlim = c(x_min, x_max),
+           ylim = c(y_min, y_max)) +                          # plot boundaries for map
+  geom_point(data = lakes, aes(x = longitude, y = latitude),  # add sites
+            size = 2) +
+  geom_label_repel(data = lakes, 
+                   aes(x = longitude, y = latitude, label = lake_name),
+                   size = 3)
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Use the map describing changes in regional climate patterns due to El Nino and the map of the distribution of Lakes to hypothesize how you think lakes will be affected during El Nino years compared to normal years. Consider both how **lake temperatures** and **ice cover** could be impacted. Be specific - your answer should consider (among other things) which lake you would expect to display the strongest/weakest degree of warming during an El Nino year, which lakes might not be affected. Consider that we have already discovered that patterns of precipitation and wind also impact thermal structure of lakes.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Briefly describe how you can design an experiment to determine whether El Nino impacts the thermal structure of lakes and identify the effect of regional/local drivers modifying that global interaction. Be specific - consider what information (data sets) you need and what simulations you would run to compare.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+Don't worry - you won't have to run simulations for every lake - we will divide and conquer!
+
+
+## Set up simulation
+
+If you take a look at the `sim_lakes` folder, you should see that it contains individual folders for a series of lakes. In this example, we will use Lake Sunapee - this means that when you run the code for *your* lake, you will need to be sure to change the lake name accordingly.
+
+First, let's create a vector with our lake name^[The advantage for doing it this way instead of directly in the individual code lines is that we only have to set it once, this makes the code a lot more reusable because we don't have to dig through the code and find all the arguments that set a file path or specify the lake name.].
+
+```{r}
+
+LakeName <- "Sunapee"
+
+```
+
+Next, we will set the file path for the `sim` folder. Each lake sim folder contains the input files needed to run `GLM`: the `nml` file which describes the lake, the `met` file describing the drivers of thermal structure, and input files describing inflow and outflow to the lake. 
+
+```{r}
+
+sim_folder <- file.path("sim_lakes", LakeName)
+
+```
+
+Next, we'll specify the file path for the `nml` file, read it in, and take a look at it.
+
+```{r}
+
+# define file path
+nml_file <- file.path(sim_folder, "glm2.nml")
+
+# read nml file
+nml <- read_nml(nml_file)
+
+# view file
+print(nml)
+
+```
+
+One of the arguments in the `nml` file specifies the file with the information on drivers (i.e. it directs to the `met_hourly.csv`) file. Let's take a look at the meteorological input data for the duration of the simulation.
+
+```{r}
+#| label: fig-met-dataset
+#| fig-cap: "Metereological data set summarizing the behavior of drivres of thermal structure for the baseline simulation."
+#| fig-height: 15
+#| fig-width: 8
+
+
+plot_meteo(nml_file) 
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Briefly describe the meteorological drivers over the course of the simulation. Be specific (what are ranges for each value? How do they change over the course of the year?)! Consider whether those make sense given the location of your lake (think biomes/climate zones).
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+
+## Run & analyze baseline simulation
+
+Now that we have everything set up, we can run the model.
+
+```{r}
+
+run_glm(sim_folder, verbose = TRUE)
+
+```
+
+To analyze the output, let's specify the file path for the output file that is now in our lake simulation folder (`output.nc`). Again, this will be our baseline data set based on observed meteorological data for a specific year (in our example 2013).
+
+```{r}
+
+baseline <- file.path(sim_folder, "output.nc")
+
+```
+
+Let's take a look at the variables that were output as part of our GLM simulation run.
+
+```{r}
+
+# pull variable names from output
+var_names <- sim_vars(baseline)
+
+# print variables in output
+kable(var_names,
+      caption = "Variable names and units for lake simulation.") 
+
+```
+
+One of the variables we are especially interested in is `hice` which describes the lake thickness on the surface of the lake.
+
+Part of our central question is understanding how water temperatures at the lake surface and bottom (below the thermocline) be affected by El Nino teleconnections.
+
+To estimate the bottom depth we can extract the lake depth in meters from the output.
+
+```{r}
+
+# extract lake depth
+LakeDepth <- get_surface_height(baseline)
+
+head(LakeDepth)
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Create a table with summary descriptive stats for the lake depth (min, max, mean, std) and describe the level of observed fluctuation over the course of the simulation.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-tip icon=false collapse=true}
+
+## {{< fa person-chalkboard >}}    Pointers
+
+Here's what your table could look like.
+
+```{r}
+#| label: tbl-desc-stat
+#| tbl-cap-location: top
+#| tbl-cap: "Descriptive statistics of lake depth for Lake Sunapee, NH"
+#| echo: false
+
+LakeDepth %>%
+  summarize(mean_depth = mean(surface_height),
+            std_depth = sd(surface_height),
+            min_depth = min(surface_height),
+            max_depth = max(surface_height)) %>%
+  kable(digits = 1)
+
+```
+
+:::
+
+We are going to want to extract the lake temperature data from our baseline simulation into a `data.frame` so we can compare it to our teleconnection scenarios down the line. We will extract it at the surface and for the bottom by setting the argument `z_out` to `0` (surface) and the minimum observed depth over the simulation (`min(LakeDepth$surface_height)`).
+
+The function automatically names the temperatures after the depth - so you will want to rename them something sensible. You will need to pull up the original column names for your lake, and then you will need to change the column names in the `rename()` function accordingly!
+
+```{r}
+
+# pull temperature data
+LakeTemp <- get_temp(file = baseline, reference = "surface",
+                            z_out = c(0, min(LakeDepth$surface_height)))
+
+# get column names
+colnames(LakeTemp)
+
+# rename columns 
+LakeTemp <- LakeTemp %>%
+  rename(Baseline_SurfaceTemp = temp_0,
+         Baseline_BottomTemp = temp_33.3833669399235)
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Visualize the change of surface and bottom temperature for the baseline simulation and breifly describe your results. Remember to be specific and to start with general patterns and then highlight important/notable details. Remember to include a title and axes labels.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-tip icon=false collapse=true}
+
+## {{< fa person-chalkboard >}}    Pointers
+
+Hint - to plot both temperatures in the same plot, you will need to first create a tidy data set!
+
+If you look at the figure below, you can see that you will need a column for date (x-axis), temperature (y-axis) and and column that contains simulated scenarios (this becomes the color coding for your line graphs).
+
+Once you do that, it should be straightforward to create a plot that look something like this:
+
+```{r}
+#| label: fig-change-temp
+#| fig-cap-location: bottom
+#| fig-cap: "Change in surface (blue) and bottom (green) temperature [C] for baseline scenario."
+#| echo: false
+
+LakeTemp %>%
+  pivot_longer(names_to = "dataset", values_to = "Temperature", 2:3) %>%
+  ggplot(aes(x = DateTime, y = Temperature, color = dataset)) +
+    geom_line(linewidth = 1) +
+    scale_color_manual(values = c("green", "darkblue")) +
+    labs(x = "date", y = "Temperature [C]")
+
+```
+
+:::
+
+Let's plot a heatmap of our lake thermal structure for the baseline scenario.
+
+```{r}
+
+plot_temp(file = baseline, fig_path = FALSE) 
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+First, briefly explain how to interpret this heatmap (what data is code here how for the visualization?).
+
+Then, describe your results - include how the thermal structure changes over the course of the year. Be specific, use key terms such as thermocline, stratified, isotherm, epilomnion (above the thermocline), and hypolimnion (below the thermocline).
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+Next, we will extract the ice cover on the lake for our baseline simulation.
+
+```{r}
+
+LakeIce <- get_var(baseline, "hice") %>%
+  rename(ice_baseline = hice)
+
+```
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Visualize the change of surface ice for your lake over the course of the year and then describe your results. Remember to be specific - when is there ice? How thick is it? Include a title & label your axes!
+
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-tip collapse=true}
+
+## Solution
+
+Your plot should look something like this:
+
+```{r}
+#| label: fig-change-ice
+#| fig-cap-location: bottom
+#| fig-cap: "Change in ice cover [m] for baseline simulation."
+#| echo: false
+
+ggplot(LakeIce, aes(x = DateTime, y = ice_baseline)) +
+  geom_line(color = "darkblue", size = 1) +
+  labs(x = "date", y = "ice cover [m]")
+
+```
+
+:::
+
+Now that we have a pretty good idea what our baseline data set looks like in terms of the thermal structure in a normal year, our next step will be to simulate what the thermal structure will look like in a typical or extreme El Nino year compared to an extreme El Nino year.
+
+
+## Acknowledgments
+
+These activities are based on the EDDIE Teleconnections module.^[Farrell, K.J. and C.C. Carey. 18 May 2018. Macrosystems EDDIE: Teleconnections. Macrosystems EDDIE Module 3, Version 1.]

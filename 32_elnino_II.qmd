@@ -1,0 +1,590 @@
+
+# Teleconnections II
+
+```{r}
+#| label: setup
+#| include: false
+
+# custom functions ----
+
+library(ggplot2)
+
+theme_standard <- theme_classic() +
+  theme(
+    axis.text = element_text(size = 11, color = "black"),
+    axis.title = element_text(size = 16, color = "black"),
+    axis.title.y = element_text(vjust = 1.5, color = "black"),
+    axis.line = element_line(color = "black"),
+    
+    legend.position = "bottom",
+    
+    panel.background = element_rect(fill = "white", color = NA), 
+    panel.border = element_blank(), 
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(), 
+    strip.background = element_rect(fill = "grey95", color = "black"), 
+    strip.text.x = element_text(size = 16, color = "black"),
+    strip.text.y = element_text(size = 16, color = "black")) 
+
+theme_facet <- theme_classic() +
+  theme(
+    axis.text = element_text(size = 11, color = "black"),
+    axis.title = element_text(size = 16, color = "black"),
+    axis.title.y = element_text(vjust = 1.5, color = "black"),
+    axis.line = element_line(color = "black"),
+    
+    legend.position = "bottom",
+    
+    panel.background = element_rect(fill = "white", color = NA), 
+    panel.border = element_rect(fill = NA, color = "black"), 
+    panel.grid.major = element_line(color = "grey85"), 
+    panel.grid.minor = element_blank(), 
+    strip.background = element_rect(fill = "grey95", color = "black"), 
+    strip.text.x = element_text(size = 16, color = "black"),
+    strip.text.y = element_text(size = 16, color = "black")) 
+
+
+
+# set options
+knitr::opts_chunk$set(
+  tidy = FALSE, 
+  message = FALSE,
+	warning = FALSE)
+
+options(htmltools.dir.version = FALSE)
+
+theme_set(theme_standard)
+
+```
+
+
+**Learning Objectives**
+
+After completing this tutorial you should be able to
+
+* describe the concepts of macrosystems and teleconnections and how different ecological processes can interact at local, regional, and global scales.
+* set up and run lake models to simulate lake temperatures, thermal structure, and ice cover in multiple lakes.
+* formulate hypotheses about the effects of teleconnected climate scenarios on different lake modules and test them using simulations.
+* describe how local characteristics modify global-scale climate forcing effects on lake temperatures and ice cover.
+
+
+
+[Download the directory for this project here](https://drive.google.com/drive/folders/1dZ0UgGA9rmmUTvUbr9e9cIIC5CgJyXmw?usp=drive_link), make sure the directory is unzipped and move it to your `bi328` directory. You can open the `Rproj` for this module either by double clicking on it which will launch `Rstudio` or by opening `Rstudio` and then using `File > Open Project` or by clicking on the `Rproject` icon in the top right of your program window and selecting `Open Project`. 
+
+There should be a file named `32_elnino_II.qmd` in that project directory. Use that file to work through this tutorial - you will hand in your rendered ("knitted") `quarto` file as your homework assignment. So, first thing in the `YAML` header, change the author to your name. You will use this `quarto` document to record your answers. Remember to use comments to annotate your code; at minimum you should have one comment per code set^[You should do this whether you are adding code yourself or using code from our manual, even if it isn't commented in the manual... especially when the code is already included for you, add comments to describe how the function works/what it does as we introduce it during the participatory coding session so you can refer back to it.] you may of course add as many comments as you need to be able to recall what you did. Similarly, take notes in the document as we discuss discussion/reflection questions but make sure that you go back and clean them up for "public consumption".
+
+Before you get started, let's make sure to read in all the packages we will need. Double check that everything is installed that you need.
+
+```{r}
+
+# load libraries ----
+
+# reporting
+library(knitr)
+
+# visualization
+library(ggplot2)
+library(ggthemes)
+library(patchwork)
+
+# data wrangling
+library(dplyr)
+library(tidyr)
+library(readr)
+library(skimr)
+library(janitor)
+library(magrittr)
+library(lubridate)
+library(glue)
+
+# lake models
+library(GLMr)
+library(glmtools)
+
+# statistical models
+library(tidymodels)
+
+# set other options ----
+options(scipen=999)
+
+knitr::opts_chunk$set(
+  tidy = FALSE, 
+  message = FALSE,
+	warning = FALSE)
+
+```
+
+
+## Create typical El Nino year scenario
+
+Now that we know what ice cover, surface/bottom temperature, and thermal lake structure looks like for the baseline scenario, we are going to explore whether there are teleconnections between El Nino and lake temperatures for two scenarios simulating differing El Nino conditions.
+
+We will use observed historical climate data to determine how much warmer or cooler the local air temperature is likely to be during an El Nino year for our data set.
+
+The data folder contains text files with historical climate data - make sure that you change the code to read in the data for your specific lake. We are going to use data starting in the year 1970^[Since the 1970s there has been a change in some of the drivers and processes of how El Nino is formed. So even though overall the effect is still due to a change in the surface temperatures in the Pacific Ocean some of the regional effects have changed.].
+
+```{r}
+
+annual_temp <- read_delim("data/sunapee_clim.txt") %>%
+  clean_names() %>%
+  filter(year >= 1970)
+
+```
+
+Let's use `skim()` to get a quick look at the data set:
+
+```{r}
+
+skim(annual_temp)
+
+```
+
+Let's take a look at differences in Air temperature between El Nino and La Nina years.
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Create a plot visualizing the Air temperature for each year and color code it according to whether it is an El Nino, La Nina, or neutral year. Briefly describe your results.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-tip icon=false collapse=true}
+
+## {{< fa person-chalkboard >}}    Pointers
+
+Your plot should look something like this:
+
+```{r}
+#| label: fig-air-temp
+#| fig-cap-location: bottom
+#| fig-cap: "Mean annual air temperature for Lake Sunapee, NH. Individual data points are color coded according to whether years were classified as Eln Nino (green), La Nina (blue) or neutral (orange)."
+#| echo: false
+
+ggplot(annual_temp, aes(x = year, y = air_temp_mean_c)) +
+  geom_line(color = "black", size = .5) +
+  geom_point(aes(fill = type), shape = 21, color = "black", size = 3) +
+  scale_fill_manual(values = c("green", "blue", "darkorange")) +
+  scale_y_continuous(limits = c(5, 9)) +
+  labs(x = "year", y = "mean annual temperature [C]")
+
+```
+
+:::
+
+Next, we want to determine how much warmer or colder a typical El Nino year is compared to a typical neutral year. 
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Outline a straightforward way you could calculate this.
+
+:::
+
+::: {.callout-tip icon=false collapse=true}
+
+## {{< fa person-chalkboard >}}    Pointers
+
+The most straightforward way would be to calculate the mean annual temperature for all annual years and then calculate the mean temperature across all El Nino years. However, we do have to account for the effect of climate change and so we will need to use linear regressions to fit an equation that describe the change in annual temperature over time for neutral years, and a second linear regression to fit an equation to determine the change in El Nino years.
+
+:::
+
+Let's work through how we can determine what an El Nino year should look like for Lake Sunnapee.
+
+First, let's check what type of year 2013 is, which is the year we simulated the thermal structure as a baseline. We are going to acquire a new function for our arsenal which is `pull()`. This allows up to extract a column from a data set as a vector. In this case it is a single value before we will first filter the data set to only contain entries for the year 2013.
+
+```{r}
+
+annual_temp %>%
+  filter(year == 2013) %>%
+  pull(type)
+
+```
+
+We want to know what the offset is between a linear regression describing neutral and El Nino years. Let's visualize this by subsetting our data set to contain only neutral and El Nino years and adding a linear trend line.
+
+```{r}
+#| label: fig-lin-reg
+#| fig-cap: "Linear regressions comparing the observed in air temperature [C] over time for neutral and El Nino years."
+
+annual_temp %>%
+  filter(type %in% c("Neutral", "ElNino")) %>%
+  ggplot(aes(x = year, y = air_temp_mean_c, color = type)) +
+    geom_point(shape = 21, size = 3) +
+    geom_smooth(method = "lm", se = FALSE) +
+    labs(x = "year", y = "mean annual air temperature [C]")
+
+```
+
+To determine the typical offset, we will use linear regressions to calculate estimated (expected) values for 2013 if it were a typical neutral year and if it were a typical El Nino year. Then we will calculate the difference between those two estimated values as the typical offset to create our `met_hourly` input data set for a typical El Nino year - i.e we will add the expected offset to the values used in the baseline scenario to create an simulation of the Lake thermal structure if 2013 had been a typical El Nino year.
+
+Let's start by fitting a linear regression model to the neutral years. For this we need to start by creating a subset of the data containing only neutral years.
+
+```{r}
+
+neutral_temp <- annual_temp %>%
+  filter(type == "Neutral")
+
+```
+
+Now, let's create a linear regression modeling the relationship of the mean annual temperature and the year for the Lake Sunapee using the `tidymodels` framework. 
+
+```{r}
+
+lm_fit <- linear_reg() %>%                          # specify model
+  set_engine("lm") %>%                              # define computational engine
+  fit(air_temp_mean_c ~ year, data = neutral_temp)  # define variables
+
+```
+
+Let's identify the slope and intercept for our linear regression (i.e. the equation describing the relationship of temperature and year).
+
+```{r}
+
+summary(lm_fit$fit) %>% 
+  tidy()
+
+```
+
+We are going to use the function `pull()` to create variables with our neutral slope and intercept (we are going to need these later).
+
+```{r}
+
+neutral_slope <- summary(lm_fit$fit) %>% 
+  tidy() %>%
+  filter(term == "year") %>%
+  pull(estimate)
+
+neutral_intercept <- summary(lm_fit$fit) %>% 
+  tidy() %>%
+  filter(term == "(Intercept)") %>%
+  pull(estimate)
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Briefly describe your results. Be specific.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+::: {.callout-tip icon=false collapse=true}
+
+## {{< fa person-chalkboard >}}    Pointers
+
+Remember, a good way to describe this type of relationship is "on average for every [unit of independent variable] we expect the [dependent variable] to [increase/decrease] by [slope & unit of dependent variable].)
+
+:::
+
+We can use the function `augment()` to create a `data.frame` that contains the observed data (`air_temp_mean_c`) for a given year along with the value calculated using the equation for our linear regression (`.fitted`).
+
+```{r}
+
+lm_aug <- augment(lm_fit$fit)
+
+head(lm_aug) %>%
+  kable()
+
+```
+
+We are really only interested in the expected value for the year 2013. Again, we can use the function `pull()` to extract a single column from a `data.frame`, which makes it easy to create a variable with our expected mean annual temperature for a "neutral 2013".
+
+```{r}
+
+neutral_2013 <- lm_aug %>%
+  filter(year == 2013) %>%
+  pull(.fitted)
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Compare your observed and expected annual mean temperature for a neutral 2013.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+Now, let's fit a linear regression for an El Nino year.
+
+```{r}
+
+# create subset with El Nino years
+elnino_temp <- annual_temp %>%
+  filter(type == "ElNino")
+
+# fit linear regression
+lm_fit <- linear_reg() %>%                          # specify model
+  set_engine("lm") %>%                              # define computational engine
+  fit(air_temp_mean_c ~ year, data = elnino_temp)   # define variables
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Print a summary of your linear regression and briefly describe your results; compare these results to your linear regression of a neutral year.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+::: {.callout-tip icon=false collapse=true}
+
+## {{< fa person-chalkboard >}}    Pointers
+
+```{r echo=FALSE}
+#| label: tbl-lin-reg-res
+#| tbl-cap-location: top
+#| tbl-cap: "linear regression of mean annual temperature for El Nino years over time in Lake Sunapee."
+
+summary(lm_fit$fit) %>% 
+  tidy() %>%
+  kable()
+
+```
+
+:::
+
+For our neutral data, we were able to use the function `augment()` because it calculates the expected (`.fitted`) value for the dependent variable (here, temperature) for every observed value of the independent variable (here, year) in the data set. So since 2013 is a neutral year, it will calculate the neutral expectation for 2013.
+
+Our El Nino data set does not include the year 2013. There for we need to first specify the set of years that we want to plug into the equation describing the relationship of temperature and year for El Nino years.
+
+```{r}
+
+# create data frame year(s) to predict
+predict_year <- expand.grid(year = 2013)
+
+# calculate expected values
+pred <- predict(lm_fit, new_data = predict_year)
+
+# extract predicted value
+elnino_2013 <- pred %>%
+  pull(.pred)
+
+```
+
+Now, we can calculate the estimated El Nino offset as the difference between the predicted neutral and typical El Nino temperatures calculated for 2013 using the linear regression equations.
+
+```{r}
+
+typical_offset <- elnino_2013 - neutral_2013
+
+LakeName <- "Sunapee"
+
+saveRDS(typical_offset, file = glue("results/{LakeName}_typical-offset"))
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Describe your result (what is the expected offset for a typical El Nino year?).
+
+Now that you have calculated to your typical expected offset for an El Nino year compared to a neutral year, hypothesis how your typical El Nino scenario may affect lake temperatures and ice cover for your lake model. Be specific! What changes do you expect? why?
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+We're almost there - now all we have to do is create the `met_hourly` input file for the scenario we want to simulate. In your `sim_lakes` folder create a new folder called `Sunapee_typical`^[remember to change this according to the lake you are simulating], make a copy of the the `outflow.csv`, `inflow.csv`, and `glm2.nml` files from the `Sunapee` folder^[Again, change this so you are adding a copy of the corresponding lake `nml` file to the lake you are working on.].
+
+```{r}
+
+# specify your lake
+LakeName <- "Sunapee"
+
+# specify your lake simulation for observed data
+sim_folder <- file.path("sim_lakes", LakeName)
+
+# specify new sim folder for El Nino year
+sim_folder_typical <- glue("sim_lakes/{LakeName}_typical")
+
+```
+
+Now, let's create a new `met_hourly` file for our "typical El Nino year" scenario. We are going to change the air temperature by increasing it according to the offset between neutral and El Nino years we just calculated. This means we can do this completely in `R`, by reading in the baseline met data and the using `mutate` to add the offset to the Air temperature and writing it back out to file.
+
+```{r}
+
+# file path for original met file
+baseline_met <- file.path(sim_folder, "met_hourly.csv")
+
+# read in baseline met data
+met_data <- read_delim(baseline_met, delim = ",") %>%
+  mutate(AirTemp = AirTemp + typical_offset,                                # add El Nino offset
+         time = as.POSIXct(strptime(time, "%Y-%m-%d %H:%M:%S", tz="EST")))  # make sure correct date/time format
+
+# write new met data to new sim folder
+write_delim(met_data, file.path(sim_folder_typical, "met_hourly_typical.csv"), delim = ",")
+
+```
+
+Next, we need to edit the `nml` file to make sure that it points to the correct `met` file. You can do this by either opening the `nml` file in an external text editor or, depending on your `Rstudio` version you can also clicking on the `glm2.nml` file in your `Sunapee_typical` in the `Rstudio` File tab and select `View File` which will open it in the Viewer panel.
+
+You will need to scroll to the meteorology section^[You can also use the find function!] and change the `meteo_fl` entry to match the new file name (`met_hourly_typical.csv`)^[Make sure to save the file before closing it!].
+
+Let's double check that we did this correctly:
+
+```{r}
+
+# define file path
+nml_file_typical <- file.path(sim_folder_typical, "glm2.nml")
+
+# read nml file
+nml <- read_nml(nml_file_typical)
+
+# check met file name
+get_nml_value(nml, "meteo_fl")
+
+```
+
+If the print out in the console is not your met file for the typical El Nino scenario you just created, make the edit to the `nml` file and make sure to save the change!
+
+
+
+## Create an extreme El Nino year scenario
+
+We created a typical El Nino year scenario. From comparing the annual mean temperatures in our historical climate data set, you know that there is strong variation in how much El Nino years differ from a neutral year.
+
+Let's identify the largest observed offset that our lake has experienced since 1970. Let's take another look at our observed annual temperature data for neutral and El Nino years.
+
+```{r}
+#| label: fig-comp-ann-temp
+#| fig-cap: "Comparison of mean annual temperature [C] for neutral and El Nino years" 
+
+annual_temp %>%
+  filter(!type == "LaNina") %>%
+  ggplot(aes(x = year, y = air_temp_mean_c, color = type)) +
+  geom_smooth(method = "lm", se = FALSE) +
+  geom_point(size = 3) +
+  scale_color_manual(values = c("darkorange", "darkblue")) +
+  labs(x = "year", y = "mean annual air temp [C]")
+
+```
+
+We could eyeball which of the El Nino years appears to have the largest offset from a neutral year, or since we calculated the slope and intercept of the regression line describing the relationship of temperature and time for neutral years we can calculate the offsets for all El Nino years and then identify the largest offset.
+
+We can do this by calculating the estimated temperature for each year if it was a neutral year, and then calculating the offset.
+
+```{r}
+
+# identify maximum offset
+max_offset <- elnino_temp %>%
+  mutate(neutral_est = (neutral_slope * year) + neutral_intercept,
+         offset = air_temp_mean_c - neutral_est) %>%
+  summarize(max_offset = max(offset)) %>%
+  pull(max_offset)
+
+saveRDS(max_offset, file = glue("results/{LakeName}_max-offset"))
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Describe your result (what is the offset?).
+
+Now that you have calculated to your extreme expected offset for a strong El Nino year compared to a neutral year, hypothesize how your extreme El Nino scenario may affect lake temperatures and ice cover for your lake model compared to your baseline simulation of a neutral year. Be specific! What changes do you expect? why?
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+Now, we can use this value to generate a strong El Nino scenario repeating the steps from above.
+
+First, create a new subfolder `sim_lakes/Sunapee_extreme`^[Remember, that you should be naming this folder according to the lake you are exploring.]. Then place a copy of the `met_hourly.csv`, `inflow.csv`, `outflow.csv`, and `glm2.nml` file in that folder.
+
+Next, let's create our new `met` file by adding the maximum offset we identified in the observed data to the air temperature.
+
+```{r}
+
+# create file pat for extreme el nino simulation
+sim_folder_extreme <- "sim_lakes/Sunapee_extreme"
+
+# read in baseline met data & add offset
+met_data <- read_delim(baseline_met, delim = ",") %>%
+  mutate(AirTemp = AirTemp + max_offset,                                   # add max El Nino offset
+         time = as.POSIXct(strptime(time, "%Y-%m-%d %H:%M:%S", tz="EST")))  # make sure correct date/time format
+
+# write new met data to new sim folder
+write_delim(met_data, file.path(sim_folder_extreme, "met_hourly_extreme.csv"), delim = ",")
+
+```
+
+Finally, we need to edit the `nml` file for our scenario, so it points to the correct `met` file. Open the `glm2.nml` file in the `Sunapee_extreme` folder^[Remember, this will be specific to the lake you've chosen.] and edit the `meteo_fl` option to point toward your `met` file.
+
+Let's double check that we edited the file correctly.
+
+```{r}
+
+# define file path
+nml_file_extreme <- file.path(sim_folder_extreme, "glm2.nml")
+
+# read nml file
+nml <- read_nml(nml_file_extreme)
+
+# check met file name
+get_nml_value(nml, "meteo_fl")
+
+```
+
+
+## Acknowledgments
+
+These activities are based on the EDDIE Teleconnections module.^[Farrell, K.J. and C.C. Carey. 18 May 2018. Macrosystems EDDIE: Teleconnections. Macrosystems EDDIE Module 3, Version 1.]

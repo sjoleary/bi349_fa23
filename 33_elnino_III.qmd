@@ -1,0 +1,715 @@
+
+# Teleconnections II
+
+```{r}
+#| label: setup
+#| include: false
+
+# custom functions ----
+
+library(ggplot2)
+
+theme_standard <- theme_classic() +
+  theme(
+    axis.text = element_text(size = 11, color = "black"),
+    axis.title = element_text(size = 16, color = "black"),
+    axis.title.y = element_text(vjust = 1.5, color = "black"),
+    axis.line = element_line(color = "black"),
+    
+    legend.position = "bottom",
+    
+    panel.background = element_rect(fill = "white", color = NA), 
+    panel.border = element_blank(), 
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(), 
+    strip.background = element_rect(fill = "grey95", color = "black"), 
+    strip.text.x = element_text(size = 16, color = "black"),
+    strip.text.y = element_text(size = 16, color = "black")) 
+
+theme_facet <- theme_classic() +
+  theme(
+    axis.text = element_text(size = 11, color = "black"),
+    axis.title = element_text(size = 16, color = "black"),
+    axis.title.y = element_text(vjust = 1.5, color = "black"),
+    axis.line = element_line(color = "black"),
+    
+    legend.position = "bottom",
+    
+    panel.background = element_rect(fill = "white", color = NA), 
+    panel.border = element_rect(fill = NA, color = "black"), 
+    panel.grid.major = element_line(color = "grey85"), 
+    panel.grid.minor = element_blank(), 
+    strip.background = element_rect(fill = "grey95", color = "black"), 
+    strip.text.x = element_text(size = 16, color = "black"),
+    strip.text.y = element_text(size = 16, color = "black")) 
+
+
+
+# set options
+knitr::opts_chunk$set(
+  tidy = FALSE, 
+  message = FALSE,
+	warning = FALSE)
+
+options(htmltools.dir.version = FALSE)
+
+theme_set(theme_standard)
+
+```
+
+
+**Learning Objectives**
+
+After completing this tutorial you should be able to
+
+* describe the concepts of macrosystems and teleconnections and how different ecological processes can interact at local, regional, and global scales.
+* set up and run lake models to simulate lake temperatures, thermal structure, and ice cover in multiple lakes.
+* formulate hypotheses about the effects of teleconnected climate scenarios on different lake modules and test them using simulations.
+* describe how local characteristics modify global-scale climate forcing effects on lake temperatures and ice cover.
+
+[Download the directory for this project here](https://drive.google.com/drive/folders/1dZ0UgGA9rmmUTvUbr9e9cIIC5CgJyXmw?usp=drive_link), make sure the directory is unzipped and move it to your `bi328` directory. You can open the `Rproj` for this module either by double clicking on it which will launch `Rstudio` or by opening `Rstudio` and then using `File > Open Project` or by clicking on the `Rproject` icon in the top right of your program window and selecting `Open Project`. 
+
+There should be a file named `33_elnino_II.qmd` in that project directory. Use that file to work through this tutorial - you will hand in your rendered ("knitted") `quarto` file as your homework assignment. So, first thing in the `YAML` header, change the author to your name. You will use this `quarto` document to record your answers. Remember to use comments to annotate your code; at minimum you should have one comment per code set^[You should do this whether you are adding code yourself or using code from our manual, even if it isn't commented in the manual... especially when the code is already included for you, add comments to describe how the function works/what it does as we introduce it during the participatory coding session so you can refer back to it.] you may of course add as many comments as you need to be able to recall what you did. Similarly, take notes in the document as we discuss discussion/reflection questions but make sure that you go back and clean them up for "public consumption".
+
+Before you get started, let's make sure to read in all the packages we will need. Double check that everything is installed that you need.
+
+```{r}
+
+# load libraries ----
+
+# reporting
+library(knitr)
+
+# visualization
+library(ggplot2)
+library(ggthemes)
+library(patchwork)
+
+# data wrangling
+library(dplyr)
+library(tidyr)
+library(readr)
+library(skimr)
+library(janitor)
+library(magrittr)
+library(lubridate)
+library(glue)
+library(stringr)
+
+# lake models
+library(GLMr)
+library(glmtools)
+
+# mapping
+library(sf)
+library(ggspatial)
+library(rnaturalearth)
+library(rnaturalearthhires)
+library(rnaturalearthdata)
+
+# set other options ----
+options(scipen=999)
+
+knitr::opts_chunk$set(
+  tidy = FALSE, 
+  message = FALSE,
+	warning = FALSE)
+
+```
+
+
+## Run & analyze typical El Nino year scenario
+
+Let's re-define some of our folders that hold our input files necessary for the simulations we've set up to run.
+
+```{r}
+
+# specify your lake
+LakeName <- "Sunapee"
+
+# specify your lake simulation folder for observed data
+sim_folder <- file.path("sim_lakes", LakeName)
+
+# set filepath for output of your baseline data for your lake
+baseline <- file.path(sim_folder, "output.nc")
+
+# specify new sim folder for El Nino year
+sim_folder_typical <- glue("sim_lakes/{LakeName}_typical")
+
+# create file pat for extreme el nino simulation
+sim_folder_extreme <- "sim_lakes/Sunapee_extreme"
+
+```
+
+Okay, now we're all set to run our typical El Nino scenario:
+
+```{r}
+
+run_glm(sim_folder_typical, verbose = TRUE)
+
+```
+
+Before we can look at all the output, we will need to create a file path for our main output file (`output.nc`) per usual to make it easy to pull all the information we need and create visualizations.
+
+```{r}
+
+typical_elnino <- file.path(sim_folder_typical, "output.nc")
+
+```
+
+Let's pull out our temperature for the lake surface and lake bottom and add that to our baseline data. We will want to repeat the same process as above, where we pull up the automatically generated column names^[you will need to check the column names specific to your lake and change the code accordingly!] and then rename them after we join the two data sets^[Dates are notoriously difficult to deal with, frequently they might look the same to you, but under the hood there are differences at some level. The code line `mutate(DateTime = as.POSIXct(strptime(DateTime, "%Y-%m-%d %H:%M:%S", tz="EST")))` is there to make sure that both `DateTime` columns are the same class/data type and we can join the data tables].
+
+```{r}
+
+# extract lake depth
+LakeDepth <- get_surface_height(baseline)
+
+# get lake temperature for your el nino scenario
+LakeTemp_scenario <- get_temp(file = typical_elnino, reference = "surface",
+                     z_out = c(0, min(LakeDepth$surface_height))) %>%
+  mutate(DateTime = as.POSIXct(strptime(DateTime, "%Y-%m-%d", tz="EST")))
+
+# check column names to be able to rename them downstream
+colnames(LakeTemp_scenario)
+
+# combine Lake Temperatures with baseline data
+LakeTemp <- get_temp(file = baseline, reference = "surface",
+                            z_out = c(0, min(LakeDepth$surface_height))) %>%
+  # remember that you will need to use your specific column names to rename your baseline bottom temperature
+  rename(Baseline_SurfaceTemp = temp_0,
+           Baseline_BottomTemp = temp_33.3833669399235) %>%
+  # change date formate so that they match across data frames
+  mutate(DateTime = as.POSIXct(strptime(DateTime, "%Y-%m-%d", tz="EST"))) %>%
+  # join with typical el nino year scenario
+  left_join(LakeTemp_scenario, by = "DateTime") %>%
+  # rename the column names according to your data set
+  rename(TypicalElNino_SurfaceTemp = temp_0,
+         TypicalElNino_BottomTemp = temp_33.3833669399235)
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Create a plot comparing the Bottom and Surface temperatures for your Baseline and Typical El Nino simulations. Color code the lines according to whether they are the baseline scenario or a typical El Nino year and create subplots for bottom and surface temperature.
+
+Briefly describe your results - remember to be specific (have your surface and bottom temperatures changed? By how much?)!
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-tip icon=false collapse=true}
+
+## {{< fa person-chalkboard >}}    Pointers
+
+Recall from our previous plot of just the baseline temperatures that we first had to create a tidy data set. 
+
+If you look at the figure, you can see that you will need a column for date (x-axis), temperature (y-axis) and two additional columns for your sub-grouping of type of temperature measurement (this becomes the individual panels of bottom and surface temperature) and your simulated scenarios (this becomes the color coding for your line graphs).
+
+If you pivot your data set as you did earlier, you end up with a column containing your scenario/data sets; if you look closely at those values you can see that they contain both the information on simulation scenario and the type of temperature measurement. What function can you use to create separate columns for the `scenario` and the `temperature_measurement`?
+
+You plot should look similar to this - remember to add a title and label your axes!
+
+```{r}
+#| label: fig-comp-surf-bott-I
+#| fig-cap-location: bottom
+#| fig-cap: "Comparison of surface and bottom temperatures [C] for simulated baseline scenario (blue) and typical El Nino year (orange)."
+#| fig-width: 9
+#| fig-height: 5
+#| echo: false
+
+LakeTemp %>%
+  pivot_longer(names_to = "dataset", values_to = "Temperature", 2:5) %>%
+  separate(dataset, into = c("scenario", "temp_measurem"), sep = "_") %>%
+  ggplot(aes(x = DateTime, y = Temperature, color = scenario)) +
+  geom_line(size = 1) +
+  scale_color_manual(values = c("darkblue", "darkorange")) +
+  facet_grid(. ~ temp_measurem) +
+  labs(x = "date", y = "temperature [C]")
+
+```
+
+:::
+
+Next, let's pull the ice thickness data for our typical El Nino scenario and add it to the existing `LakeIce` `data.frame`.
+
+```{r}
+
+LakeIce_scenario <- get_var(typical_elnino, "hice") %>%
+  rename(ice_TypicalElNino = hice) %>%
+  mutate(DateTime = as.POSIXct(strptime(DateTime, "%Y-%m-%d")))
+
+LakeIce <- get_var(baseline, "hice") %>%
+  rename(ice_baseline = hice) %>%
+  mutate(DateTime = as.POSIXct(strptime(DateTime, "%Y-%m-%d"))) %>%
+  left_join(LakeIce_scenario)
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Create a plot comparing the ice thickness for your baseline and typical El Nino year simulation.
+
+Briefly describe your results - remember to be specific!
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-tip icon=false collapse=true}
+
+## {{< fa person-chalkboard >}}    Pointers
+
+Your plot should look similar to this - remember to add a title and label your axes!
+
+```{r}
+#| label: fig-comp-ice-I
+#| fig-cap-location: bottom
+#| fig-cap: "Comparison of ice thickness [m] for simulated baseline scenario (blue) and typical El Nino year (orange)."
+#| fig-width: 9
+#| fig-height: 5
+#| echo: false
+
+LakeIce %>%
+  pivot_longer(names_to = "dataset", values_to = "ice_thickness", 2:3) %>%
+  ggplot(aes(x = DateTime, y = ice_thickness, color = dataset)) +
+  geom_line(size = 1) +
+  scale_color_manual(values = c("darkblue", "darkorange")) +
+  labs(x = "date", y = "ice thickness [C]")
+
+```
+
+:::
+
+Finally, let's take a look at our lake thermal structure.
+
+```{r}
+
+plot_temp(file = typical_elnino, fig_path = FALSE)
+
+```
+
+
+## Run & analyze extreme El Nino scenario
+
+We are ready to run our simulation and create a vector pointing to the output file.
+
+```{r}
+
+# run simulation
+run_glm(sim_folder_extreme)
+
+# specify output file
+extreme_elnino <- file.path(sim_folder_extreme, "output.nc")
+
+```
+
+Our next step will be to pull out our temperature for the lake surface and lake bottom and add that to our existing `LakeTemp` `data.frame` repeating the same process we used above.
+
+```{r}
+
+LakeTemp_scenario <- get_temp(file = extreme_elnino, reference = "surface",
+                     z_out = c(0, min(LakeDepth$surface_height))) %>%
+  mutate(DateTime = as.POSIXct(strptime(DateTime, "%Y-%m-%d", tz="EST")))
+
+colnames(LakeTemp_scenario)
+
+LakeTemp <- LakeTemp %>%
+  mutate(DateTime = as.POSIXct(strptime(DateTime, "%Y-%m-%d", tz="EST"))) %>%
+  left_join(LakeTemp_scenario, by = "DateTime") %>%
+  dplyr::rename(ExtremeElNino_SurfaceTemp = temp_0,
+         ExtremeElNino_BottomTemp = temp_33.3833669399235)
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Create a plot comparing the Bottom and Surface temperatures for your baseline and corresponding typical and strong El Nino scenario simulations. Color code the lines according to the simulated scenario and create subplots for bottom and surface temperature for easier comparison.
+
+Post a copy of your final figure in the `#assignments` channel. Make sure your plot title includes the lake name! You will be adding all your final figures to the slack channel; you should wait until you've completed all of them before doing so.
+
+Describe your results - remember to be specific!
+
+:::
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+::: {.callout-tip icon=false collapse=true}
+
+## {{< fa person-chalkboard >}}    Pointers
+
+Your plot should look similar to this one.
+
+We've already done this for our previous visualizations of the temperature data. Again, you will need to turn your data set into a tidy data set to be able to plot this data set. If you look at the figure, you can see that you will need a column for date (x-axis), temperature (y-axis) and two additional columns for your sub-grouping of type of temperature measurement (this becomes the individual panels of bottom and surface temperature) and your simulated scenarios (this becomes the color coding for your line graphs).
+
+```{r echo=FALSE, fig.cap=, fig.width=9, fig.height=5}
+#| label: fig-comp-surf-bott-II
+#| fig-cap-location: bottom
+#| fig-cap: "Comparison of surface and bottom temperatures [C] for simulated baseline scenario (blue), typical El Nino year (orange), and extreme El Nino year (red)."
+#| fig-width: 9
+#| fig-height: 5
+#| echo: false
+
+LakeTemp %>%
+  pivot_longer(names_to = "dataset", values_to = "Temperature", 2:7) %>%
+  separate(dataset, into = c("scenario", "temp_measurem"), sep = "_") %>%
+  ggplot(aes(x = DateTime, y = Temperature, color = scenario)) +
+  geom_line(size = .7) +
+  scale_color_manual(values = c("darkblue", "red", "darkorange")) +
+  facet_grid(. ~ temp_measurem) +
+  labs(x = "date", y = "temperature [C]")
+
+```
+
+:::
+
+Next, let's pull the ice thickness data for our extreme El Nino scenario and add it to the existing `LakeIce` `data.frame`.
+
+```{r}
+
+LakeIce_scenario <- get_var(extreme_elnino, "hice") %>%
+  rename(ice_ExtremeElNino = hice) %>%
+  mutate(DateTime = as.POSIXct(strptime(DateTime, "%Y-%m-%d")))
+
+LakeIce <- LakeIce %>%
+  mutate(DateTime = as.POSIXct(strptime(DateTime, "%Y-%m-%d"))) %>%
+  left_join(LakeIce_scenario)
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Create a plot comparing the ice thickness for your baseline, typical, and extreme El Nino year simulations.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+::: {.callout-tip icon=false collapse=true}
+
+## {{< fa person-chalkboard >}}    Pointers
+
+You plot should look similar to this - remember to add a title and label your axes!
+
+Again, you will need to convert your data set to a tidy data set, this time you should have a column with your date (x-axis), ice thickness (y-axis) and your scenarios/data sets (color coding for lines).
+
+```{r}
+#| label: fig-comp-ice-II
+#| fig-cap-location: bottom
+#| fig-cap: "Comparison of ice thickness [m] for simulated baseline scenario (blue), typical (orange) and extreme (red) El Nino years."
+#| fig-width: 9
+#| fig-height: 5
+#| echo: false
+
+LakeIce %>%
+  pivot_longer(names_to = "dataset", values_to = "ice_thickness", 2:4) %>%
+  ggplot(aes(x = DateTime, y = ice_thickness, color = dataset)) +
+  geom_line(size = .7) +
+  scale_color_manual(values = c("darkblue", "red", "darkorange")) +
+  labs(x = "date", y = "ice thickness [C]")
+
+```
+
+:::
+
+Here is an example of where transforming our data can be helpful to better identify patterns. The model gives us the output of ice thickness. However, in many biological and ecological contexts the more helpful metric would be to now what the ice cover is, i.e. how many days of the year is the lake covered in ice.
+
+We can create a new data frame (`IceCover`) that contains the number of days with ice for each of your scenarios.
+
+```{r}
+
+IceCover <- LakeIce %>%
+  pivot_longer(names_to = "scenario", values_to = "ice_thickness", 2:4) %>%
+  group_by(scenario) %>%
+  summarize(ice_cover = sum(ice_thickness > 0))
+
+```
+
+A good way to visualize this, would be to plot the relationship of the temperature offset and ice cover duration. This means we need to add the offset to our `data.frame`. We can do this using a conditional mutate and the helpful function `case_when()`.
+
+```{r}
+
+typical_offset <- readRDS(glue("results/{LakeName}_typical-offset"))
+
+max_offset <- readRDS(glue("results/{LakeName}_max-offset"))
+
+IceCover <- IceCover %>%
+  mutate(TempOffset = case_when(scenario == "ice_baseline" ~ 0,
+                                scenario == "ice_TypicalElNino" ~ typical_offset,
+                                scenario == "ice_ExtremeElNino" ~ max_offset))
+
+```
+
+Now it's straightforward to create plot summarizing the change in ice cover based on the expected temperature offset for a typical and strong El Nino year.
+
+```{r}
+
+ggplot(IceCover, aes(x = TempOffset, y = ice_cover)) +
+  geom_line() +
+  geom_point(aes(fill = scenario), shape = 21, size = 3) +
+  scale_fill_manual(values = c("darkblue", "red", "darkorange")) +
+  labs(x = "Temperature offset [C]", y = "ice cover duration [days]")
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Describe your results. Be specific!
+
+Post a copy of your final figure in the `#assignments` channel. Make sure your plot title include the lake name! You will be adding all your final figures; you should wait until you've completed all of them before doing so.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+Finally, let's take a look at our lake thermal structure across our three scenarios. 
+
+We've previously relied on the `glmtools::plot_temp()` function. However, down the line you might want to plot a heat plot for another data set down the line. Let's learn how to use `ggplot` to plot a heatmap.
+
+First, we need to pull the temperature data for all depths. If we don't specify `z_out` as we have done previously to get just the surface and/or bottom temperatures the `get_temp()` function will return data for all depths.
+
+```{r}
+
+therm_struct <- get_temp(file = extreme_elnino, reference = "surface") %>%
+  mutate(DateTime = as.POSIXct(strptime(DateTime, "%Y-%m-%d", tz="EST")))
+
+```
+
+To plot a heatmap we will us the function `geom_tile()`. We need a data set with a column for date which we will plot on the x-axis (this already exists as `DateTime`), a column with depth which we will plot on the y-axis, and a column with temperature (this is the one we will color code the tiles by).
+
+This means we need to create a tidy data set. Currently, the column names for each depth are in the format `temp_depth`. We can use the function `stringr::str_sub()`^[`stringr` is a package in the `tidyverse` designed to manipulate strings.]. Your `data.frame` might have a different number of columns than our example. We can use `ncol(therm_struct)` to get the number of columns in the data set and use that to specify which columns to gather.
+
+```{r}
+
+therm_struct <- therm_struct %>%
+  pivot_longer(names_to = "depth", values_to = "temperature", 2:ncol(therm_struct)) %>%
+  mutate(depth = str_sub(depth, 6),     # remove first five characters
+         depth = as.numeric(depth)) %>% # convert to numeric
+  filter(!is.na(temperature))           # remove missing values.
+
+```
+
+Now we can plot our heatmap showing the thermal structure for our extreme El Nino year. 
+
+We are going to flip the y-axis using `scale_y_reverse()` so that our surface temperature is at the top of the plot. We can specify the range of values using the `limits` and `breaks` options in the `scale_fill_viridis_c()` function that we are using to specify the color scale. The temperature cannot drop below 0 but your should check the maximum value for your temperature to determine the highest value for your scale^[in my case it is around 27C so I chose 30]. 
+
+```{r}
+#| label: fig-therm-struct
+#| fig-cap: "Thermal structure of Lake Sunapee, NH for extreme El Nino event."
+
+ggplot(therm_struct, aes(x = DateTime, y = depth, fill = temperature)) +
+  geom_tile() +
+  scale_fill_viridis_c(option = "plasma", limits=c(0, 30), breaks=seq(0, 30, by = 5)) +
+  scale_y_reverse() +
+  labs(x = "date", y = "depth [m]")
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Use your new `ggplot` skills to create a heat plot for the thermal structure of your baseline, normal, and El Nino years for your Lake. Use `patchwork` to create a multi panel figure to make it easy to compare all three scenarios.
+
+The extreme El Nino scenario should have the highest temperatures - use the same values for `limits` and `breaks` to make sure all of your scales are identical and it is straightforward to compare your plots.
+
+Post a copy of your figure in the `wassignment` channel. Make sure your plot title includes the lake name! You will be adding all your final figures; you should wait until you've completed all of them before doing so.
+
+Describe your results - remember to be specific!
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+::: {.callout-tip icon=false collapse=true}
+
+## {{< fa person-chalkboard >}}    Pointers
+
+
+You plot should look similar to this - remember to add a title and label your axes!
+
+```{r}
+#| label: fig-comp-therm-structure
+#| fig-cap-location: bottom
+#| fig-cap: "Comparison of thermal structure for baseline (top), typical (middle), and extreme (bottom) El Nino years."
+#| fig-height: 16
+#| fig-width: 7
+#| echo: false
+
+# baseline scenario ----
+therm_struct <- get_temp(file = baseline, reference = "surface") %>%
+  mutate(DateTime = as.POSIXct(strptime(DateTime, "%Y-%m-%d", tz="EST"))) %>%
+  pivot_longer(names_to = "depth", values_to = "temperature", 2:21) %>%
+  mutate(depth = str_sub(depth, 6),     
+         depth = as.numeric(depth)) %>% 
+  filter(!is.na(temperature))           
+
+p1 <- ggplot(therm_struct, aes(x = DateTime, y = depth, fill = temperature)) +
+  geom_tile() +
+  scale_fill_viridis_c(option = "plasma", limits=c(0, 30), breaks=seq(0, 30, by = 5)) +
+  scale_y_reverse() +
+  labs(x = "date", y = "depth [m]",
+       title = "Baseline scenario (Lake Sunapee)")
+  
+
+# typical El Nino Year scenario ----
+therm_struct <- get_temp(file = typical_elnino, reference = "surface") %>%
+  mutate(DateTime = as.POSIXct(strptime(DateTime, "%Y-%m-%d", tz="EST"))) %>%
+  pivot_longer(names_to = "depth", values_to = "temperature", 2:21) %>%
+  mutate(depth = str_sub(depth, 6),     # remove first five characters
+         depth = as.numeric(depth)) %>% # convert to numeric
+  filter(!is.na(temperature))           # remove missing values.
+
+p2 <- ggplot(therm_struct, aes(x = DateTime, y = depth, fill = temperature)) +
+  geom_tile() +
+  scale_fill_viridis_c(option = "plasma", limits=c(0, 30), breaks=seq(0, 30, by = 5)) +
+  scale_y_reverse() +
+  labs(x = "date", y = "depth [m]",
+       title = "Typical El Nino scenario (Lake Sunapee)")
+
+# extreme El Nino Year scenario ----
+therm_struct <- get_temp(file = extreme_elnino, reference = "surface") %>%
+  mutate(DateTime = as.POSIXct(strptime(DateTime, "%Y-%m-%d", tz="EST"))) %>%
+  pivot_longer(names_to = "depth", values_to = "temperature", 2:21) %>%
+  mutate(depth = str_sub(depth, 6),     # remove first five characters
+         depth = as.numeric(depth)) %>% # convert to numeric
+  filter(!is.na(temperature))           # remove missing values.
+
+p3 <- ggplot(therm_struct, aes(x = DateTime, y = depth, fill = temperature)) +
+  geom_tile() +
+  scale_fill_viridis_c(option = "plasma", limits=c(0, 30), breaks=seq(0, 30, by = 5)) +
+  scale_y_reverse() +
+  labs(x = "date", y = "depth [m]",
+       title = "Extreme scenario (Lake Sunapee)")
+
+p1 / p2 / p3
+
+```
+
+:::
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Your central results are comparisons of surface & bottom depth, lake ice cover duration, and thermal structure for all three scenarios, which you have already summarized above. 
+
+Discuss your results to interpret the effect of El Nino on the lake thermal structure of your lake and relate that to the broad topic of teleconnections and macrosystems ecology. Some questions to consider include:
+
+* do you see evidence of teleconnections? why/why not?
+* what local characteristics of your lake might be contributing to the response you observed to changes in the temperature offsets?
+* does your model output support or contradict your initial hypothesis of how El Nino events will interact with local conditions affecting lake thermal structure/ice cover?
+* our simulations did not include precipitation - what do you think might happen if we did include this information?
+* we determined our offsets are based on historical data, how do you think El Nino effects might change in the future and what does this mean for lake responses?
+* most research has focused on the effects of El Nino on air temperature/land surfaces - do you think we can use our lake data as a good proxy for land surface increase? Why? Why not?
+
+Start your discussion with a summary of your analysis and results in the format of
+
+> In this study, I investigated [broad question asked/hypothesis tested]. To achieve this, I [specific study location, data set(s) + analysis used]. We found that [key results: in your case you would make a specific statement about the change of surface/bottom temperature, ice cover, and lake thermal structure for your lake]. 
+
+Now that you have completed your analysis, post this summary of key results in the `assignments` channel along with your plots (comparison of surface/bottom temperature, ice cover duration, thermal structure).
+
+:::
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Collectively, we analyzed a set of lakes across the continental United States. 
+
+Compare and contrast the results for all the lakes based on the results that have been posted in the `#assignments` channel to discuss the overall results in the context of macrosystems ecology and specifically teleconnections. The questions for consideration of the discussion of your specific results will be helpful for your broad discussion.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Revisit our opening question for this module.
+
+Briefly describe the central questions explore in macrosystems ecology using our investigations in lake thermal structure as an example and outline some of the promises and pitfalls of the field.
+
+:::
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+## Acknowledgments
+
+These activities are based on the EDDIE Teleconnections module.^[Farrell, K.J. and C.C. Carey. 18 May 2018. Macrosystems EDDIE: Teleconnections. Macrosystems EDDIE Module 3, Version 1.]

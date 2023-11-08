@@ -67,11 +67,12 @@ book:
         - 30_thermal-structure-II.qmd
         - 31_elnino_I.qmd
         - 32_elnino_II.qmd
+        - 33_elnino_III.qmd
         
     - part: J_remote-sensing.qmd
       chapters:
-        - 33_vegetation-I.qmd
-        - 34_vegetation-II.qmd
+        - 34_vegetation-I.qmd
+        - 35_vegetation-II.qmd
 
     - part: z_appendix.qmd
       chapters:

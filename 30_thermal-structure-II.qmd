@@ -166,7 +166,7 @@ Before you start - any time you open a `*_met_hourly.csv` file in Microsoft Exce
 #| eval: false
 
 # read in altered met file & convert time format for GLM
-metadata <- read_delim("sim/met_hourly_plus2.csv", delim = ",") %>%
+metadata <- read_delim("sim1/met_hourly_plus2.csv", delim = ",") %>%
   mutate(time = as.POSIXct(strptime(time, "%Y-%m-%d %H:%M:%S", tz="EST")))
          
 # write back to file
