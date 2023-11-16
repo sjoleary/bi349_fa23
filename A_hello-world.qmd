@@ -11,4 +11,4 @@ print("Hello, World!")
 
 ```
 
-In this section, we will get an overview of what Data Science is, install R/Rstudio and orient ourselves in how to use Rstudio and learn the basics about using R as an object-oriented language.
+In this module, we will get an overview of what Data Science is, install R/Rstudio and orient ourselves in how to use Rstudio and learn the basics about using R as an object-oriented language.

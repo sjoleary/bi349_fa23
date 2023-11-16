@@ -1,5 +1,5 @@
 
-# Title
+# Patterns of Topography & Vegetation II
 
 ```{r}
 #| label: setup
@@ -62,12 +62,17 @@ theme_set(theme_standard)
 
 After completing this tutorial you should be able to
 
-* 
+* understand the importance of long-term monitoring stations and baseline data
+* understand how spatial and temporal patterns affect ecological processes
+* describe what raster data sets are and how they encode spatial information
+* read spatial raster data in R, making simple maps, and extracting information for non-spatial statistical tests.
+* test whether plant growth (greenness & height) is drive more by elevation, slope, or aspect.
+* consider large scale patterns of relationships between topography and vegetation
 
 
-[Download the directory for this project here](), make sure the directory is unzipped and move it to your `bi328` directory. You can open the `Rproj` for this module either by double clicking on it which will launch `Rstudio` or by opening `Rstudio` and then using `File > Open Project` or by clicking on the `Rproject` icon in the top right of your program window and selecting `Open Project`. 
+[Download the directory for this project here](https://drive.google.com/drive/folders/1rSXc8bxk86Zgp_hPPrqjsTCQjtuOVp44?usp=drive_link), make sure the directory is unzipped and move it to your `bi328` directory. You can open the `Rproj` for this module either by double clicking on it which will launch `Rstudio` or by opening `Rstudio` and then using `File > Open Project` or by clicking on the `Rproject` icon in the top right of your program window and selecting `Open Project`. 
 
-There should be a file named `24_phenology-modeling.qmd` in that project directory. Use that file to work through this tutorial - you will hand in your rendered ("knitted") `quarto` file as your homework assignment. So, first thing in the `YAML` header, change the author to your name. You will use this `quarto` document to record your answers. Remember to use comments to annotate your code; at minimum you should have one comment per code set^[You should do this whether you are adding code yourself or using code from our manual, even if it isn't commented in the manual... especially when the code is already included for you, add comments to describe how the function works/what it does as we introduce it during the participatory coding session so you can refer back to it.] you may of course add as many comments as you need to be able to recall what you did. Similarly, take notes in the document as we discuss discussion/reflection questions but make sure that you go back and clean them up for "public consumption".
+There should be a file named `35_vegetation-I.qmd` in that project directory. Use that file to work through this tutorial - you will hand in your rendered ("knitted") `quarto` file as your homework assignment. So, first thing in the `YAML` header, change the author to your name. You will use this `quarto` document to record your answers. Remember to use comments to annotate your code; at minimum you should have one comment per code set^[You should do this whether you are adding code yourself or using code from our manual, even if it isn't commented in the manual... especially when the code is already included for you, add comments to describe how the function works/what it does as we introduce it during the participatory coding session so you can refer back to it.] you may of course add as many comments as you need to be able to recall what you did. Similarly, take notes in the document as we discuss discussion/reflection questions but make sure that you go back and clean them up for "public consumption".
 
 Before you get started, let's make sure to read in all the packages we will need.
 
@@ -82,18 +87,31 @@ library(knitr)
 library(ggplot2)
 library(ggthemes)
 library(patchwork)
+library(viridis)
+
+# remote sensing & GIS
+library(sf)
+library(raster)
+library(ggspatial)
+library(rnaturalearth)
+library(rnaturalearthhires)
+library(rnaturalearthdata)
 
 # data wrangling
+library(plyr)
 library(dplyr)
 library(tidyr)
+library(tibble)
 library(readr)
 library(skimr)
 library(janitor)
+library(glue)
 library(magrittr)
 library(lubridate)
 
-# modelling
-library(tidymodels)
+# stats
+library(corrplot)
+library(Hmisc)
 
 # set other options ----
 options(scipen=999)
@@ -106,4 +124,298 @@ knitr::opts_chunk$set(
 ```
 
 
-## 
+## Comparison of relationship of vegetation and topography across the US
+
+Let's take a look at the different [NEON sites](https://www.neonscience.org/field-sites/explore-field-sites) across the US and choose locations from the contiguous 48.
+
+We are going to come up with a sampling design to compare impact of topography on vegetation across domains and regions. We can access the elevation and NDVI data sets from the [Data Portal](https://data.neonscience.org/data-products/explore). First, we will want to know what data is available and then based off of that information you will be able to identify six sites in addition to SOAP that you want to explore.
+
+Here are the instructions on how to find the NEON data products that contain the data we are interested in (dtm and dsm models and ndvi data)^[Reminder: We have talked a lot about the importance of matching data sets for spatial and temporal resolution. Keep this in mind as you design your data set.]. 
+
+* Go to the [NEON Data Portal](https://data.neonscience.org/data-products/explore).
+* In the search bar type in "DTM", select `Elevation - LiDAR` which contains the DTM and DSM from the search results.
+* This will take you to the [Elevation - LiDar](https://data.neonscience.org/data-products/DP3.30024.001) product (NEON Product ID DP3.30024.001) page. 
+* Scroll through the page to view the abstract, citation, study description and other documentation to the `Availability and Download` section which shows you for which sites (coded as `STATE-DOMAIN-SITEID`) and for which years there are data available.
+* When you are ready to download data, click on the `Download Data` button. 
+    + First, indicate which sites and which date range you want to download.
+    + Then, click on the `Provisional Data` button and select `Exclude`.
+    + Next, click on `Files` button and select the appropriate `NEON_D##_SITE_DP3_######_#######_DSM` and `NEON_D##_SITE_DP3_######_#######_DTM` `tif` files. You need to make sure that the 6 and 7 digit numbers in the file name which indicate the coordinates of the northeast corner of the tile are the same. One way to do this is to use the Filter box under the Name column header.
+    + Now select the `Documentation` button and select `Exclude`.
+    + Finally, on the `Policies` page check the `I agree` box.
+    + Et voila, you can click the blue `Download Data` button to get your `*.tif` files.
+* Once you download your `*.tif` files you will want to make sure to move them to your `data` folder in your project directory. If you are downloading multiple files at once you will need to make sure that you unzip the folder and pull out only the `_DTM.tif` and `_DSM.tif` files that you need.
+* Repeat the process to view and access NDVI data by typing `ndvi` in the search bar and selecting the `Vegetation indices - spectrometer - mosaic` result.
+* This will take you to the `Vegetation indices - spectrometer - mosaic` data product page (NEON Product ID is DP3.00026.001) where you can access the `Availability and Download` section to view and access available data
+* When you are ready to download data, click on the `Download Data` button. 
+    + First, indicate which sites and which date range you want to download.
+    + Then, click on the `Provisional Data` button and select `Exclude`.
+    + Next, click on `Files` button and select the appropriate `NEON_D##_SITE_DP3_######_#######_VegIndices.tif` files - **you must make sure to match the 6 and 7 digit numbers (coordinates of the tile) to your DTM and DSM files!** - one way to do this is to type that part of the file name into the filter box of the name column header^[This is where having thought about matching spatial and temporal resolution comes into play - you need to have data from the same year and the same location (coordinates).].
+    + Now select the `Documentation` button and select `Exclude`.
+    + Finally, on the `Policies` page check the `I agree` box.
+    + Et voila, you can click the blue `Download Data` button to get your `*.tif` files.
+* Unfortunately, you will likely end up with a nested zip folder - make sure you diligently unzip until you find your `*.tif` file with the appropriate ndvi data.
+
+::: {.callout-important}
+
+Make sure you have matching sets of `*.tif` files for your DTM, DSM, and ndvi data. This means they should be from the same year and location. You can match location using the Northing/Easting coordinates that are part of the filename. When you are downloading files in the portal use the Filter box undernearth the name column name. You frequently have more hits than you can view on one screen so just scrolling through will make it difficult to find the match.
+
+:::
+
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+List the six sites that you have chosen in addition to SOAP and describe the sampling design behind using this specific set of locations. Remember that you can look up information on the individual site options on the [NEON Field Sites Page](https://www.neonscience.org/field-sites/explore-field-sites). Be specific in describing your reasoning behind which locations where included.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Briefly describe what patterns you expect to see, consider e.g. whether you think that you will observe the same relationship across all locations. Look up the sites you have chosen to make informed predictions.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+
+For your assigned sites go through the following process:
+
+1.  Read in the DTM, DSM, and NDVI `*tif` files as `raster` objects you downloaded from the data portal.
+2.  Calculate vegetation height, slope, and northness and create a raster stack to plot the six panel plot.
+3.  Based on your plots predict which relationship you think will have a stronger association with vegetation height, determine if vegetation patterns overall appear to be influenced by topography, and note any other observations for this set of maps on their own and in relation to the California set.
+4.  Convert your raster table to a `data.frame` and create a random 1% subset.
+5.  Plot the correlations between vegetation and topographic variables.
+6.  Calculate the correlations.
+7.  Convert your results into a tidy data set and add the location abbreviation.
+8.  Write your results into a text file. Make sure that you name it `SITE_correlation.txt` (e.g. we named our file in the previous chapter `SOAP_correlation`.)
+9.  Briefly summarize your key results (what are the most significant relationships at the site you explored? Which don't seem to be important)
+
+Share your correlation results (text file) in the `#assignments` channel on slack.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+We will compile all of the results into a map, so you can see how the impact of topographic variables varies across our studies locations.
+
+First, let's read in a text file that has all the NEON sites and information on their geographic location. We are only interested in sites from the contiguous 48 so we will remove locations in Alaska, Hawaii, and Puerto Rico.
+
+```{r}
+
+sites <- read_delim("data/neon_sites.txt", delim = "\t") %>%
+  clean_names() %>%
+  separate(site_type, into = c("tmp", "site_cat"), sep = " ", remove = FALSE) %>%
+  dplyr::select(-tmp) %>%
+  filter(!state %in% c("AK", "HI", "PR"))
+
+head(sites)
+
+```
+
+Let's start simple by creating a map that has all of our NEON sites on it.
+
+First, we need to get a shapefile that we will use as our basemap - because we are going to want to orient ourselves within the US, we will also pull information we can use to plot state lines.
+
+```{r}
+
+world <- ne_countries(scale = "medium", returnclass = "sf")
+
+us_states <- ne_states(country = "United States of America", returnclass = "sf")
+
+```
+
+We are not going to want to plot the entire world, so let's identify the lat/longs for the four corners of the box we want to plot but pulling information on the minimum and maximum latitude & longitude of our NEON sites and then adding a small buffer around it.
+
+Then we can plot our map.
+
+```{r}
+#| label: fig-neon-I
+#| fig-cap: "NEON sites in contiguous US"
+
+# lat/long for map extend
+x_min <- min(sites$longitude) - 2
+x_max <- max(sites$longitude) + 2
+y_min <- min(sites$latitude) - 2
+y_max <- max(sites$latitude) + 2
+
+# set font sizes for text labels
+site_size <- 2
+
+# set color for fill
+map_color <- "#a8d481"
+
+# create plot
+ggplot() +
+  geom_sf(data = world, color = "black", fill = map_color) +  # plot outline of countries
+  geom_sf(data = us_states, color = "black", fill = NA) +     # plot outline of states
+  coord_sf(xlim = c(x_min, x_max),
+           ylim = c(y_min, y_max)) +                          # plot boundaries for map
+  geom_text(data = sites, aes(x = longitude, y = latitude,    # add sites as labels
+                              label = site_id, color = site_cat),
+            size = site_size) +
+  scale_color_manual(values = c("darkblue", "darkred"))
+
+```
+
+NEON sites are intentionally designed so aquatic and terrestrial sites are ideally right next to each other, so those are plotting right on top of each other.
+
+Instead of the site id's we could also make the same map with points for locations.
+
+```{r}
+#| label: fig-neon-II
+#| fig-cap: "NEON site locations"
+
+# create plot
+ggplot() +
+  geom_sf(data = world, color = "black", fill = map_color) +  # plot outline of countries
+  geom_sf(data = us_states, color = "black", fill = NA) +     # plot outline of states
+  coord_sf(xlim = c(x_min, x_max),
+           ylim = c(y_min, y_max)) +                          # plot boundaries for map
+  geom_point(data = sites, aes(x = longitude, y = latitude,   # add sites as labels
+                              fill = site_cat),
+             shape = 21, size = 2, alpha = 0.5) +
+  scale_fill_manual(values = c("darkblue", "darkred"))
+
+```
+
+If we want to compare differences in the relationships of topographic variables across all the sites we plotted, we could use the same method to plot the correlation coefficients, in addition to the site labels; all we need to do is add the correlation coefficients into our `sites` data.frame^[Once we have information for multiple sites, you will need to either read in all the text files with results and use `bind_rows` to create a single `data.frame`, or we will also allow for some outside R action, where you just cut and paste them all into a single text file and read that in.].
+
+Here is how you can read in all your files and combine them into a single `data.frame`. We will create an empty list and then fill it with individual data.frames (one for each site) by looping over a vectory with all the filenames. Because we names our correlations files in a very standardized way, we can specify a pattern, and `R` will create a vector with all those filenames in the `results` folder for us.
+
+```{r}
+
+# path to results
+path <- "results"
+
+# pattern for filenames
+pattern <- "correlation"
+
+# list with all txt files in data directory
+list.filenames <- list.files(path = path,
+                             pattern = pattern)
+
+# empty list to load files into
+list.data <- list()
+
+# loop to read in data files
+for (i in list.filenames){
+  
+  file <- as.character(glue("{path}/{i}"))
+  
+  list.data[[i]] <- read_delim(file, delim = "\t")
+  
+}
+
+correl_all <- ldply(list.data, data.frame)
+
+# # write to file
+# write_delim(correl_all, "results/Comp_pearson.txt", delim = "\t")
+
+```
+
+For example, we could create a map for slope and NDVI like this:
+
+```{r}
+#| label: fig-corr-slope-ndvi
+#| fig-cap: "Pearson correlation coefficient for slope and NDVI for all assessed sites"
+
+# add correlation coefficients
+sites_pears <- sites %>%
+  left_join(correl_all, by = c("site_id" = "Site")) %>%
+  filter(!is.na(pearson)) %>%                          # retain only sites with pearson coefficient estimated
+  filter(Param1 == "ndvi" & Param2 == "slope")         # choose veg & topog relationship to map
+
+
+# set font sizes for text labels
+site_size <- 4
+cor_size <- 5
+
+# create plot
+ggplot() +
+  geom_sf(data = world, color = "black", fill = map_color) +  # plot outline of countries
+  geom_sf(data = us_states, color = "black", fill = NA) +     # plot outline of states
+  coord_sf(xlim = c(x_min, x_max),
+           ylim = c(y_min, y_max)) +                          # plot boundaries for map
+  geom_text(data = sites_pears, aes(x = longitude, y = latitude,    # add sites as labels
+                              label = site_id),
+            size = site_size, color = "black") +
+  geom_text(data = sites_pears, aes(x = longitude, y = latitude,    # add pearson coefficient as labels
+                              label = round(pearson, digits = 2)),
+            size = cor_size, color = "darkred", nudge_y = -1.5) +   # shift label below actual coordinates
+  theme(legend.position = "none")
+
+```
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Give it a whirl
+
+Make a figure with map a showing the correlation coefficients for NDVI and vegetation height across all sites that you compared for elevation, slope, and northness. Make sure your figures have titles, and that all the site names and correlation coefficients are legible in your map. Use `fig-height` and `fig-width` to adjust the size of your figures in your html document that you submit.
+
+Describe your results to compare and contrast the overall patterns of correlation across the United States.
+
+:::
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+::: {.callout-note icon=false}
+
+## {{< fa clipboard-question >}}   Consider this
+
+Discuss your results. Consider how the topographic parameters you have explored could be playing a role in differences in vegetation in different eco-domains across the United States. Think back to some of our discussions on macrosystems ecology to speculate what other phenomena at various spatial and temporal scales could be impacting patterns of vegetation.
+
+:::
+
+
+::: {.callout-important icon=false}
+
+## {{< fa pen >}}   Did it!
+
+[Your answer here]
+
+:::
+
+
+
+
+
+## Acknowledgments
+
+These activities are based on the EDDIE Remote Sensing module.^[Dahlin, K. M. (2021). Remote Sensing of Plants and Topography in R (Project EDDIE).]
+

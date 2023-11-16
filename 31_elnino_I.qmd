@@ -423,7 +423,7 @@ LakeTemp <- LakeTemp %>%
 
 ## {{< fa clipboard-question >}}   Give it a whirl
 
-Visualize the change of surface and bottom temperature for the baseline simulation and breifly describe your results. Remember to be specific and to start with general patterns and then highlight important/notable details. Remember to include a title and axes labels.
+Visualize the change of surface and bottom temperature for the baseline simulation and briefly describe your results. Remember to be specific and to start with general patterns and then highlight important/notable details. Remember to include a title and axes labels.
 
 :::
 

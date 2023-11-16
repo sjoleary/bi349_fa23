@@ -165,12 +165,23 @@ Before you start - any time you open a `*_met_hourly.csv` file in Microsoft Exce
 ```{r}
 #| eval: false
 
+# make sure simulation 1 is correctly formatted ----
+
 # read in altered met file & convert time format for GLM
-metadata <- read_delim("sim1/met_hourly_plus2.csv", delim = ",") %>%
+metadata <- read_delim("sim1/sim1_met_hourly.csv", delim = ",") %>%
   mutate(time = as.POSIXct(strptime(time, "%Y-%m-%d %H:%M:%S", tz="EST")))
          
 # write back to file
-write_delim(metadata, "sim/sim1_met_hourly.csv", delim = ",")
+write_delim(metadata, "sim1/sim1_met_hourly.csv", delim = ",")
+
+# make sure simlation 2 is correctly formatted ----
+
+# read in altered met file & convert time format for GLM
+metadata <- read_delim("sim2/sim2_met_hourly.csv", delim = ",") %>%
+  mutate(time = as.POSIXct(strptime(time, "%Y-%m-%d %H:%M:%S", tz="EST")))
+         
+# write back to file
+write_delim(metadata, "sim2/sim2_met_hourly.csv", delim = ",")
 
 ```
 

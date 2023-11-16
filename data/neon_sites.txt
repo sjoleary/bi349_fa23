@@ -1,0 +1,82 @@
+Site.Name	Site.ID	Domain.Number	State	Latitude	Longitude	Site.Type	Site.Subtype	utm.zone	easting	northing
+Abby Road	ABBY	D16	WA	45.76243	-122.33033	Relocatable Terrestrial		10	552075.5426	5067870.429
+Arikaree River	ARIK	D10	CO	39.75825	-102.4471	Core Aquatic	Wadeable Stream	13	718694.6196	4404043
+Ordway-Swisher Biological Station - Barco Lake	BARC	D03	FL	29.67647	-82.00909	Core Aquatic	Lake	17	402358.8738	3283362.216
+Barrow Environmental Observatory	BARR	D18	AK	71.28241	-156.61936	Relocatable Terrestrial		4	585246.1299	7910571.986
+Bartlett Experimental Forest	BART	D01	NH	44.06388	-71.28731	Relocatable Terrestrial		19	316812.1595	4881511.552
+Upper Big Creek	BIGC	D17	CA	37.058	-119.256	Relocatable Aquatic	Wadeable Stream	11	299408.2422	4103687.063
+Blandy Experimental Farm	BLAN	D02	VA	39.06026	-78.07164	Relocatable Terrestrial		17	753379.5421	4327545.884
+Blacktail Deer Creek	BLDE	D12	WY	44.95011	-110.58715	Core Aquatic	Wadeable Stream	12	532567.1216	4977491.173
+Blue River	BLUE	D11	OK	34.44422	-96.6242	Relocatable Aquatic	Wadeable Stream	14	718274.0303	3813972.466
+Black Warrior River near Dead Lake	BLWA	D08	AL	32.54153	-87.79815	Relocatable Aquatic	Non-wadeable River	16	425055.8994	3600743.58
+Caribou-Poker Creeks Research Watershed	BONA	D19	AK	65.15401	-147.50258	Core Terrestrial		6	476436.7395	7225712.648
+"Caribou Creek, Caribou-Poker Creeks Research Watershed"	CARI	D19	AK	65.15306	-147.50246	Core Aquatic	Wadeable Stream	6	476441.523	7225606.728
+LBJ National Grassland 	CLBJ	D11	TX	33.40123	-97.57	Core Terrestrial		14	632982.2183	3696682.441
+Como Creek	COMO	D13	CO	40.03496	-105.54487	Core Aquatic	Wadeable Stream	13	453513.6657	4431779.634
+Central Plains Experimental Range	CPER	D10	CO	40.81553	-104.7456	Core Terrestrial		13	521454.9801	4518310.604
+Crampton Lake	CRAM	D05	WI	46.21111	-89.47825	Core Aquatic	Lake	16	308836.9271	5120489.103
+Rio Cupeyes	CUPE	D04	PR	18.11352	-66.98676	Core Aquatic	Wadeable Stream	19	713025.6777	2003908.949
+Dakota Coteau Field School	DCFS	D09	ND	47.16165	-99.10656	Relocatable Terrestrial		14	491923.1813	5223133.451
+Delta Junction	DEJU	D19	AK	63.88112	-145.75136	Relocatable Terrestrial		6	561330.0608	7084367.216
+Dead Lake	DELA	D08	AL	32.54172	-87.80389	Relocatable Terrestrial		16	424517.0731	3600768.697
+Disney Wilderness Preserve	DSNY	D03	FL	28.12504	-81.4362	Relocatable Terrestrial		17	457161.0924	3111130.689
+Flint River	FLNT	D03	GA	31.18542	-84.4374	Relocatable Aquatic	Non-wadeable River	16	744204.7242	3452980.419
+"Great Smoky Mountains National Park, Twin Creeks"	GRSM	D07	TN	35.68896	-83.50195	Relocatable Terrestrial		17	273599.8765	3952335.289
+Guanica Forest	GUAN	D04	PR	17.96955	-66.8687	Core Terrestrial		19	725706.1285	1988112.213
+Rio Guilarte	GUIL	D04	PR	18.1741	-66.79851	Relocatable Aquatic	Wadeable Stream	19	732872.194	2010843.371
+Harvard Forest	HARV	D01	MA	42.5369	-72.17266	Core Terrestrial		18	732183.1938	4713265.041
+Healy	HEAL	D19	AK	63.87569	-149.21334	Relocatable Terrestrial		6	391276.5986	7085047.865
+Lower Hop Brook	HOPB	D01	MA	42.47179	-72.32963	Core Aquatic	Wadeable Stream	18	719519.7162	4705616.163
+Jones Ecological Research Center	JERC	D03	GA	31.19484	-84.46861	Relocatable Terrestrial		16	741205.7224	3453956.371
+Jornada LTER	JORN	D14	NM	32.59068	-106.84254	Relocatable Terrestrial		13	327074.6154	3607409.163
+Kings Creek	KING	D06	KS	39.10506	-96.60336	Core Aquatic	Wadeable Stream	14	707234.4902	4331169.988
+Konza Prairie Biological Station - Relocatable	KONA	D06	KS	39.11044	-96.61295	Relocatable Terrestrial		14	706389.4538	4331745.281
+Konza Prairie Biological Station	KONZ	D06	KS	39.10077	-96.56309	Core Terrestrial		14	710729.798	4330786.534
+Lajas Experimental Station	LAJA	D04	PR	18.02125	-67.0769	Relocatable Terrestrial		19	703591.1281	1993593.871
+LeConte Creek	LECO	D07	TN	35.69043	-83.50379	Relocatable Aquatic	Wadeable Stream	17	273437.5022	3952502.622
+Lenoir Landing	LENO	D08	AL	31.85388	-88.16122	Relocatable Terrestrial		16	390139.6172	3524827.167
+Lewis Run	LEWI	D02	VA	39.09564	-77.98322	Relocatable Aquatic	Wadeable Stream	18	242001.7732	4331627.671
+Little Rock Lake	LIRO	D05	WI	45.998269	-89.704767	Relocatable Aquatic	Lake	16	290559.717	5097412.448
+Martha Creek	MART	D16	WA	45.79125	-121.93196	Core Aquatic	Wadeable Stream	10	583011.1338	5071408.982
+Mayfield Creek	MAYF	D08	AL	32.95966	-87.40813	Core Aquatic	Wadeable Stream	16	461856.7228	3646888.773
+McDiffett Creek	MCDI	D06	KS	38.94428	-96.44197	Relocatable Aquatic	Wadeable Stream	14	721693.5439	4313705.139
+McRae Creek	MCRA	D16	OR	44.2596	-122.16555	Relocatable Aquatic	Wadeable Stream	10	566608.958	4901045.227
+Mountain Lake Biological Station	MLBS	D07	VA	37.37828	-80.52484	Relocatable Terrestrial		17	542067.6354	4136943.44
+Moab	MOAB	D13	UT	38.24833	-109.38827	Relocatable Terrestrial		12	641031.4708	4234596.509
+Niwot Ridge Mountain Research Station	NIWO	D13	CO	40.05425	-105.58237	Core Terrestrial		13	450328.2848	4433940.917
+Northern Great Plains Research Laboratory	NOGP	D09	ND	46.76972	-100.91535	Relocatable Terrestrial		14	353761.6032	5181355.713
+Klemme Range Research Station	OAES	D11	OK	35.41059	-99.05879	Relocatable Terrestrial		14	494662.2504	3918579.067
+Oksrukuyik Creek	OKSR	D18	AK	68.66975	-149.14302	Core Aquatic	Wadeable Stream	6	413022.0912	7619053.905
+Onaqui	ONAQ	D15	UT	40.17759	-112.45244	Core Terrestrial		12	376339.6859	4448479.606
+Oak Ridge	ORNL	D07	TN	35.96412	-84.2826	Core Terrestrial		16	745052.4354	3983383.087
+Ordway-Swisher Biological Station	OSBS	D03	FL	29.68927	-81.99343	Core Terrestrial		17	403886.418	3284767.489
+Posey Creek	POSE	D02	VA	38.89332	-78.14678	Core Aquatic	Wadeable Stream	17	747457.7533	4308808.691
+Pringle Creek	PRIN	D11	TX	33.37859	-97.78226	Core Aquatic	Wadeable Stream	14	613271.2761	3693921.048
+Prairie Lake at Dakota Coteau Field School	PRLA	D09	ND	47.15909	-99.11388	Relocatable Aquatic	Lake	14	491367.9402	5222849.742
+Prairie Pothole 	PRPO	D09	ND	47.12999	-99.25055	Core Aquatic	Lake	14	480998.0441	5219640.042
+Pu'u Maka'ala Natural Area Reserve	PUUM	D20	HI	19.55309	-155.31731	Core Terrestrial		5	256868.7191	2163673.63
+Red Butte Creek	REDB	D15	UT	40.78374	-111.79765	Core Aquatic	Wadeable Stream	12	432697.306	4515056.627
+"Rocky Mountain National Park, CASTNET"	RMNP	D10	CO	40.27591	-105.54592	Relocatable Terrestrial		13	453588.4118	4458524.203
+Smithsonian Conservation Biology Institute	SCBI	D02	VA	38.89292	-78.1395	Core Terrestrial		17	748090.6473	4308784.078
+Smithsonian Environmental Research Center	SERC	D02	MD	38.89008	-76.56001	Relocatable Terrestrial		18	364703.6624	4305735.3
+San Joaquin Experimental Range	SJER	D17	CA	37.10878	-119.73228	Core Terrestrial		11	257213.9752	4110433.937
+Soaproot Saddle	SOAP	D17	CA	37.03337	-119.26219	Relocatable Terrestrial		11	298792.741	4100967.253
+Santa Rita Experimental Range	SRER	D14	AZ	31.91068	-110.83549	Core Terrestrial		12	515553.9031	3530547.118
+Steigerwaldt Land Services	STEI	D05	WI	45.50894	-89.58637	Relocatable Terrestrial		16	297968.2963	5042743.681
+"North Sterling, CO"	STER	D10	CO	40.4619	-103.0293	Relocatable Terrestrial		13	667084.7089	4480890.759
+Ordway-Swisher Biological Station - Suggs Lake	SUGG	D03	FL	29.68705	-82.01617	Core Aquatic	Lake	17	401684.0625	3284540.599
+Sycamore Creek	SYCA	D14	AZ	33.74906	-111.5069	Core Aquatic	Wadeable Stream	12	453051.4475	3734448.195
+Talladega National Forest	TALL	D08	AL	32.95046	-87.39327	Core Terrestrial		16	463241.7192	3645863.573
+Lower Teakettle	TEAK	D17	CA	37.00583	-119.00602	Relocatable Terrestrial		11	321515.7193	4097400.186
+Teakettle 2 Creek	TECR	D17	CA	36.95528	-119.02699	Core Aquatic	Wadeable Stream	11	319530.3036	4091831.096
+Lower Tombigbee River at Choctaw Refuge	TOMB	D08	AL	31.8521	-88.16107	Relocatable Aquatic	Non-wadeable River	16	390151.6988	3524629.702
+Toolik Lake	TOOK	D18	AK	68.630692	-149.610636	Relocatable Aquatic	Lake	6	393867.1409	7615435.729
+Toolik	TOOL	D18	AK	68.66109	-149.37047	Core Terrestrial		6	403757.147	7618427.659
+Treehaven	TREE	D05	WI	45.49369	-89.58571	Relocatable Terrestrial		16	297965.2788	5041047.817
+The University of Kansas Field Station	UKFS	D06	KS	39.04043	-95.19215	Relocatable Terrestrial		15	310276.2976	4323549.848
+UNDERC	UNDE	D05	MI	46.23388	-89.53725	Core Terrestrial		16	304366.9502	5123162.886
+Walker Branch	WALK	D07	TN	35.95947	-84.28041	Core Aquatic	Wadeable Stream	16	745264.3658	3982872.664
+West St Louis Creek	WLOU	D13	CO	39.89137	-105.9154	Relocatable Aquatic	Wadeable Stream	13	421737.4542	4416101.439
+Woodworth	WOOD	D09	ND	47.12823	-99.24136	Core Terrestrial		14	481694.4185	5219442.262
+Wind River Experimental Forest	WREF	D16	WA	45.82049	-121.95191	Core Terrestrial		10	581417.9549	5074637.094
+Yellowstone Northern Range (Frog Rock)	YELL	D12	WY	44.95348	-110.53914	Core Terrestrial		12	536352.1992	4977885.935
